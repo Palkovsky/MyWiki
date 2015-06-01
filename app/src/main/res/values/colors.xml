@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ColorPrimary">#e91e63</color>
+    <color name="ColorPrimaryDark">#c2185b</color>
+    <color name="tabsScrollColor">#ad1457</color>
+
+    <color name="background">#fce4ec</color>
+
+    <color name="drawer_option_active">#e0e0e0</color>
+    <color name="drawer_background">#fafafa</color>
+    <color name="font_color">#212121</color>
+</resources>
