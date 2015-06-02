@@ -1,4 +1,4 @@
-package andrzej.example.com.requests;
+package andrzej.example.com.network;
 
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;

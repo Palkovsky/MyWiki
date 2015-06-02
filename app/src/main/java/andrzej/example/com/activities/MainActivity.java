@@ -22,6 +22,7 @@ import andrzej.example.com.fragments.MainFragment;
 import andrzej.example.com.fragments.SearchResultsFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -31,7 +32,10 @@ public class MainActivity extends MaterialNavigationDrawer {
     private static Context context;
 
     //Sekcje, które muszą być globalne.
-    MaterialSection section_search;
+    MaterialSection section_main;
+    MaterialSection section_random;
+    MaterialSection section_history;
+    MaterialSection section_settings;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -47,23 +51,22 @@ public class MainActivity extends MaterialNavigationDrawer {
         this.setDrawerHeaderImage(images[random_int]);
 
 
-        MaterialSection section_main = newSection("Strona główna", new MainFragment());
+        section_main = newSection("Strona główna", new MainFragment());
         addSection(section_main);
 
-        MaterialSection section_random = newSection("Losowa strona", new ArticleFragment());
+        section_random = newSection("Losowa strona", new ArticleFragment());
         addSection(section_random);
 
 
-        MaterialSection section_history = newSection("Historia", new HistoryFragment());
+        section_history = newSection("Historia", new HistoryFragment());
         addSection(section_history);
 
 
-        MaterialSection section_settings = newSection("Ustawienia", new MainFragment());
+        section_settings = newSection("Ustawienia", new MainFragment());
         section_settings.select();
         addBottomSection(section_settings);
 
     }
-
 
 
     public static Context getAppContext() {
@@ -87,20 +90,23 @@ public class MainActivity extends MaterialNavigationDrawer {
 
             @Override
             public boolean onQueryTextSubmit(String s) {
-                Toast.makeText(getAppContext(), s, Toast.LENGTH_SHORT).show();
-                SearchResultsFragment f = new SearchResultsFragment();
-                // Supply index input as an argument.
-                Bundle args = new Bundle();
-                args.putString("query", s);
-                f.setArguments(args);
+
+                if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
+                    SearchResultsFragment f = new SearchResultsFragment();
+                    // Supply index input as an argument.
+                    Bundle args = new Bundle();
+                    args.putString("query", s);
+                    f.setArguments(args);
 
 
-                ((MaterialNavigationDrawer) MainActivity.this).setFragment(f, "Szukaj: '" + s + "'");
-                ((MaterialNavigationDrawer) MainActivity.this).getCurrentSection().unSelect();
-                ((MaterialNavigationDrawer) MainActivity.this).setSection(newSection("", new android.app.Fragment()));
+                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(f, "Szukaj: '" + s + "'");
+                    ((MaterialNavigationDrawer) MainActivity.this).getCurrentSection().unSelect();
+                    ((MaterialNavigationDrawer) MainActivity.this).setSection(newSection("", new android.app.Fragment()));
+                    section_settings.select();
 
-                searchView.clearFocus();
-
+                    searchView.clearFocus();
+                }else
+                    Toast.makeText(MyApplication.getAppContext(), MainActivity.this.getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 return false;
             }
 
