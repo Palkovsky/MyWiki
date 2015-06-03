@@ -1,28 +1,18 @@
 package andrzej.example.com.activities;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import java.util.Random;
 
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
-import andrzej.example.com.fragments.SearchResultsFragment;
-import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -79,45 +69,6 @@ public class MainActivity extends MaterialNavigationDrawer {
         // Inflate menu to add items to action bar if it is present.
         inflater.inflate(R.menu.menu_main, menu);
         // Associate searchable configuration with the SearchView
-        final SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView =
-                (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-
-                if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
-                    SearchResultsFragment f = new SearchResultsFragment();
-                    // Supply index input as an argument.
-                    Bundle args = new Bundle();
-                    args.putString("query", s);
-                    f.setArguments(args);
-
-
-                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(f, "Szukaj: '" + s + "'");
-                    ((MaterialNavigationDrawer) MainActivity.this).getCurrentSection().unSelect();
-                    ((MaterialNavigationDrawer) MainActivity.this).setSection(newSection("", new android.app.Fragment()));
-                    section_settings.select();
-
-                    searchView.clearFocus();
-                }else
-                    Toast.makeText(MyApplication.getAppContext(), MainActivity.this.getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                //Toast.makeText(getAppContext(), query, Toast.LENGTH_SHORT).show();
-                return true;
-
-            }
-
-        });
 
         return true;
     }
@@ -125,7 +76,12 @@ public class MainActivity extends MaterialNavigationDrawer {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        return super.onOptionsItemSelected(item);
-
+        switch (item.getItemId()){
+            case R.id.menu_search:
+                Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
+                startActivity(myIntent);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

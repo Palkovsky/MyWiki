@@ -6,7 +6,7 @@
     <item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
-        appcompat:actionViewClass="android.support.v7.widget.SearchView"
+        android:icon="@android:drawable/ic_menu_search"
         appcompat:showAsAction="always"/>
 
 </menu>
