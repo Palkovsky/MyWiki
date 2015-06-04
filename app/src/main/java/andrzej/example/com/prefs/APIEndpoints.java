@@ -22,6 +22,10 @@ public class APIEndpoints {
     //Suggested phrases for choosen query
     public static final String URL_SUGGESTED_PHRASES = WIKI_NAME + "/api/v1/SearchSuggestions/List"; //query
 
+    //LastActivity
+    public static final String URL_LAST_EDITED = WIKI_NAME + "/api/v1/Activity/RecentlyChangedArticles"; //takes limit
+    public static final String URL_NEWEST = WIKI_NAME + "/api/v1/Articles/New"; //takies limit
+
 
     //Query Strings
     public static final String URL_QUERY = "query=";
@@ -29,6 +33,7 @@ public class APIEndpoints {
     public static final String URL_IDS = "ids=";
     public static final String URL_LIMIT = "limit=";
     public static final String URL_MIN_ARTICLE_QUALITY = "minArticleQuality=";
+    public static final String URL_ALLOW_DUPLICATES = "allowDuplicates=";
 
 
     public static final String URL_BATCH = "batch=1";//1 is default
@@ -46,9 +51,27 @@ public class APIEndpoints {
                 URL_LIMIT + Integer.toString(limit);
     }
 
-    public static String getUrlItemDetalis(int id){
-        return URL_ARTICLE_DETALIS +
+    public static String getUrlItemDetalis(int[] ids){
+        String url = URL_ARTICLE_DETALIS +
                 URL_CHAR_QUESTION +
-                URL_IDS + Integer.toString(id);
+                URL_IDS;
+        for(int id : ids){
+            url+=Integer.toString(id)+",";
+        }
+        return url;
+    }
+
+    public static String getLastEdited(int limit){
+        return  URL_LAST_EDITED +
+                URL_CHAR_QUESTION +
+                URL_LIMIT + String.valueOf(limit) +
+                URL_CHAR_AMEPERSAND +
+                URL_ALLOW_DUPLICATES + String.valueOf(false);
+    }
+
+    public static String getNewestUrl(int limit){
+        return  URL_NEWEST +
+                URL_CHAR_QUESTION +
+                URL_LIMIT + String.valueOf(limit);
     }
 }

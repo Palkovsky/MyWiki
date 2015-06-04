@@ -28,6 +28,11 @@ public class ArticleFragment extends Fragment {
 
         tv = (TextView) v.findViewById(R.id.textview);
 
+        Bundle bundle = this.getArguments();
+        int article_id = bundle.getInt("article_id", -1);
+
+        tv.setText(""+article_id);
+
         return v;
     }
 

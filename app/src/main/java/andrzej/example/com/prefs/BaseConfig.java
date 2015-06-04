@@ -5,4 +5,5 @@ package andrzej.example.com.prefs;
  */
 public class BaseConfig {
     public static final int searchLimit = 25;
+    public static final int lastEditedLimit = 10;
 }

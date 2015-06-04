@@ -1,7 +1,9 @@
 package andrzej.example.com.activities;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -105,8 +107,14 @@ public class SearchActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Article article = results.get(position);
-                Toast.makeText(MyApplication.getAppContext(), String.valueOf(article.getId()), Toast.LENGTH_SHORT).show();
                 db.addItem(new Article(article.getId(), article.getTitle()));
+
+
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("article_id", article.getId());
+                resultIntent.putExtra("article_title", article.getTitle());
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
 
             }
         });
@@ -346,17 +354,19 @@ public class SearchActivity extends AppCompatActivity {
                         noInternetLl.setVisibility(View.GONE);
 
                     if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
-                        String responseBody = new String(error.networkResponse.data, "utf-8");
-                        JSONObject jsonObject = new JSONObject(responseBody);
+                        if(error!=null && error.networkResponse !=null && error.networkResponse.data != null) {
+                            String responseBody = new String(error.networkResponse.data, "utf-8");
+                            JSONObject jsonObject = new JSONObject(responseBody);
 
-                        if (submit) {
-                            results.clear();
-                            mListAdapter.notifyDataSetChanged();
-                            fetchingProgressBar.setVisibility(View.GONE);
-                            noRecordsTv.setVisibility(View.VISIBLE);
-                            results_listview.setVisibility(View.GONE);
-                        } else {
-                            fetchingProgressBar.setVisibility(View.GONE);
+                            if (submit) {
+                                results.clear();
+                                mListAdapter.notifyDataSetChanged();
+                                fetchingProgressBar.setVisibility(View.GONE);
+                                noRecordsTv.setVisibility(View.VISIBLE);
+                                results_listview.setVisibility(View.GONE);
+                            } else {
+                                fetchingProgressBar.setVisibility(View.GONE);
+                            }
                         }
                     }
 
