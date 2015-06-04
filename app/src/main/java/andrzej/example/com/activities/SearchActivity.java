@@ -40,13 +40,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import andrzej.example.com.adapters.ResultListAdapter;
+import andrzej.example.com.databases.SearchHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
-import andrzej.example.com.recycleritems.Article;
+import andrzej.example.com.models.Article;
 
 
 public class SearchActivity extends AppCompatActivity {
@@ -63,6 +64,8 @@ public class SearchActivity extends AppCompatActivity {
     //Adapter
     BaseAdapter mListAdapter;
 
+    //db
+    SearchHistoryDbHandler db;
 
     String query_url, query;
 
@@ -100,7 +103,11 @@ public class SearchActivity extends AppCompatActivity {
         results_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MyApplication.getAppContext(), String.valueOf(results.get(position).getId()), Toast.LENGTH_SHORT).show();
+
+                Article article = results.get(position);
+                Toast.makeText(MyApplication.getAppContext(), String.valueOf(article.getId()), Toast.LENGTH_SHORT).show();
+                db.addItem(new Article(article.getId(), article.getTitle()));
+
             }
         });
 
@@ -123,6 +130,10 @@ public class SearchActivity extends AppCompatActivity {
         });
 
         results_listview.setAdapter(mListAdapter);
+
+        db = new SearchHistoryDbHandler(MyApplication.getAppContext());
+        results.addAll(db.getAllItems());
+        mListAdapter.notifyDataSetChanged();
 
         noInternetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,7 +179,9 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
             @Override
             public boolean onQueryTextSubmit(String query) {
 
@@ -207,7 +220,7 @@ public class SearchActivity extends AppCompatActivity {
                     fetchingProgressBar.setVisibility(View.GONE);
                     results_listview.setVisibility(View.GONE);
 
-                    noInternetLl.setVisibility(View.VISIBLE);
+                    Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 }
 
                 return true;
@@ -238,6 +251,8 @@ public class SearchActivity extends AppCompatActivity {
                     sendJsonSearchRequest(false);
                 } else {
                     results.clear();
+                    db = new SearchHistoryDbHandler(MyApplication.getAppContext());
+                    results.addAll(db.getAllItems());
                     mListAdapter.notifyDataSetChanged();
                 }
                 return false;
@@ -269,12 +284,12 @@ public class SearchActivity extends AppCompatActivity {
             JSONArray items = response.getJSONArray(Article.KEY_ITEMS);
 
             int count = 0;
-            for(int i = 0; i<items.length(); i++){
-                if(stringContainsItemFromList(items.getJSONObject(i).getString(Article.KEY_TITLE),APIEndpoints.STOP_WORDS))
+            for (int i = 0; i < items.length(); i++) {
+                if (stringContainsItemFromList(items.getJSONObject(i).getString(Article.KEY_TITLE), APIEndpoints.STOP_WORDS))
                     count++;
             }
 
-            if (!submit && results.size() > 0 && count<items.length())
+            if (!submit && results.size() > 0 && count < items.length())
                 results.clear();
             if (submit)
                 results.clear();
@@ -305,6 +320,9 @@ public class SearchActivity extends AppCompatActivity {
                 fetchingProgressBar.setVisibility(View.GONE);
             }
 
+            if(results.size()>0)
+                noInternetLl.setVisibility(View.GONE);
+
 
         } catch (JSONException e) {
             Toast.makeText(MyApplication.getAppContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -323,17 +341,23 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 try {
-                    String responseBody = new String(error.networkResponse.data, "utf-8");
-                    JSONObject jsonObject = new JSONObject(responseBody);
 
-                    if (submit) {
-                        results.clear();
-                        mListAdapter.notifyDataSetChanged();
-                        fetchingProgressBar.setVisibility(View.GONE);
-                        noRecordsTv.setVisibility(View.VISIBLE);
-                        results_listview.setVisibility(View.GONE);
-                    } else {
-                        fetchingProgressBar.setVisibility(View.GONE);
+                    if(results.size()>0)
+                        noInternetLl.setVisibility(View.GONE);
+
+                    if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject jsonObject = new JSONObject(responseBody);
+
+                        if (submit) {
+                            results.clear();
+                            mListAdapter.notifyDataSetChanged();
+                            fetchingProgressBar.setVisibility(View.GONE);
+                            noRecordsTv.setVisibility(View.VISIBLE);
+                            results_listview.setVisibility(View.GONE);
+                        } else {
+                            fetchingProgressBar.setVisibility(View.GONE);
+                        }
                     }
 
                 } catch (JSONException e) {

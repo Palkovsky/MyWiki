@@ -4,15 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.recycleritems.Article;
+import andrzej.example.com.models.Article;
 
 /**
  * Created by andrzej on 02.06.15.
