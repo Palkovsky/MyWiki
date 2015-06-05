@@ -51,6 +51,12 @@ public class APIEndpoints {
                 URL_LIMIT + Integer.toString(limit);
     }
 
+    public static String getUrlItemContent(int id){
+        return  URL_ARTICLE_CONTENT +
+                URL_CHAR_QUESTION +
+                URL_ID + String.valueOf(id);
+    }
+
     public static String getUrlItemDetalis(int[] ids){
         String url = URL_ARTICLE_DETALIS +
                 URL_CHAR_QUESTION +

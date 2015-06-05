@@ -17,6 +17,7 @@ import java.util.Random;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
+import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.DrawerImages;
@@ -31,6 +32,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     //Sekcje, które muszą być globalne.
     MaterialSection section_main;
     MaterialSection section_random;
+    MaterialSection section_saved;
     MaterialSection section_history;
     MaterialSection section_settings;
     MaterialSection section_article;
@@ -52,9 +54,11 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_main = newSection("Strona główna", new MainFragment());
         addSection(section_main);
 
-        section_random = newSection("Losowa strona", new ArticleFragment());
+        section_random = newSection("Losowa strona", new MainFragment());
         addSection(section_random);
 
+        section_saved = newSection("Zapisany strony", new SavedArticlesFragment());
+        addSection(section_saved);
 
         section_history = newSection("Historia", new HistoryFragment());
         addSection(section_history);

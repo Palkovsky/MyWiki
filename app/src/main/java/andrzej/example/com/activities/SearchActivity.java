@@ -49,7 +49,7 @@ import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
-import andrzej.example.com.models.Article;
+import andrzej.example.com.models.SearchResult;
 
 
 public class SearchActivity extends AppCompatActivity {
@@ -72,7 +72,7 @@ public class SearchActivity extends AppCompatActivity {
     String query_url, query;
 
     //Lists
-    private ArrayList<Article> results;
+    private ArrayList<SearchResult> results;
 
     private VolleySingleton volleySingleton;
     private ImageLoader imageLoader;
@@ -89,7 +89,7 @@ public class SearchActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        results = new ArrayList<Article>();
+        results = new ArrayList<SearchResult>();
         mListAdapter = new ResultListAdapter(this, results);
 
         volleySingleton = VolleySingleton.getsInstance();
@@ -106,15 +106,18 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Article article = results.get(position);
-                db.addItem(new Article(article.getId(), article.getTitle()));
+                if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
+                    SearchResult searchResult = results.get(position);
+                    db.addItem(new SearchResult(searchResult.getId(), searchResult.getTitle()));
 
 
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("article_id", article.getId());
-                resultIntent.putExtra("article_title", article.getTitle());
-                setResult(Activity.RESULT_OK, resultIntent);
-                finish();
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("article_id", searchResult.getId());
+                    resultIntent.putExtra("article_title", searchResult.getTitle());
+                    setResult(Activity.RESULT_OK, resultIntent);
+                    finish();
+                }else
+                    Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -289,11 +292,11 @@ public class SearchActivity extends AppCompatActivity {
         }
 
         try {
-            JSONArray items = response.getJSONArray(Article.KEY_ITEMS);
+            JSONArray items = response.getJSONArray(SearchResult.KEY_ITEMS);
 
             int count = 0;
             for (int i = 0; i < items.length(); i++) {
-                if (stringContainsItemFromList(items.getJSONObject(i).getString(Article.KEY_TITLE), APIEndpoints.STOP_WORDS))
+                if (stringContainsItemFromList(items.getJSONObject(i).getString(SearchResult.KEY_TITLE), APIEndpoints.STOP_WORDS))
                     count++;
             }
 
@@ -307,12 +310,12 @@ public class SearchActivity extends AppCompatActivity {
 
                 JSONObject searchItem = items.getJSONObject(i);
 
-                int id = searchItem.getInt(Article.KEY_ID);
-                String title = searchItem.getString(Article.KEY_TITLE);
+                int id = searchItem.getInt(SearchResult.KEY_ID);
+                String title = searchItem.getString(SearchResult.KEY_TITLE);
 
                 if (!stringContainsItemFromList(title, APIEndpoints.STOP_WORDS)) {
 
-                    results.add(new Article(id, title));
+                    results.add(new SearchResult(id, title));
                     mListAdapter.notifyDataSetChanged();
                 }
 
@@ -328,7 +331,7 @@ public class SearchActivity extends AppCompatActivity {
                 fetchingProgressBar.setVisibility(View.GONE);
             }
 
-            if(results.size()>0)
+            if (results.size() > 0)
                 noInternetLl.setVisibility(View.GONE);
 
 
@@ -350,11 +353,11 @@ public class SearchActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try {
 
-                    if(results.size()>0)
+                    if (results.size() > 0)
                         noInternetLl.setVisibility(View.GONE);
 
                     if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
-                        if(error!=null && error.networkResponse !=null && error.networkResponse.data != null) {
+                        if (error != null && error.networkResponse != null && error.networkResponse.data != null) {
                             String responseBody = new String(error.networkResponse.data, "utf-8");
                             JSONObject jsonObject = new JSONObject(responseBody);
 

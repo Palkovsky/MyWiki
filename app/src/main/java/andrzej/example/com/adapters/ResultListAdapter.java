@@ -10,14 +10,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.Article;
+import andrzej.example.com.models.SearchResult;
 
 /**
  * Created by andrzej on 02.06.15.
  */
 public class ResultListAdapter extends BaseAdapter{
 
-    ArrayList<Article> myList;
+    ArrayList<SearchResult> myList;
     LayoutInflater inflater;
     Context context;
 
@@ -33,7 +33,7 @@ public class ResultListAdapter extends BaseAdapter{
     }
 
     @Override
-    public Article getItem(int position) {
+    public SearchResult getItem(int position) {
         return myList.get(position);
     }
 

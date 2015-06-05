@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import andrzej.example.com.models.Article;
+import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.prefs.BaseConfig;
 
 /**
@@ -53,7 +53,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addItem(Article item) {
+    public void addItem(SearchResult item) {
 
         if(!itemExsists(item.getTitle())) {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -69,7 +69,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
 
     }
 
-    public Article getItem(int id) {
+    public SearchResult getItem(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
@@ -78,14 +78,14 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
         if (cursor != null)
             cursor.moveToFirst();
 
-        Article item = new Article(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(2)),
+        SearchResult item = new SearchResult(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(2)),
                 cursor.getString(1));
         // return contact
         return item;
     }
 
-    public List<Article> getAllItems() {
-        List<Article> contactList = new ArrayList<Article>();
+    public List<SearchResult> getAllItems() {
+        List<SearchResult> contactList = new ArrayList<SearchResult>();
         // Select All Query
         String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC LIMIT "+String.valueOf(BaseConfig.searchLimit);
 
@@ -98,7 +98,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
                 String title = cursor.getString(1);
                 int wiki_id = Integer.parseInt(cursor.getString(2));
                 // Adding contact to list
-                contactList.add(new Article(wiki_id, title));
+                contactList.add(new SearchResult(wiki_id, title));
             } while (cursor.moveToNext());
         }
 
@@ -116,7 +116,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
-    public void deleteItem(Article contact) {
+    public void deleteItem(SearchResult contact) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_HISTORY, KEY_ID + " = ?",
                 new String[]{String.valueOf(contact.getDb_id())});
