@@ -9,4 +9,6 @@
     <color name="drawer_option_active">#e0e0e0</color>
     <color name="drawer_background">#fafafa</color>
     <color name="font_color">#212121</color>
+
+    <color name="backgroundDark">#212121</color>
 </resources>

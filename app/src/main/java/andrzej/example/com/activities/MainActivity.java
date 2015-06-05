@@ -82,8 +82,8 @@ public class MainActivity extends MaterialNavigationDrawer {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (REQUEST_CODE_TEST) : {
+        switch (requestCode) {
+            case (REQUEST_CODE_TEST): {
                 if (resultCode == Activity.RESULT_OK) {
                     int article_id = data.getIntExtra("article_id", -1);
                     String article_title = data.getStringExtra("article_title");
@@ -91,6 +91,7 @@ public class MainActivity extends MaterialNavigationDrawer {
                     Fragment fragment = new ArticleFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("article_id", article_id);
+                    bundle.putString("article_title", article_title);
                     fragment.setArguments(bundle);
 
                     ((MaterialNavigationDrawer) MainActivity.this).setFragment(fragment, article_title);

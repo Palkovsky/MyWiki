@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.models.Article;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.prefs.BaseConfig;
 
@@ -33,7 +34,6 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
     private static final String KEY_WIKI_ID = "wiki_id";
 
 
-
     public SearchHistoryDbHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -55,17 +55,17 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
 
     public void addItem(SearchResult item) {
 
-        if(!itemExsists(item.getTitle())) {
-            SQLiteDatabase db = this.getWritableDatabase();
+        deleteItemsWithName(item.getTitle());
+        SQLiteDatabase db = this.getWritableDatabase();
 
-            ContentValues values = new ContentValues();
-            values.put(KEY_NAME, item.getTitle()); // Contact Name
-            values.put(KEY_WIKI_ID, item.getId());
+        ContentValues values = new ContentValues();
+        values.put(KEY_NAME, item.getTitle()); // Contact Name
+        values.put(KEY_WIKI_ID, item.getId());
 
-            // Inserting Row
-            db.insert(TABLE_HISTORY, null, values);
-            db.close(); // Closing database connection
-        }
+        // Inserting Row
+        db.insert(TABLE_HISTORY, null, values);
+        db.close(); // Closing database connection
+
 
     }
 
@@ -87,7 +87,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
     public List<SearchResult> getAllItems() {
         List<SearchResult> contactList = new ArrayList<SearchResult>();
         // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC LIMIT "+String.valueOf(BaseConfig.searchLimit);
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC LIMIT " + String.valueOf(BaseConfig.searchLimit);
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -129,6 +129,7 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{
                         KEY_NAME}, KEY_NAME + "=?",
                 new String[]{name}, null, null, null, null);
+
         if (cursor != null)
             cursor.moveToFirst();
 
@@ -136,5 +137,14 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
             return true;
         } else
             return false;
+    }
+
+    public void deleteItemsWithName(String name){
+        if(itemExsists(name)) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_HISTORY, KEY_NAME + " = ?",
+                    new String[]{name});
+            db.close();
+        }
     }
 }

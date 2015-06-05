@@ -228,9 +228,6 @@ public class SearchActivity extends AppCompatActivity {
                     sendJsonSearchRequest(true);
 
                 } else {
-                    fetchingProgressBar.setVisibility(View.GONE);
-                    results_listview.setVisibility(View.GONE);
-
                     Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 }
 
