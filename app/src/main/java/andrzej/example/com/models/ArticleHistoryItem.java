@@ -87,7 +87,25 @@ public class ArticleHistoryItem {
         return mDay + " " + getMonthName(mMonth) + " " + mYear;
     }
 
-    private String getMonthName(int num) {
+    public String getScaledDownImage() {
+        String thumbnail_url = getThumbnail_url();
+
+        if(thumbnail_url!=null) {
+            String chunk_string_beg = "/window-crop/width/";
+            String chunk_string_end = "/x-offset/";
+
+            int index_beg = thumbnail_url.indexOf("/window-crop/width/") + chunk_string_beg.length();
+            int index_end = thumbnail_url.indexOf(chunk_string_end);
+
+            String width_substring = thumbnail_url.substring(index_beg, index_end);
+
+            return thumbnail_url.replaceFirst(width_substring, String.valueOf(64));
+        }
+
+        return null;
+    }
+
+    public static String getMonthName(int num) {
 
         Context c = MyApplication.getAppContext();
 

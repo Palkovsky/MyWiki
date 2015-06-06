@@ -62,8 +62,7 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
             }
         }
 
-
-        String thumbnail_url = item.getThumbnail_url();
+        String thumbnail_url = item.getScaledDownImage();
         if (thumbnail_url != null)
             Picasso.with(c).load(thumbnail_url).placeholder(c.getResources().getDrawable(R.drawable.ic_action_picture)).error(c.getResources().getDrawable(R.drawable.ic_action_picture)).into(holder.iconIv, new Callback() {
                 @Override

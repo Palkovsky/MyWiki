@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import andrzej.example.com.models.ArticleHistoryItem;
@@ -60,7 +61,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
     public void addItem(ArticleHistoryItem item) {
 
         if (!item.getLabel().equals(getLastItem().getLabel())) {
-            SQLiteDatabase db = this.getWritableDatabase();
+            deleteSmart(item.getLabel(), item.getDateInString());
 
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getLabel()); // Contact Name
@@ -69,6 +70,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
 
             // Inserting Row
+            SQLiteDatabase db = this.getWritableDatabase();
             db.insert(TABLE_HISTORY, null, values);
             db.close(); // Closing database connection
         }
@@ -88,6 +90,31 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
         // return contact
         return item;
+    }
+
+    public List<ArticleHistoryItem> getAllItems() {
+        List<ArticleHistoryItem> contactList = new ArrayList<ArticleHistoryItem>();
+        // Select All Query
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                int db_id = Integer.parseInt(cursor.getString(0));
+                int wiki_id = Integer.parseInt(cursor.getString(2));
+                long time_milis = Long.parseLong(cursor.getString(4));
+                String title = cursor.getString(1);
+                String thumbnail_url = cursor.getString(3);
+                // Adding contact to list
+                contactList.add(new ArticleHistoryItem(db_id, wiki_id, time_milis, title, thumbnail_url));
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return contactList;
     }
 
     public ArticleHistoryItem getLastItem() {
@@ -110,29 +137,26 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         return new ArticleHistoryItem();
     }
 
-    public List<ArticleHistoryItem> getAllItems() {
-        List<ArticleHistoryItem> contactList = new ArrayList<ArticleHistoryItem>();
-        // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC LIMIT " + String.valueOf(BaseConfig.searchLimit);
+    public void deleteSmart(String name, String date) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_NAME + "=?", new String[]{name}, null, null, null, null);
 
         // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                int db_id = Integer.parseInt(cursor.getString(0));
-                int wiki_id = Integer.parseInt(cursor.getString(2));
-                long time_milis = Long.parseLong(cursor.getString(4));
-                String title = cursor.getString(1);
-                String thumbnail_url = cursor.getString(3);
-                // Adding contact to list
-                contactList.add(new ArticleHistoryItem(db_id, wiki_id, time_milis, title, thumbnail_url));
-            } while (cursor.moveToNext());
-        }
+        if (cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                do {
+                    String title = cursor.getString(1);
+                    long milisDate = Long.parseLong(cursor.getString(4));
+                    // Adding contact to list
+                    String dateString = getDateInString(milisDate);
 
-        // return contact list
-        return contactList;
+                    if (dateString.equals(date))
+                        deleteItemsWithName(title);
+                } while (cursor.moveToNext());
+            }
+        }
     }
 
     public int getContactsCount() {
@@ -145,7 +169,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
-    public void turncateTable(){
+    public void turncateTable() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
         db.execSQL(CREATE_CONTACTS_TABLE);
@@ -163,7 +187,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{
-                        KEY_NAME}, KEY_NAME + "=?",
+                        KEY_NAME, KEY_VISIT_DATE}, KEY_NAME + "=?",
                 new String[]{name}, null, null, null, null);
 
         if (cursor != null)
@@ -175,5 +199,24 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             return false;
     }
 
+    public void deleteItemsWithName(String name) {
+        if (itemExsists(name)) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_HISTORY, KEY_NAME + " = ?",
+                    new String[]{name});
+            db.close();
+        }
+    }
 
+    public String getDateInString(long time) {
+        Calendar c = Calendar.getInstance();
+
+        //Set time in milliseconds
+        c.setTimeInMillis(time);
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        return mDay + " " + ArticleHistoryItem.getMonthName(mMonth) + " " + mYear;
+    }
 }

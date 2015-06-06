@@ -72,6 +72,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
+    ArticleHistoryDbHandler db;
+
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -89,6 +91,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
         imageLoader = volleySingleton.getImageLoader();
+
+        db = new ArticleHistoryDbHandler(getActivity());
 
     }
 
@@ -184,10 +188,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);
 
-                                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
                                         ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, imgs.get(0).getImg_url());
                                         db.addItem(item);
-                                        db.close();
                                     }
 
                                     @Override
@@ -196,10 +198,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     }
                                 });
                             } else {
-                                ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
                                 ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                 db.addItem(item);
-                                db.close();
                             }
 
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -225,6 +225,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         });
 
         requestQueue.add(request);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        db.close();
     }
 
     private void fetchArticleInfo(final int id) {
