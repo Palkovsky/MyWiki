@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,16 +117,31 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
 
         switch (item.getItemId()) {
             case R.id.menu_removeAll:
-                ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
-                db.turncateTable();
-                db.close();
 
-                items.clear();
-                items = new ArrayList<ArticleHistoryItem>();
-                mAdapter.notifyDataSetChanged();
+                new MaterialDialog.Builder(getActivity()).callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
 
-                noRecordsTv.setVisibility(View.VISIBLE);
-                recyclerHistory.setVisibility(View.GONE);
+                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+                        db.turncateTable();
+                        db.close();
+
+                        items.clear();
+                        items = new ArrayList<ArticleHistoryItem>();
+                        mAdapter.notifyDataSetChanged();
+
+                        noRecordsTv.setVisibility(View.VISIBLE);
+                        recyclerHistory.setVisibility(View.GONE);
+                    }
+
+                }).content(getActivity().getResources().getString(R.string.removeAllQuestion))
+                        .positiveText(getActivity().getResources().getString(R.string.yes))
+                        .negativeText(getActivity().getResources().getString(R.string.no)).show();
+
+
+
+
 
                 return false;
         }

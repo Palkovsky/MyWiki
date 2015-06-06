@@ -29,4 +29,7 @@
     <string name="november">list</string>
     <string name="december">gru</string>
     <string name="menu_removeAll">Wyczyść historę</string>
+    <string name="removeAllQuestion">Wczyścić historę przeglądania?</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
 </resources>

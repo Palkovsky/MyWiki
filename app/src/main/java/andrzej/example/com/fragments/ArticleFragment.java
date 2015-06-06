@@ -168,7 +168,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     JSONObject image = images_section.getJSONObject(j);
 
                                     String img_url = image.getString(ArticleImage.KEY_SRC);
-                                    String caption = image.getString(ArticleImage.KEY_CAPTION);
+                                    String caption = null;
+                                    if(image.has(ArticleImage.KEY_CAPTION))
+                                        image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0)
                                         imgs.add(new ArticleImage(img_url, caption));

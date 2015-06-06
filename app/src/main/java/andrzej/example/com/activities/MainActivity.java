@@ -54,7 +54,14 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_main = newSection("Strona główna", new MainFragment());
         addSection(section_main);
 
-        section_random = newSection("Losowa strona", new MainFragment());
+        //Not really random
+        Fragment fragment = new ArticleFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("article_id", 1986);
+        bundle.putString("article_title", "Spike");
+        fragment.setArguments(bundle);
+
+        section_random = newSection("Losowa strona", fragment);
         addSection(section_random);
 
         section_saved = newSection("Zapisany strony", new SavedArticlesFragment());
@@ -127,9 +134,16 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     @Override
     public void onBackPressed() {
-        Intent setIntent = new Intent(Intent.ACTION_MAIN);
-        setIntent.addCategory(Intent.CATEGORY_HOME);
-        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(setIntent);
+        MaterialSection current_section = this.getCurrentSection();
+
+        if(current_section==section_main) {
+            Intent setIntent = new Intent(Intent.ACTION_MAIN);
+            setIntent.addCategory(Intent.CATEGORY_HOME);
+            setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(setIntent);
+        }else{
+            ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), "Strona główna");
+            ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+        }
     }
 }
