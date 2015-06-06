@@ -97,9 +97,11 @@ public class ArticleHistoryItem {
             int index_beg = thumbnail_url.indexOf("/window-crop/width/") + chunk_string_beg.length();
             int index_end = thumbnail_url.indexOf(chunk_string_end);
 
-            String width_substring = thumbnail_url.substring(index_beg, index_end);
-
-            return thumbnail_url.replaceFirst(width_substring, String.valueOf(64));
+            if(index_beg>0 && index_end>0 && index_beg<thumbnail_url.length() && index_end<thumbnail_url.length()) {
+                String width_substring = thumbnail_url.substring(index_beg, index_end);
+                return thumbnail_url.replaceFirst(width_substring, String.valueOf(64));
+            }
+            return getThumbnail_url();
         }
 
         return null;

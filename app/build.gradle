@@ -34,4 +34,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.beardedhen:androidbootstrap:+'
     compile 'com.github.nirhart:parallaxscroll:1.0'
+    compile 'com.rengwuxian.materialedittext:library:2.1.4'
 }

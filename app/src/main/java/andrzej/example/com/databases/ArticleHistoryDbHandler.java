@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,6 +77,46 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteSmart(String name, String date) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_NAME + "=?", new String[]{name}, null, null, null, null);
+
+        // looping through all rows and adding to list
+        if (cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int db_id = Integer.parseInt(cursor.getString(0));
+                    String title = cursor.getString(1);
+                    long milisDate = Long.parseLong(cursor.getString(4));
+                    // Adding contact to list
+                    String dateString = getDateInString(milisDate);
+
+                    if (dateString.contains(date)) {
+                        deleteItem(db_id);
+                    }
+                } while (cursor.moveToNext());
+            }
+        }
+    }
+
+    public void deleteItem(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_HISTORY, KEY_ID + " = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    public void deleteItemsWithName(String name) {
+        if (itemExsists(name)) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_HISTORY, KEY_NAME + " = ?",
+                    new String[]{name});
+            db.close();
+        }
+    }
+
     public ArticleHistoryItem getItem(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -92,10 +133,43 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         return item;
     }
 
+    public List<ArticleHistoryItem> getAllItemsLike(String search) {
+        List<ArticleHistoryItem> itemsList = new ArrayList<ArticleHistoryItem>();
+
+        Cursor cursor = getSearch(KEY_NAME, search);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int db_id = Integer.parseInt(cursor.getString(0));
+                    int wiki_id = Integer.parseInt(cursor.getString(2));
+                    long time_milis = Long.parseLong(cursor.getString(4));
+                    String title = cursor.getString(1);
+                    String thumbnail_url = cursor.getString(3);
+                    // Adding contact to list
+                    itemsList.add(new ArticleHistoryItem(db_id, wiki_id, time_milis, title, thumbnail_url));
+                } while (cursor.moveToNext());
+            }
+
+            return itemsList;
+        }
+
+        return null;
+    }
+
+    public Cursor getSearch(String field,
+                            String search) {
+        SQLiteDatabase sampleDB = this.getReadableDatabase();
+        Cursor c = sampleDB.rawQuery("SELECT * FROM "
+                + TABLE_HISTORY + " where " + field + " like '%" + search
+                + "%' ORDER BY " + KEY_VISIT_DATE + " DESC", null);
+        return c;
+    }
+
     public List<ArticleHistoryItem> getAllItems() {
         List<ArticleHistoryItem> contactList = new ArrayList<ArticleHistoryItem>();
         // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC";
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_VISIT_DATE + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -137,27 +211,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         return new ArticleHistoryItem();
     }
 
-    public void deleteSmart(String name, String date) {
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_NAME + "=?", new String[]{name}, null, null, null, null);
-
-        // looping through all rows and adding to list
-        if (cursor.getCount() > 0) {
-            if (cursor.moveToFirst()) {
-                do {
-                    String title = cursor.getString(1);
-                    long milisDate = Long.parseLong(cursor.getString(4));
-                    // Adding contact to list
-                    String dateString = getDateInString(milisDate);
-
-                    if (dateString.equals(date))
-                        deleteItemsWithName(title);
-                } while (cursor.moveToNext());
-            }
-        }
-    }
 
     public int getContactsCount() {
         String countQuery = "SELECT  * FROM " + TABLE_HISTORY;
@@ -176,12 +230,6 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteItem(SearchResult contact) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_HISTORY, KEY_ID + " = ?",
-                new String[]{String.valueOf(contact.getDb_id())});
-        db.close();
-    }
 
     public boolean itemExsists(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -199,14 +247,6 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             return false;
     }
 
-    public void deleteItemsWithName(String name) {
-        if (itemExsists(name)) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            db.delete(TABLE_HISTORY, KEY_NAME + " = ?",
-                    new String[]{name});
-            db.close();
-        }
-    }
 
     public String getDateInString(long time) {
         Calendar c = Calendar.getInstance();

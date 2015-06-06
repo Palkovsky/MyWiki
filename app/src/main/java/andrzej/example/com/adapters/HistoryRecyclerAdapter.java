@@ -57,7 +57,7 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
         if (position == 0)
             holder.groupTv.setVisibility(View.VISIBLE);
         else {
-            if (!mDataset.get(position - 1).getDateInString().equals(item.getDateInString())) {
+            if (!mDataset.get(position - 1).getDateInString().contains(item.getDateInString())) {
                 holder.groupTv.setVisibility(View.VISIBLE);
             }
         }
@@ -119,12 +119,12 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
         @Override
         public void onClick(View v) {
-            mItemClickListener.onItemClick(v, getAdapterPosition()); //OnItemClickListener mItemClickListener;
+            mItemClickListener.onItemClick(v, getPosition()); //OnItemClickListener mItemClickListener;
         }
 
         @Override
         public boolean onLongClick(View v) {
-            mLongItemClickListener.onLongItemClick(v, getAdapterPosition());
+            mLongItemClickListener.onLongItemClick(v, getPosition());
             return false;
         }
     }
