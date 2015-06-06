@@ -39,9 +39,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
@@ -70,6 +72,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
+
     public ArticleFragment() {
         // Required empty public constructor
     }
@@ -81,6 +84,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Bundle bundle = this.getArguments();
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
+
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -107,13 +111,14 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
                     mSwipeRefreshLayout.setEnabled(true);
                     mSwipeRefreshLayout.post(new Runnable() {
-                        @Override public void run() {
+                        @Override
+                        public void run() {
                             mSwipeRefreshLayout.setRefreshing(true);
+                            fetchArticleInfo(article_id);
                             fetchArticleInfo(article_id);
                         }
                     });
-                }
-                else
+                } else
                     Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             }
         });
@@ -176,6 +181,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);
+
+                                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, imgs.get(0).getImg_url());
+                                        db.addItem(item);
+                                        db.close();
                                     }
 
                                     @Override
@@ -183,7 +193,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                     }
                                 });
-
+                            } else {
+                                ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+                                ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                db.addItem(item);
+                                db.close();
                             }
 
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -193,6 +207,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 if (item.getLabel() != null)
                                     Log.e(null, item.getLabel());
                             }
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -224,7 +239,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
                             String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
 
-                            if (thumbnail_url != null && thumbnail_url.trim().length() > 0) {
+                            if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
                                 JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
                                 int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
 
@@ -238,6 +253,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         } catch (JSONException e) {
                             e.printStackTrace();
                             mSwipeRefreshLayout.setRefreshing(false);
+                            if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                                fetchArticleContent(id);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -246,6 +263,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                     setNoInternetLayout();
+                else
+                    fetchArticleContent(id);
             }
         });
 

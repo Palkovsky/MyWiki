@@ -1,0 +1,179 @@
+package andrzej.example.com.databases;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import andrzej.example.com.models.ArticleHistoryItem;
+import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.prefs.BaseConfig;
+
+/**
+ * Created by andrzej on 05.06.15.
+ */
+public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
+
+    // All Static variables
+    // Database Version
+    private static final int DATABASE_VERSION = 2;
+
+    // Database Name
+    private static final String DATABASE_NAME = "articleHistory";
+
+    // Contacts table name
+    private static final String TABLE_HISTORY = "articleHistoryRecords";
+
+    // Contacts Table Columns names
+    private static final String KEY_ID = "id";
+    private static final String KEY_WIKI_ID = "wiki_id";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_THUMBNAIL_URL = "url";
+    private static final String KEY_VISIT_DATE = "visited_at";
+
+    private final String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_HISTORY + "("
+            + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_WIKI_ID + " INTEGER, " + KEY_THUMBNAIL_URL + " TEXT, " + KEY_VISIT_DATE + " TEXT)";
+
+
+    public ArticleHistoryDbHandler(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CREATE_CONTACTS_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Drop older table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
+        // Create tables again
+        onCreate(db);
+    }
+
+
+    public void addItem(ArticleHistoryItem item) {
+
+        if (!item.getLabel().equals(getLastItem().getLabel())) {
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_NAME, item.getLabel()); // Contact Name
+            values.put(KEY_WIKI_ID, item.getId());
+            values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
+            values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
+
+            // Inserting Row
+            db.insert(TABLE_HISTORY, null, values);
+            db.close(); // Closing database connection
+        }
+    }
+
+    public ArticleHistoryItem getItem(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
+                        KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        ArticleHistoryItem item = new ArticleHistoryItem(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(2)),
+                Integer.parseInt(cursor.getString(4)), cursor.getString(1), cursor.getString(3));
+
+        // return contact
+        return item;
+    }
+
+    public ArticleHistoryItem getLastItem() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, null, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToLast();
+
+        if (cursor.getCount() > 0) {
+            ArticleHistoryItem item = new ArticleHistoryItem(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(2)),
+                    Long.parseLong(cursor.getString(4)), cursor.getString(1), cursor.getString(3));
+
+            // return contact
+
+            return item;
+        }
+        return new ArticleHistoryItem();
+    }
+
+    public List<ArticleHistoryItem> getAllItems() {
+        List<ArticleHistoryItem> contactList = new ArrayList<ArticleHistoryItem>();
+        // Select All Query
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC LIMIT " + String.valueOf(BaseConfig.searchLimit);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                int db_id = Integer.parseInt(cursor.getString(0));
+                int wiki_id = Integer.parseInt(cursor.getString(2));
+                long time_milis = Long.parseLong(cursor.getString(4));
+                String title = cursor.getString(1);
+                String thumbnail_url = cursor.getString(3);
+                // Adding contact to list
+                contactList.add(new ArticleHistoryItem(db_id, wiki_id, time_milis, title, thumbnail_url));
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return contactList;
+    }
+
+    public int getContactsCount() {
+        String countQuery = "SELECT  * FROM " + TABLE_HISTORY;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        cursor.close();
+
+        // return count
+        return cursor.getCount();
+    }
+
+    public void turncateTable(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
+        db.execSQL(CREATE_CONTACTS_TABLE);
+        db.close();
+    }
+
+    public void deleteItem(SearchResult contact) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_HISTORY, KEY_ID + " = ?",
+                new String[]{String.valueOf(contact.getDb_id())});
+        db.close();
+    }
+
+    public boolean itemExsists(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{
+                        KEY_NAME}, KEY_NAME + "=?",
+                new String[]{name}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0) {
+            return true;
+        } else
+            return false;
+    }
+
+
+}

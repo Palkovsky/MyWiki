@@ -54,7 +54,6 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
     }
 
     public void addItem(SearchResult item) {
-
         deleteItemsWithName(item.getTitle());
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -65,8 +64,6 @@ public class SearchHistoryDbHandler extends SQLiteOpenHelper {
         // Inserting Row
         db.insert(TABLE_HISTORY, null, values);
         db.close(); // Closing database connection
-
-
     }
 
     public SearchResult getItem(int id) {

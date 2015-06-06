@@ -27,7 +27,7 @@ import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 public class MainActivity extends MaterialNavigationDrawer {
 
     private static Context context;
-    private static final int REQUEST_CODE_TEST = 0;
+    public static final int REQUEST_CODE_TEST = 0;
 
     //Sekcje, które muszą być globalne.
     MaterialSection section_main;
@@ -35,7 +35,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     MaterialSection section_saved;
     MaterialSection section_history;
     MaterialSection section_settings;
-    MaterialSection section_article;
+    public static MaterialSection section_article;
 
     @Override
     public void init(Bundle savedInstanceState) {
