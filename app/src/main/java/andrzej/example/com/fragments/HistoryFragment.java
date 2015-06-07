@@ -17,6 +17,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,27 +29,26 @@ import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.activities.SearchActivity;
-import andrzej.example.com.adapters.HistoryRecyclerAdapter;
-import andrzej.example.com.adapters.OnItemClickListener;
-import andrzej.example.com.adapters.OnLongItemClickListener;
+import andrzej.example.com.adapters.HistoryListAdapter;
+
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.views.MaterialEditText;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class HistoryFragment extends Fragment implements OnLongItemClickListener, OnItemClickListener {
+public class HistoryFragment extends Fragment {
 
     //UI
-    RecyclerView recyclerHistory;
     TextView noRecordsTv;
     MaterialEditText filterEt;
+    ListView listHistory;
 
     //ADapter
-    private HistoryRecyclerAdapter mAdapter;
-    LinearLayoutManager llm;
+    private HistoryListAdapter mAdapter;
 
     //List
     List<ArticleHistoryItem> items;
@@ -74,19 +75,72 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
 
         noRecordsTv = (TextView) v.findViewById(R.id.noRecordsTv);
         filterEt = (MaterialEditText) v.findViewById(R.id.historyEditText);
-        recyclerHistory = (RecyclerView) v.findViewById(R.id.historyRecycler);
-        recyclerHistory.setHasFixedSize(true);
+        listHistory = (ListView) v.findViewById(R.id.historyList);
 
         if (items.size() <= 0) {
             noRecordsTv.setVisibility(View.VISIBLE);
-            recyclerHistory.setVisibility(View.GONE);
+            listHistory.setVisibility(View.GONE);
             filterEt.setVisibility(View.GONE);
         }
 
-        mAdapter = new HistoryRecyclerAdapter(getActivity(), items);
+        mAdapter = new HistoryListAdapter(getActivity(), items);
 
-        mAdapter.setOnItemClickListener(this);
-        mAdapter.setOnLongItemClickListener(this);
+        listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+
+                    InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
+                            .getSystemService(
+                                    Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(
+                            filterEt.getWindowToken(), 0);
+
+                    ArticleHistoryItem item = items.get(position);
+
+                    Fragment fragment = new ArticleFragment();
+                    Bundle bundle = new Bundle();
+
+                    bundle.putInt("article_id", item.getId());
+                    bundle.putString("article_title", item.getLabel());
+                    fragment.setArguments(bundle);
+
+                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, item.getLabel());
+                    ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+                }else
+                    Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        listHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                new MaterialDialog.Builder(getActivity()).callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
+
+                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+                        db.deleteItem(items.get(position).getDb_id());
+                        db.close();
+
+                        items.remove(position);
+                        mAdapter.notifyDataSetChanged();
+
+                        reInitViews(items.size());
+                    }
+
+                }).content(getActivity().getResources().getString(R.string.removeOneQuestion))
+                        .positiveText(getActivity().getResources().getString(R.string.yes))
+                        .negativeText(getActivity().getResources().getString(R.string.no)).show();
+
+                return true;
+            }
+        });
+
+        listHistory.setSelectionAfterHeaderView();
 
         filterEt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -101,7 +155,6 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
                 ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
 
                 items.clear();
-                items = new ArrayList<ArticleHistoryItem>();
 
                 if (query.trim().length() > 0)
                     items.addAll(db.getAllItemsLike(query));
@@ -110,8 +163,6 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
 
 
                 db.close();
-                mAdapter = new HistoryRecyclerAdapter(getActivity(), items);
-                recyclerHistory.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 reInitViews(items.size());
             }
@@ -122,7 +173,7 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
             }
         });
 
-        recyclerHistory.setOnTouchListener(new View.OnTouchListener() {
+        listHistory.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -136,50 +187,21 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
             }
         });
 
-        recyclerHistory.setAdapter(mAdapter);
-
-        llm = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        llm.setSmoothScrollbarEnabled(true);
-        recyclerHistory.setLayoutManager(llm);
+        listHistory.setAdapter(mAdapter);
 
         return v;
     }
 
-    @Override
-    public void onItemClick(View view, int position) {
 
-        InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
-                .getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(
-                filterEt.getWindowToken(), 0);
-
-        ArticleHistoryItem item = items.get(position);
-
-        Fragment fragment = new ArticleFragment();
-        Bundle bundle = new Bundle();
-
-        bundle.putInt("article_id", item.getId());
-        bundle.putString("article_title", item.getLabel());
-        fragment.setArguments(bundle);
-
-        ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, item.getLabel());
-        ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-    }
-
-    @Override
-    public void onLongItemClick(View view, int position) {
-        Toast.makeText(getActivity(), "Long click", Toast.LENGTH_SHORT).show();
-    }
 
     private void reInitViews(int size) {
         if (size <= 0) { // nie ma
             noRecordsTv.setVisibility(View.VISIBLE);
-            recyclerHistory.setVisibility(View.INVISIBLE);
+            listHistory.setVisibility(View.GONE);
 
         } else { // som
-            noRecordsTv.setVisibility(View.INVISIBLE);
-            recyclerHistory.setVisibility(View.VISIBLE);
+            noRecordsTv.setVisibility(View.GONE);
+            listHistory.setVisibility(View.VISIBLE);
         }
     }
 
@@ -213,7 +235,7 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
                         mAdapter.notifyDataSetChanged();
 
                         noRecordsTv.setVisibility(View.VISIBLE);
-                        recyclerHistory.setVisibility(View.GONE);
+                        listHistory.setVisibility(View.GONE);
                     }
 
                 }).content(getActivity().getResources().getString(R.string.removeAllQuestion))
@@ -221,8 +243,28 @@ public class HistoryFragment extends Fragment implements OnLongItemClickListener
                         .negativeText(getActivity().getResources().getString(R.string.no)).show();
 
 
-                return false;
+                break;
         }
+
+        InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
+                .getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(
+                filterEt.getWindowToken(), 0);
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
+                .getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(
+                filterEt.getWindowToken(), 0);
+
+        filterEt.setText("");
     }
 }

@@ -32,4 +32,5 @@
     <string name="removeAllQuestion">Wczyścić historę przeglądania?</string>
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
+    <string name="removeOneQuestion">Czy na pewno chcesz usunąć?</string>
 </resources>
