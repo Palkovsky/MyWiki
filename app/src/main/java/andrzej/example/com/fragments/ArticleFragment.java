@@ -1,12 +1,15 @@
 package andrzej.example.com.fragments;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,10 +49,12 @@ import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
+import andrzej.example.com.models.ArticleSection;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.utils.StringOperations;
 
 
 public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -59,6 +65,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     ParallaxScrollView parallaxSv;
     SwipeRefreshLayout mSwipeRefreshLayout;
     LinearLayout noInternetLl;
+    LinearLayout rootArticleLl;
     BootstrapButton retryBtn;
 
     private int article_id;
@@ -66,10 +73,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     // Lists
     private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
+    private List<ArticleSection> sections = new ArrayList<>();
 
     //Networking
     private VolleySingleton volleySingleton;
-    private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
     ArticleHistoryDbHandler db;
@@ -90,7 +97,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
-        imageLoader = volleySingleton.getImageLoader();
 
         db = new ArticleHistoryDbHandler(getActivity());
 
@@ -107,7 +113,19 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         titleTv = (TextView) v.findViewById(R.id.titleTv);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.article_swipe_refresh_layout);
         noInternetLl = (LinearLayout) v.findViewById(R.id.noInternetLl);
+        rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
+
+        addTextViewToLayout(rootArticleLl, "<p><b>Derpy</b> - no, z Derpy to jak z Derpy. Miała kupić pomidory, a przyniosła i kupiła kilo wiśni. Zawsze była taka fiu!</p>");
+        addImageViewToLayout(rootArticleLl, StringOperations.pumpUpSize("http://vignette1.wikia.nocookie.net/mlp/images/b/b3/Derpy_Hooves_szkic.jpg/revision/latest/scale-to-width/150?cb=20130305192012&path-prefix=pl", 600), "Szkic Derpy");
+        addTextViewToLayout(rootArticleLl, "<br/>");
+        addImageViewToLayout(rootArticleLl, StringOperations.pumpUpSize("http://vignette4.wikia.nocookie.net/mlp/images/e/e9/Dreppy_x666.png/revision/latest?cb=20130715174906&path-prefix=pl", 600), "Mała Derpy");
+        addTextViewToLayout(rootArticleLl, "<h2>Charakterystyka</h2>");
+        addTextViewToLayout(rootArticleLl, "<p>Derpy pojawiła się już w pierwszym odcinku z celowym błędem animatorów (tzw. easter eggiem), polegającym na desynchronizacji kierunku patrzenia oczu bohaterki, czego skutkiem był charakterystyczny zez. Pomimo, że pegaz pojawiał się tylko w tle, fani bardzo szybko ją zauważyli i polubili. Ostatecznie zadecydowano, by błędu nie korygować (choć niekiedy Derpy ma prawidłowo zsynchronizowane oczy). Znaczek Derpy opiera się na kucyku generacji pierwszej - Bubbles</p>");
+        addTextViewToLayout(rootArticleLl, "<h4>Cechy</h4>");
+        addTextViewToLayout(rootArticleLl, "<p>&#8226;Indywidualista<br/>&#8226;Pomysłowy<br/>&#8226;Konformista</p>");
+        addTextViewToLayout(rootArticleLl, "<h4>Zabawki</h4>");
+        addImageViewToLayout(rootArticleLl, StringOperations.pumpUpSize("http://vignette1.wikia.nocookie.net/mlp/images/d/d3/Derpy%21.jpg/revision/latest/scale-to-width/180?cb=20130806190710&path-prefix=pl", 600), "Duża figurka promocyjna, a obok - opakowanie z Derpy do ozdabiania.");
 
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,16 +158,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         return v;
     }
 
-    private void setImageViewBackground(ImageView imageView, Drawable drawable) {
-
-        int currentVersion = Build.VERSION.SDK_INT;
-
-        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
-            imageView.setBackground(drawable);
-        } else {
-            imageView.setBackgroundDrawable(drawable);
-        }
-    }
 
     private void fetchArticleContent(int id) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemContent(id), (String) null,
@@ -173,7 +181,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                     String img_url = image.getString(ArticleImage.KEY_SRC);
                                     String caption = null;
-                                    if(image.has(ArticleImage.KEY_CAPTION))
+                                    if (image.has(ArticleImage.KEY_CAPTION))
                                         image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0)
@@ -261,7 +269,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         } catch (JSONException e) {
                             e.printStackTrace();
                             mSwipeRefreshLayout.setRefreshing(false);
-                            if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 fetchArticleContent(id);
                         }
                     }
@@ -291,6 +299,117 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         return thumbnail_url.replaceFirst(width_substring, String.valueOf(width));
     }
 
+    //Adding Views
+    private void addTextViewToLayout(LinearLayout ll, String data) {
+        TextView itemTv = new TextView(getActivity());
+        itemTv.setTypeface(null, Typeface.NORMAL);
+        itemTv.setText(Html.fromHtml(data));
+        itemTv.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        ll.addView(itemTv);
+    }
+
+    private void addImageViewToLayout(LinearLayout ll, String img_url, String caption) {
+
+
+        LinearLayout imageLl = new LinearLayout(getActivity());
+        imageLl.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        imageLl.setGravity(Gravity.CENTER_HORIZONTAL);
+        imageLl.setLayoutParams(LLParams);
+
+
+        //ImageView Setup
+        ImageView imageView = new ImageView(getActivity());
+        //imageView.setAdjustViewBounds(true);
+        //setting image resource
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        Picasso.with(getActivity()).load(img_url).placeholder(getResources().getDrawable(R.drawable.ic_action_picture)).error(getResources().getDrawable(R.drawable.ic_action_picture)).into(imageView);
+
+        LinearLayout.LayoutParams params_iv = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+
+
+        //setting image position
+        imageView.setId(R.id.imageViewProgramatically);
+        imageView.setLayoutParams(params_iv);
+
+        imageLl.addView(imageView);
+
+        if (caption != null && caption.length() > 0) {
+            TextView itemTv = new TextView(getActivity());
+            itemTv.setTypeface(null, Typeface.ITALIC);
+            itemTv.setText(caption);
+
+            LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+
+            itemTv.setGravity(Gravity.CENTER_HORIZONTAL);
+
+            itemTv.setLayoutParams(params_tv);
+
+            imageLl.addView(itemTv);
+        }
+
+        ll.addView(imageLl);
+
+        /*
+        // Creating a new RelativeLayout
+        RelativeLayout relativeLayout = new RelativeLayout(getActivity());
+
+        // Defining the RelativeLayout layout parameters.
+        // In this case I want to fill its parent
+        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        relativeLayout.setLayoutParams(rlp);
+
+        //ImageView Setup
+        ImageView imageView = new ImageView(getActivity());
+        //imageView.setAdjustViewBounds(true);
+        //setting image resource
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        Picasso.with(getActivity()).load(img_url).into(imageView);
+
+        RelativeLayout.LayoutParams params_iv = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        params_iv.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+
+        //setting image position
+        imageView.setId(R.id.imageViewProgramatically);
+        imageView.setLayoutParams(params_iv);
+
+        relativeLayout.addView(imageView);
+
+        if(caption!=null && caption.length()>0) {
+            TextView itemTv = new TextView(getActivity());
+            itemTv.setTypeface(null, Typeface.ITALIC);
+            itemTv.setText(caption);
+
+            RelativeLayout.LayoutParams params_tv = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv.addRule(RelativeLayout.BELOW, R.id.imageViewProgramatically);
+            itemTv.setGravity(Gravity.CENTER_HORIZONTAL);
+
+            itemTv.setLayoutParams(params_tv);
+
+            relativeLayout.addView(itemTv);
+        }
+
+        //adding view to layout
+        ll.addView(relativeLayout);
+
+        */
+    }
+
     private void setNoInternetLayout() {
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
@@ -301,6 +420,17 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(true);
+    }
+
+    private void setImageViewBackground(ImageView imageView, Drawable drawable) {
+
+        int currentVersion = Build.VERSION.SDK_INT;
+
+        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+            imageView.setBackground(drawable);
+        } else {
+            imageView.setBackgroundDrawable(drawable);
+        }
     }
 
     @Override

@@ -2,9 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/background"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/background">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/article_swipe_refresh_layout"
@@ -61,11 +61,20 @@
                     android:background="@color/background"
                     android:orientation="vertical">
 
-                    <TextView
+                    <LinearLayout
+                        android:id="@+id/rootArticle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:text="@string/lorem" />
+                        android:orientation="vertical">
+
+                        <!--
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lorem" />
+                         -->
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -81,9 +90,9 @@
         android:id="@+id/noInternetLl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:gravity="center"
-        android:layout_centerInParent="true"
         android:orientation="vertical"
         android:visibility="gone">
 

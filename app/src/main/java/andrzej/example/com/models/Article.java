@@ -6,4 +6,6 @@ package andrzej.example.com.models;
 public class Article {
     public static final String KEY_THUMBNAIL = "thumbnail";
     public static final String KEY_SECTIONS = "sections";
+
+
 }
