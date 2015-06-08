@@ -61,9 +61,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
     public void addItem(ArticleHistoryItem item) {
 
-        if (!item.getLabel().equals(getLastItem().getLabel())) {
-            deleteSmart(item.getLabel(), item.getDateInString());
-
+        if(!getDateInString(System.currentTimeMillis()).contains(getLastItem().getDateInString())){
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getLabel()); // Contact Name
             values.put(KEY_WIKI_ID, item.getId());
@@ -74,6 +72,21 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             SQLiteDatabase db = this.getWritableDatabase();
             db.insert(TABLE_HISTORY, null, values);
             db.close(); // Closing database connection
+        }else {
+            if (!item.getLabel().equals(getLastItem().getLabel())) {
+                deleteSmart(item.getLabel(), item.getDateInString());
+
+                ContentValues values = new ContentValues();
+                values.put(KEY_NAME, item.getLabel()); // Contact Name
+                values.put(KEY_WIKI_ID, item.getId());
+                values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
+                values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
+
+                // Inserting Row
+                SQLiteDatabase db = this.getWritableDatabase();
+                db.insert(TABLE_HISTORY, null, values);
+                db.close(); // Closing database connection
+            }
         }
     }
 
