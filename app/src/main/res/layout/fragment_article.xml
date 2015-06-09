@@ -1,114 +1,137 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/background">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/article_swipe_refresh_layout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <com.nirhart.parallaxscroll.views.ParallaxScrollView
-            android:id="@+id/parallaxSv"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/article_swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:parallax_factor="1.9"
-            tools:context="andrzej.example.com.fragments.ArticleFragment">
+            android:layout_height="wrap_content">
 
-            <RelativeLayout
+            <andrzej.example.com.fab.ObservableScrollView
+                android:id="@+id/parallaxSv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:parallax_factor="1.9"
+                tools:context="andrzej.example.com.fragments.ArticleFragment">
 
                 <RelativeLayout
-                    android:id="@+id/parallaxPart"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/parallaxIv"
+                    <RelativeLayout
+                        android:id="@+id/parallaxPart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:background="@android:color/white" />
-
-                </RelativeLayout>
-
-                <TextView
-                    android:id="@+id/titleTv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/parallaxPart"
-                    android:background="@drawable/aura"
-                    android:padding="10dp"
-                    android:shadowColor="@android:color/background_dark"
-                    android:shadowDx="5"
-                    android:shadowDy="5"
-                    android:shadowRadius="15"
-                    android:text="Pinkie Pie"
-                    android:textAppearance="@android:style/TextAppearance.Large"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/parallaxPart"
-                    android:background="@color/background"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/rootArticle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
                         android:orientation="vertical">
 
-                        <!--
-                        <TextView
+                        <ImageView
+                            android:id="@+id/parallaxIv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/lorem" />
-                         -->
+                            android:adjustViewBounds="true"
+                            android:background="@android:color/white" />
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/titleTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/parallaxPart"
+                        android:background="@drawable/aura"
+                        android:padding="10dp"
+                        android:shadowColor="@android:color/background_dark"
+                        android:shadowDx="5"
+                        android:shadowDy="5"
+                        android:shadowRadius="15"
+                        android:text="Pinkie Pie"
+                        android:textAppearance="@android:style/TextAppearance.Large"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/parallaxPart"
+                        android:background="@color/background"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/rootArticle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:orientation="vertical">
+
+                            <!--
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/lorem" />
+                             -->
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                </LinearLayout>
 
+                </RelativeLayout>
+            </andrzej.example.com.fab.ObservableScrollView>
 
-            </RelativeLayout>
-        </com.nirhart.parallaxscroll.views.ParallaxScrollView>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-    <!-- No Internet Layout -->
-    <LinearLayout
-        android:id="@+id/noInternetLl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:text="@string/no_internet_conn" />
-
-        <com.beardedhen.androidbootstrap.BootstrapButton
-            android:id="@+id/noInternetBtn"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="@string/retry"
-            bootstrap:bb_type="default" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp">
+        <andrzej.example.com.fab.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_arrow_up_white_24dp"
+            fab:fab_colorNormal="@color/ColorPrimary"
+            fab:fab_colorPressed="@color/ColorPrimaryDark"
+            fab:fab_colorRipple="@color/tabsScrollColor" />
+        </LinearLayout>
+
+        <!-- No Internet Layout -->
+        <LinearLayout
+            android:id="@+id/noInternetLl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:text="@string/no_internet_conn" />
+
+            <com.beardedhen.androidbootstrap.BootstrapButton
+                android:id="@+id/noInternetBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/retry"
+                bootstrap:bb_type="default" />
+        </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>

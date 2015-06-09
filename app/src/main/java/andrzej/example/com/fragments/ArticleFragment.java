@@ -1,24 +1,16 @@
 package andrzej.example.com.fragments;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,24 +18,21 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.nirhart.parallaxscroll.views.ParallaxScrollView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
+import andrzej.example.com.fab.FloatingActionButton;
+import andrzej.example.com.fab.ObservableScrollView;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
@@ -63,12 +52,13 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     //UI
     ImageView parallaxIv;
     TextView titleTv;
-    ParallaxScrollView parallaxSv;
+    ObservableScrollView parallaxSv;
     SwipeRefreshLayout mSwipeRefreshLayout;
     LinearLayout noInternetLl;
     LinearLayout rootArticleLl;
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
+    andrzej.example.com.fab.FloatingActionButton fab;
 
     private int article_id;
     String article_title;
@@ -110,13 +100,16 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_article, container, false);
 
-        parallaxSv = (ParallaxScrollView) v.findViewById(R.id.parallaxSv);
+        parallaxSv = (ObservableScrollView) v.findViewById(R.id.parallaxSv);
         parallaxIv = (ImageView) v.findViewById(R.id.parallaxIv);
         titleTv = (TextView) v.findViewById(R.id.titleTv);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.article_swipe_refresh_layout);
         noInternetLl = (LinearLayout) v.findViewById(R.id.noInternetLl);
         rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
+        fab = (andrzej.example.com.fab.FloatingActionButton) v.findViewById(R.id.fab);
+
+        fab.attachToScrollView(parallaxSv);
 
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
