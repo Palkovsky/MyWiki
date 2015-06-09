@@ -1,7 +1,9 @@
 package andrzej.example.com.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,6 +17,8 @@ import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.views.LetterSpacingTextView;
 
 /**
  * Created by andrzej on 08.06.15.
@@ -23,11 +27,14 @@ public class ArticleViewsManager {
     Context c;
     LinearLayout ll;
 
-    private static final int H1_Size = 32;
-    private static final int H2_Size = 28;
-    private static final int H3_Size = 24;
-    private static final int H4_Size = 20;
-    private static final int H5_Size = 18;
+    private static final int h1_Size = 32;
+    private static final int h2_size = 28;
+    private static final int h3_size = 24;
+    private static final int h4_size = 20;
+
+
+    private static int textSize = 18; //defaults
+    private static int lineSpacing = 10;
 
 
     public ArticleViewsManager(Context c) {
@@ -40,9 +47,16 @@ public class ArticleViewsManager {
 
     //Adding Views
     public void addTextViewToLayout(String data, int level) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
+        textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
+        lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
+
         TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
         itemTv.setText(Html.fromHtml(data));
+        itemTv.setTextSize(textSize);
+        itemTv.setLineSpacing(lineSpacing, 1);
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -157,23 +171,23 @@ public class ArticleViewsManager {
         float pixels;
         switch (level) {
             case 1:
-                itemTv = getTextView(H1_Size, label, level);
+                itemTv = getTextView(h1_Size, label, level);
                 ll.addView(itemTv);
                 break;
 
             case 2:
-                itemTv = getTextView(H2_Size, label, level);
+                itemTv = getTextView(h2_size, label, level);
                 ll.addView(itemTv);
                 break;
 
             case 3:
-                itemTv = getTextView(H3_Size, label, level);
+                itemTv = getTextView(h3_size, label, level);
                 ll.addView(itemTv);
                 break;
 
 
             default:
-                itemTv = getTextView(H4_Size, label, level);
+                itemTv = getTextView(h4_size, label, level);
                 ll.addView(itemTv);
                 break;
         }

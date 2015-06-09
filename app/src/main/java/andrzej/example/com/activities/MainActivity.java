@@ -51,8 +51,14 @@ public class MainActivity extends MaterialNavigationDrawer {
         this.setDrawerHeaderImage(images[random_int]);
 
 
-        section_main = newSection("Strona główna", new MainFragment());
+        section_main = newSection("Dzisiaj", new MainFragment());
         addSection(section_main);
+
+        section_history = newSection("Historia", new HistoryFragment());
+        addSection(section_history);
+
+        section_saved = newSection("Zapisany strony", new SavedArticlesFragment());
+        addSection(section_saved);
 
         //Not really random
         Fragment fragment = new ArticleFragment();
@@ -64,18 +70,11 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_random = newSection("Losowa strona", fragment);
         addSection(section_random);
 
-        section_saved = newSection("Zapisany strony", new SavedArticlesFragment());
-        addSection(section_saved);
-
-        section_history = newSection("Historia", new HistoryFragment());
-        addSection(section_history);
-
         section_article = newSection("Artykuły", new ArticleFragment());
         addSection(section_article);
         section_article.getView().setVisibility(View.GONE);
 
-        section_settings = newSection("Ustawienia", new MainFragment());
-        section_settings.select();
+        section_settings = newSection("Ustawienia", new Intent(this, SharedPreferenceActivity.class));
         addBottomSection(section_settings);
 
     }

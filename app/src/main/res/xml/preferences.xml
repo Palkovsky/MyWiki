@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory android:title="Wygląd">
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="TEXT_SIZE_PREF"
+            android:title="Wielkość czcionki"
+            android:summary="Wielkość czcionki w artykułach."
+            android:numeric="integer"
+            android:maxLength="2"
+            android:defaultValue="16"
+            android:textColor="@color/font_color"
+            />
+
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="LINE_SPACING_PREF"
+            android:title="Line spacing"
+            android:summary="Odległość między liniami tekstu w artykułach."
+            android:numeric="integer"
+            android:maxLength="2"
+            android:defaultValue="10"
+            android:textColor="@color/font_color"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Informacje">
+
+        <Preference
+            android:key="DIALOG_LICENSE"
+            android:textColor="@color/font_color"
+            android:title='Licencja typu "open source"'></Preference>
+
+        <Preference
+            android:key="PREF_VERSION"
+            android:summary="@string/app_build"
+            android:textColor="@color/font_color"
+            android:title="Wersja aplikacji"></Preference>
+
+    </PreferenceCategory>
+</PreferenceScreen>

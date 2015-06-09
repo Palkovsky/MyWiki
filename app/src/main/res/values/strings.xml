@@ -4,7 +4,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="search_result">Search Result!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Ustawienia</string>
     <string name="search_hint">Type and Search</string>
     <string name="menu_search">Search</string>
 
@@ -33,4 +33,6 @@
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
     <string name="removeOneQuestion">Czy na pewno chcesz usunąć?</string>
+    <string name="pref_header_sample">Ustawienia</string>
+    <string name="app_build">Alpha -2.0</string>
 </resources>
