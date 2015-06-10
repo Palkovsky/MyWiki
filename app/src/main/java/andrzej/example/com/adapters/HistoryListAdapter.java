@@ -1,6 +1,7 @@
 package andrzej.example.com.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,7 +30,9 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SearchResult;
@@ -41,6 +45,10 @@ public class HistoryListAdapter extends BaseAdapter {
     List<ArticleHistoryItem> myList;
     LayoutInflater inflater;
     Context context;
+    private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+
+    private List<ArticleHistoryItem> selectedItems = new ArrayList<ArticleHistoryItem>();
+
 
     public HistoryListAdapter(Context context, List<ArticleHistoryItem> myList) {
         this.myList = myList;
@@ -63,6 +71,10 @@ public class HistoryListAdapter extends BaseAdapter {
         return 0;
     }
 
+    public List<ArticleHistoryItem> getSelectedItems() {
+        return selectedItems;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ResultViewHolder mViewHolder;
@@ -74,6 +86,7 @@ public class HistoryListAdapter extends BaseAdapter {
             mViewHolder.tvTitle = (TextView) convertView.findViewById(R.id.history_title);
             mViewHolder.groupTv = (TextView) convertView.findViewById(R.id.history_section_header_text);
             mViewHolder.iconIv = (ImageView) convertView.findViewById(R.id.history_thumbnail);
+            mViewHolder.rootLayout = (LinearLayout) convertView.findViewById(R.id.history_root_view);
 
             convertView.setTag(mViewHolder);
         } else {
@@ -93,8 +106,14 @@ public class HistoryListAdapter extends BaseAdapter {
                     mViewHolder.groupTv.setVisibility(View.VISIBLE);
                 }else
                     mViewHolder.groupTv.setVisibility(View.GONE);
+
+
             }
 
+            if (mSelection.get(position) != null) {
+                mViewHolder.rootLayout.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\
+            }else
+                mViewHolder.rootLayout.setBackgroundColor(Color.TRANSPARENT);
 
             String thumb_url = item.getScaledDownImage();
 
@@ -103,7 +122,7 @@ public class HistoryListAdapter extends BaseAdapter {
                         .placeholder(context.getResources().getDrawable(R.drawable.ic_action_picture)).into(mViewHolder.iconIv, new Callback() {
                     @Override
                     public void onSuccess() {
-
+                        mViewHolder.iconIv.setBackgroundColor(Color.TRANSPARENT);
                     }
 
                     @Override
@@ -122,6 +141,35 @@ public class HistoryListAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    public void setNewSelection(int position, boolean value) {
+        mSelection.put(position, value);
+        selectedItems.add(myList.get(position));
+        notifyDataSetChanged();
+    }
+
+    public boolean isPositionChecked(int position) {
+        Boolean result = mSelection.get(position);
+        return result == null ? false : result;
+    }
+
+    public Set<Integer> getCurrentCheckedPosition() {
+        return mSelection.keySet();
+    }
+
+    public void removeSelection(int position) {
+        mSelection.remove(position);
+        selectedItems.remove(myList.get(position));
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        mSelection = new HashMap<Integer, Boolean>();
+        selectedItems = new ArrayList<ArticleHistoryItem>();
+        notifyDataSetChanged();
+    }
+
+
 
     private void setIvBackground(ImageView iv, Drawable drawable) {
         int currentVersion = Build.VERSION.SDK_INT;
@@ -142,6 +190,7 @@ public class HistoryListAdapter extends BaseAdapter {
 
 
     private class ResultViewHolder {
+        LinearLayout rootLayout;
         TextView groupTv;
         TextView tvTitle;
         ImageView iconIv;

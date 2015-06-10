@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -89,7 +91,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                if (NetworkUtils.isNetworkAvailable(getActivity())) {
 
                     InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
                             .getSystemService(
@@ -108,7 +110,7 @@ public class HistoryFragment extends Fragment {
 
                     ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, item.getLabel());
                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                }else
+                } else
                     Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             }
         });
@@ -117,6 +119,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
+                /*
                 new MaterialDialog.Builder(getActivity()).callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -138,9 +141,70 @@ public class HistoryFragment extends Fragment {
 
                 return true;
             }
+            */
+                listHistory.setItemChecked(position, !mAdapter.isPositionChecked(position));
+                return false;
+            }
         });
 
-        listHistory.setSelectionAfterHeaderView();
+
+        listHistory.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            private int nr = 0;
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                if (checked) {
+                    nr++;
+                    mAdapter.setNewSelection(position, checked);
+                } else {
+                    nr--;
+                    mAdapter.removeSelection(position);
+                }
+                mode.setTitle("Zaznaczone: " + nr);
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                nr = 0;
+                MenuInflater inflater = getActivity().getMenuInflater();
+                inflater.inflate(R.menu.delete_history_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+
+                    case R.id.item_delete:
+                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+                        List<ArticleHistoryItem> mSelected = mAdapter.getSelectedItems();
+                        for(ArticleHistoryItem historyItem : mSelected){
+                            db.deleteItem(historyItem.getDb_id());
+                        }
+                        db.close();
+                        items.removeAll(mSelected);
+                        nr = 0;
+                        mAdapter.clearSelection();
+                        mode.finish();
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mAdapter.clearSelection();
+            }
+        });
+
+        listHistory.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
+        listHistory.scrollTo(0, 0);
 
         filterEt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -191,7 +255,6 @@ public class HistoryFragment extends Fragment {
 
         return v;
     }
-
 
 
     private void reInitViews(int size) {

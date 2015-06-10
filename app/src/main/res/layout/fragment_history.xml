@@ -35,7 +35,8 @@
             android:layout_margin="3dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            android:scrollbars="vertical"></ListView>
+            android:scrollbars="vertical"
+            android:choiceMode="multipleChoice"></ListView>
 
         <TextView
             android:id="@+id/noRecordsTv"

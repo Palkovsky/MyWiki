@@ -4,13 +4,20 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +63,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     SwipeRefreshLayout mSwipeRefreshLayout;
     LinearLayout noInternetLl;
     LinearLayout rootArticleLl;
+    LinearLayout loadingLl;
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
     andrzej.example.com.fab.FloatingActionButton fab;
@@ -87,6 +95,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         article_title = bundle.getString("article_title");
 
 
+
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
 
@@ -106,34 +115,42 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.article_swipe_refresh_layout);
         noInternetLl = (LinearLayout) v.findViewById(R.id.noInternetLl);
         rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
+        loadingLl = (LinearLayout) v.findViewById(R.id.loadingLl);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
         fab = (andrzej.example.com.fab.FloatingActionButton) v.findViewById(R.id.fab);
 
+        fab.hide(false);
         fab.attachToScrollView(parallaxSv);
 
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
 
+        setLoadingLayout();
 
-        /*
-        viewsManager.addTextViewToLayout("<b>Derpy</b> - no, z Derpy to jak z Derpy. Miała kupić pomidory, a przyniosła i kupiła kilo wiśni. Zawsze była taka fiu!");
-        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize("http://vignette1.wikia.nocookie.net/mlp/images/b/b3/Derpy_Hooves_szkic.jpg/revision/latest/scale-to-width/150?cb=20130305192012&path-prefix=pl", 600), "Szkic Derpy");
-        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize("http://vignette4.wikia.nocookie.net/mlp/images/e/e9/Dreppy_x666.png/revision/latest?cb=20130715174906&path-prefix=pl", 600), "  ");
-        viewsManager.addHeader(2, "Charakterystyka");
-        viewsManager.addTextViewToLayout("Derpy pojawiła się już w pierwszym odcinku z celowym błędem animatorów (tzw. easter eggiem), polegającym na desynchronizacji kierunku patrzenia oczu bohaterki, czego skutkiem był charakterystyczny zez. Pomimo, że pegaz pojawiał się tylko w tle, fani bardzo szybko ją zauważyli i polubili. Ostatecznie zadecydowano, by błędu nie korygować (choć niekiedy Derpy ma prawidłowo zsynchronizowane oczy). Znaczek Derpy opiera się na kucyku generacji pierwszej - Bubbles");
-        viewsManager.addHeader(4, "Cechy");
-        ArrayList<String> itemz = new ArrayList<String>();
-        itemz.add("Idywidualista");
-        itemz.add("Pomysłowy");
-        itemz.add("Komformista");
-        viewsManager.addListToLayout(itemz);
-        viewsManager.addHeader(4, "Zabawki");
-        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize("http://vignette1.wikia.nocookie.net/mlp/images/d/d3/Derpy%21.jpg/revision/latest/scale-to-width/180?cb=20130806190710&path-prefix=pl", 600), "Duża figurka promocyjna, a obok - opakowanie z Derpy do ozdabiania.");
-        viewsManager.addHeader(1, "Header 1");
-        viewsManager.addHeader(2, "Header 2");
-        viewsManager.addHeader(3, "Header 3");
-        viewsManager.addHeader(4, "Header 4");
-        */
+
+
+
+        parallaxSv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                int posY = parallaxSv.getScrollY();
+
+                if (posY <= 0)
+                    fab.hide(true);
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        parallaxSv.smoothScrollTo(0, 0);
+                    }
+                });
+            }
+        });
 
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -246,7 +263,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             }
 
                             mSwipeRefreshLayout.setRefreshing(false);
-
+                            setInternetPresentLayout();
 
 
 
@@ -355,13 +372,22 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void setNoInternetLayout() {
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
+        loadingLl.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(false);
     }
 
     private void setInternetPresentLayout() {
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
+        loadingLl.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(true);
+    }
+
+    private void setLoadingLayout(){
+        parallaxSv.setVisibility(View.GONE);
+        noInternetLl.setVisibility(View.GONE);
+        loadingLl.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout.setEnabled(false);
     }
 
     private void setImageViewBackground(ImageView imageView, Drawable drawable) {

@@ -21,6 +21,8 @@
 
         <item name="drawerType">@integer/DRAWERTYPE_IMAGE</item>
         <item name="learningPattern">false</item>
+
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="GalaxyZooThemeToolbarDarkOverflow" parent="Theme.AppCompat.NoActionBar">
