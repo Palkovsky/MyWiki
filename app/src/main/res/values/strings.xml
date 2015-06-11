@@ -35,4 +35,5 @@
     <string name="removeOneQuestion">Czy na pewno chcesz usunąć?</string>
     <string name="pref_header_sample">Ustawienia</string>
     <string name="app_build">Alpha -2.0</string>
+    <string name="menu_structure">Struktura artykułu</string>
 </resources>

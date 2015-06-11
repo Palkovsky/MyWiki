@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import andrzej.example.com.fragments.MainFragment;
 import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -126,6 +129,7 @@ public class MainActivity extends MaterialNavigationDrawer {
             case R.id.menu_search:
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
                 startActivityForResult(myIntent, REQUEST_CODE_TEST);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -135,14 +139,18 @@ public class MainActivity extends MaterialNavigationDrawer {
     public void onBackPressed() {
         MaterialSection current_section = this.getCurrentSection();
 
-        if(current_section==section_main) {
+        if (current_section == section_main) {
             Intent setIntent = new Intent(Intent.ACTION_MAIN);
             setIntent.addCategory(Intent.CATEGORY_HOME);
             setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(setIntent);
-        }else{
-            ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), "Strona główna");
-            ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+        } else {
+            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            } else {
+                ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), "Strona główna");
+                ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+            }
         }
     }
 }

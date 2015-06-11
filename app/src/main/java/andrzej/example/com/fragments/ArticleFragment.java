@@ -1,26 +1,36 @@
 package andrzej.example.com.fragments;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,12 +47,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fab.FloatingActionButton;
 import andrzej.example.com.fab.ObservableScrollView;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
+import andrzej.example.com.models.ArticleHeader;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
@@ -50,8 +62,10 @@ import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
 import andrzej.example.com.utils.StringOperations;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
 public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -67,6 +81,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
     andrzej.example.com.fab.FloatingActionButton fab;
+    public static DrawerLayout mDrawerLayout;
+    ListView mDrawerListView;
+    ActionBarDrawerToggle drawerToggle;
 
     private int article_id;
     String article_title;
@@ -74,6 +91,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     // Lists
     private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
+    private List<ArticleHeader> headers = new ArrayList<>();
 
     //Networking
     private VolleySingleton volleySingleton;
@@ -81,6 +99,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     ArticleHistoryDbHandler db;
 
+    //Flasg
+    public static boolean scrollingWithDrawer = false;
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -93,7 +113,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Bundle bundle = this.getArguments();
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
-
 
 
         volleySingleton = VolleySingleton.getsInstance();
@@ -109,6 +128,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_article, container, false);
 
+        setHasOptionsMenu(true);
+
         parallaxSv = (ObservableScrollView) v.findViewById(R.id.parallaxSv);
         parallaxIv = (ImageView) v.findViewById(R.id.parallaxIv);
         titleTv = (TextView) v.findViewById(R.id.titleTv);
@@ -118,6 +139,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         loadingLl = (LinearLayout) v.findViewById(R.id.loadingLl);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
         fab = (andrzej.example.com.fab.FloatingActionButton) v.findViewById(R.id.fab);
+        mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
+        mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
 
         fab.hide(false);
         fab.attachToScrollView(parallaxSv);
@@ -128,15 +151,50 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         setLoadingLayout();
 
 
+        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
 
+                        parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
+                        mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                        fab.hide();
+                    }
+                });
+            }
+        });
 
         parallaxSv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
                 int posY = parallaxSv.getScrollY();
-
-                if (posY <= 0)
+                if (posY <= 800)
                     fab.hide(true);
+
+            }
+        });
+
+
+
+        ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT))
+                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
             }
         });
 
@@ -204,7 +262,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 int level = section.getInt(Article.KEY_LEVEL);
                                 String title = section.getString(Article.KEY_TITLE);
-                                viewsManager.addHeader(level, title);
+                                headers.add(new ArticleHeader(level, title, viewsManager.addHeader(level, title)));
 
 
                                 if (content.length() > 0) {
@@ -263,8 +321,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             }
 
                             mSwipeRefreshLayout.setRefreshing(false);
-                            setInternetPresentLayout();
 
+                            headers = ArrayHelpers.headersRemoveLevels(headers);
+                            ArticleStructureListAdapter mAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
+                            mDrawerListView.setAdapter(mAdapter);
+                            setInternetPresentLayout();
 
 
                         } catch (JSONException e) {
@@ -364,7 +425,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         requestQueue.add(request);
     }
 
-    private void fetchSimilarArticles(){
+    private void fetchSimilarArticles() {
 
     }
 
@@ -383,7 +444,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout.setEnabled(true);
     }
 
-    private void setLoadingLayout(){
+    private void setLoadingLayout() {
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.VISIBLE);
@@ -405,5 +466,29 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onRefresh() {
         rootArticleLl.removeAllViews();
         fetchArticleInfo(article_id);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.article_menu, menu);
+        // Associate searchable configuration with the SearchView
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menu_structure:
+                if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT))
+                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                else
+                    mDrawerLayout.openDrawer(Gravity.RIGHT);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

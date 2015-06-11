@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -50,7 +51,8 @@ public class HistoryFragment extends Fragment {
     ListView listHistory;
 
     //ADapter
-    private HistoryListAdapter mAdapter;
+    public static HistoryListAdapter mAdapter;
+    public static ActionMode mActionMode;
 
     //List
     List<ArticleHistoryItem> items;
@@ -167,6 +169,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 nr = 0;
+                mActionMode = mode;
                 MenuInflater inflater = getActivity().getMenuInflater();
                 inflater.inflate(R.menu.delete_history_menu, menu);
                 return true;
@@ -184,7 +187,7 @@ public class HistoryFragment extends Fragment {
                     case R.id.item_delete:
                         ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
                         List<ArticleHistoryItem> mSelected = mAdapter.getSelectedItems();
-                        for(ArticleHistoryItem historyItem : mSelected){
+                        for (ArticleHistoryItem historyItem : mSelected) {
                             db.deleteItem(historyItem.getDb_id());
                         }
                         db.close();
@@ -199,6 +202,30 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 mAdapter.clearSelection();
+                mActionMode = null;
+            }
+        });
+
+        ((MaterialNavigationDrawer)this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                if(mAdapter!=null && mActionMode!=null)
+                    mActionMode.finish();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
             }
         });
 
@@ -236,6 +263,8 @@ public class HistoryFragment extends Fragment {
 
             }
         });
+
+
 
         listHistory.setOnTouchListener(new View.OnTouchListener() {
             @Override

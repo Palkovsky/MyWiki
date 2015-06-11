@@ -69,6 +69,11 @@ public class ArticleViewsManager {
     }
 
     public void addListToLayout(ArrayList<String> list) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
+        textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
+        lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
+
         if (list != null && list.size() > 0) {
             String list_string = "";
 
@@ -84,6 +89,8 @@ public class ArticleViewsManager {
             TextView itemTv = new TextView(MyApplication.getAppContext());
             itemTv.setTypeface(null, Typeface.NORMAL);
             itemTv.setText(Html.fromHtml(list_string));
+            itemTv.setLineSpacing(lineSpacing, 1);
+            itemTv.setTextSize(textSize);
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -166,30 +173,30 @@ public class ArticleViewsManager {
 
     }
 
-    public void addHeader(int level, String label) {
+    public TextView addHeader(int level, String label) {
         TextView itemTv;
         float pixels;
         switch (level) {
             case 1:
                 itemTv = getTextView(h1_Size, label, level);
                 ll.addView(itemTv);
-                break;
+                return itemTv;
 
             case 2:
                 itemTv = getTextView(h2_size, label, level);
                 ll.addView(itemTv);
-                break;
+                return itemTv;
 
             case 3:
                 itemTv = getTextView(h3_size, label, level);
                 ll.addView(itemTv);
-                break;
+                return itemTv;
 
 
             default:
                 itemTv = getTextView(h4_size, label, level);
                 ll.addView(itemTv);
-                break;
+                return itemTv;
         }
     }
 

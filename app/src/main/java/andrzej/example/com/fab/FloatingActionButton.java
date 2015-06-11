@@ -38,11 +38,12 @@ import com.nineoldandroids.view.ViewPropertyAnimator;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
 
 public class FloatingActionButton extends ImageButton {
     private static final int TRANSLATE_DURATION_MILLIS = 200;
-
 
 
     @Retention(RetentionPolicy.SOURCE)
@@ -403,7 +404,6 @@ public class FloatingActionButton extends ImageButton {
     }
 
 
-
     private class ScrollViewScrollDetectorImpl extends ScrollViewScrollDetector implements ObservableScrollView.OnScrollChangedListener {
         private ScrollDirectionListener mScrollDirectionListener;
 
@@ -419,10 +419,11 @@ public class FloatingActionButton extends ImageButton {
 
         @Override
         public void onScrollDown() {
-            show();
-            if (mScrollDirectionListener != null) {
-                mScrollDirectionListener.onScrollDown();
-            }
+                show();
+                if (mScrollDirectionListener != null) {
+                    mScrollDirectionListener.onScrollDown();
+                }
+
         }
 
         @Override
