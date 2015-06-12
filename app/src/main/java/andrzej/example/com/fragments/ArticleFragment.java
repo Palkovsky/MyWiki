@@ -92,6 +92,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
+    ArticleStructureListAdapter mStructureAdapter;
 
     //Networking
     private VolleySingleton volleySingleton;
@@ -113,7 +114,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Bundle bundle = this.getArguments();
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
-
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -148,9 +148,15 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
 
+
         setLoadingLayout();
 
+        mStructureAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
+        mDrawerListView.setAdapter(mStructureAdapter);
+        refreshHeaders();
 
+
+        //mDrawerListView.addHeaderView(drawerHeader);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -158,9 +164,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     @Override
                     public void run() {
 
-                        parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
-                        mDrawerLayout.closeDrawer(Gravity.RIGHT);
-                        fab.hide();
+                        if (headers.get(position).getView() != null) {
+                            parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
+                            mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                            fab.hide();
+                        }
                     }
                 });
             }
@@ -175,7 +183,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             }
         });
-
 
 
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
@@ -215,11 +222,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
             public void onClick(View v) {
                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
                     mSwipeRefreshLayout.setEnabled(true);
+                    refreshHeaders();
                     mSwipeRefreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
                             mSwipeRefreshLayout.setRefreshing(true);
-                            fetchArticleInfo(article_id);
                             fetchArticleInfo(article_id);
                         }
                     });
@@ -262,8 +269,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 int level = section.getInt(Article.KEY_LEVEL);
                                 String title = section.getString(Article.KEY_TITLE);
-                                headers.add(new ArticleHeader(level, title, viewsManager.addHeader(level, title)));
-
+                                if (level != 1)
+                                    headers.add(new ArticleHeader(level, title, viewsManager.addHeader(level, title)));
+                                else
+                                    headers.get(0).setView(viewsManager.addHeader(level, title));
 
                                 if (content.length() > 0) {
                                     for (int j = 0; j < content.length(); j++) {
@@ -323,8 +332,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             mSwipeRefreshLayout.setRefreshing(false);
 
                             headers = ArrayHelpers.headersRemoveLevels(headers);
-                            ArticleStructureListAdapter mAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
-                            mDrawerListView.setAdapter(mAdapter);
+                            mStructureAdapter.notifyDataSetChanged();
+
                             setInternetPresentLayout();
 
 
@@ -451,6 +460,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout.setEnabled(false);
     }
 
+    private void refreshHeaders() {
+        headers.clear();
+        headers.add(new ArticleHeader(1, article_title, null));
+        mStructureAdapter.notifyDataSetChanged();
+    }
+
     private void setImageViewBackground(ImageView imageView, Drawable drawable) {
 
         int currentVersion = Build.VERSION.SDK_INT;
@@ -465,6 +480,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         rootArticleLl.removeAllViews();
+        refreshHeaders();
         fetchArticleInfo(article_id);
     }
 

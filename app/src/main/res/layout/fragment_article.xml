@@ -157,6 +157,7 @@
         </LinearLayout>
     </RelativeLayout>
 
+
     <ListView
         android:id="@+id/right_drawer"
         android:layout_width="240dp"

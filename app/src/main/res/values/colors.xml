@@ -14,4 +14,5 @@
 
     <color name="list_item_highlight">#a033b5e5</color>
     <color name="list_item_selected">#d033b5e5</color>
+    <color name="header_background">#01579b</color>
 </resources>

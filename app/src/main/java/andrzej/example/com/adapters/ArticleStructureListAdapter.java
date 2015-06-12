@@ -60,6 +60,15 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
         if (level == 2) {
             textViewItem.setTypeface(null, Typeface.BOLD);
             textViewItem.setTextSize(18);
+        } else if (level == 1) {
+            textViewItem.setTextSize(24);
+            textViewItem.setTypeface(null, Typeface.BOLD);
+            convertView.setBackgroundColor(mContext.getResources().getColor(R.color.list_item_selected));
+
+            if(objectItem.getView()==null) {
+                textViewItem.setClickable(false);
+                convertView.setClickable(false);
+            }
         } else {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,

@@ -40,7 +40,7 @@ public class APIEndpoints {
     public static final String URL_NAMESPACES = "namespaces=0%2C14";// 0,14 is default
 
 
-    public static final String[] STOP_WORDS = {"Galeria", "Transkrypty", "Kategoria:"}; //if search title contains one of these words don't show it to user
+    public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Kategoria:"}; //if search title contains one of these words don't show it to user
 
 
     public static String getUrlSearch(String query, int limit) {
