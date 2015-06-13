@@ -1,6 +1,7 @@
 package andrzej.example.com.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -103,6 +105,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     //Flasg
     public static boolean scrollingWithDrawer = false;
 
+    Display display;
+
     public ArticleFragment() {
         // Required empty public constructor
     }
@@ -148,6 +152,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
 
+        display = getActivity().getWindowManager().getDefaultDisplay();
 
         setLoadingLayout();
 
@@ -303,7 +308,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                     if (img_url != null && img_url.trim().length() > 0) {
                                         imgs.add(new ArticleImage(img_url, caption));
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 600), caption);
+
+                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
+
                                     }
                                 }
 
@@ -379,6 +386,25 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         } catch (JSONException e) {
             e.printStackTrace();
             mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void addImageView(String img_url, String caption){
+        int screenSize = getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+        switch(screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 1280), caption);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 920), caption);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
+                break;
+            default:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 600), caption);
         }
     }
 

@@ -1,6 +1,7 @@
 package andrzej.example.com.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -309,19 +310,20 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                                     if (img_url != null && img_url.trim().length() > 0) {
                                         imgs.add(new ArticleImage(img_url, caption));
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 600), caption);
+                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
                                     }
                                 }
 
                             }
 
                             if (imgs.size() > 0) {
-                                Picasso.with(MyApplication.getAppContext()).load(imgs.get(0).getImg_url()).into(parallaxIv, new Callback() {
+                                final String img_url = imgs.get(0).getImg_url();
+                                Picasso.with(MyApplication.getAppContext()).load(img_url).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);
 
-                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, imgs.get(0).getImg_url());
+                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, img_url);
                                         db.addItem(item);
                                     }
 
@@ -494,6 +496,25 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         requestQueue.add(request);
     }
 
+    private void addImageView(String img_url, String caption) {
+        int screenSize = getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+        switch (screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 1280), caption);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 920), caption);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
+                break;
+            default:
+                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 600), caption);
+        }
+    }
+
 
     private void setNoInternetLayout() {
         parallaxSv.setVisibility(View.GONE);
@@ -538,6 +559,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         refreshHeaders();
         imgs.clear();
         setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
+        parallaxIv.setImageResource(0);
         fetchRandomArticle();
     }
 

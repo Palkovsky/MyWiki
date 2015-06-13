@@ -112,6 +112,8 @@ public class ArticleViewsManager {
         itemTv.setTypeface(null, Typeface.NORMAL);
         itemTv.setText(Html.fromHtml("&#8226;" + label + "<br/>"));
         itemTv.setTextIsSelectable(true);
+        itemTv.setTextSize(textSize);
+        itemTv.setLineSpacing(lineSpacing, 1);
         itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(

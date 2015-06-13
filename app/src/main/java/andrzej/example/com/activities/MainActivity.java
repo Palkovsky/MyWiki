@@ -27,6 +27,7 @@ import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -74,9 +75,14 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_random.setOnClickListener(new MaterialSectionListener() {
             @Override
             public void onClick(MaterialSection materialSection) {
-                setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
-                setSection(section_article);
-                materialSection.select();
+                if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
+                    setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
+                    setSection(section_article);
+                    materialSection.select();
+                }else {
+                    Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                    materialSection.unSelect();
+                }
             }
         });
 

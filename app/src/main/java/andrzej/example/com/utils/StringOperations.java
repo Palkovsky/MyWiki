@@ -32,7 +32,8 @@ public class StringOperations {
                     String url_return;
 
                     if (StringUtils.countMatches(url, width_substring) > 1) {
-                        return url;
+                        URL uri = new URL(url.replaceFirst("/scale-to-width/"+width_substring, "/scale-to-width/"+size_str));
+                        return uri.toString();
                     } else {
                         url_return = url.replaceFirst(width_substring, size_str);
                     }
