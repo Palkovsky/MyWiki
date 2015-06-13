@@ -94,6 +94,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
+    public static List<ActionMode> mActionModes = new ArrayList<>();
     ArticleStructureListAdapter mStructureAdapter;
 
     //Networking
@@ -193,8 +194,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-                if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT))
-                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                if(mActionModes.size()>0){
+                    for(ActionMode item : mActionModes)
+                        item.finish();
+                }
             }
 
             @Override
@@ -416,6 +419,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     private void fetchArticleInfo(final int id) {
         int[] array = {id};
+        mActionModes.clear();
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemDetalis(array), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override

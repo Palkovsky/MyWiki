@@ -11,7 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import andrzej.example.com.fragments.ArticleFragment;
+import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
 
 class TextSelectionCallback implements ActionMode.Callback {
 
@@ -31,6 +34,13 @@ class TextSelectionCallback implements ActionMode.Callback {
         mode.setTitle("");
         menu.findItem(android.R.id.selectAll).setTitle(c.getResources().getString(R.string.menu_selectAll));
         menu.findItem(android.R.id.copy).setTitle(c.getResources().getString(R.string.menu_copy));
+
+        if (ArticleFragment.mActionModes != null)
+            ArticleFragment.mActionModes.add(mode);
+
+        if (RandomArticleFragment.mActionModes != null)
+            RandomArticleFragment.mActionModes.add(mode);
+
         return true;
     }
 
