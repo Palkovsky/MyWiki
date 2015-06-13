@@ -12,6 +12,8 @@ public class Article {
     public static final String KEY_TYPE = "type";
     public static final String KEY_TITLE = "title";
     public static final String KEY_LEVEL = "level";
+    public static final String KEY_ITEMS = "items";
+    public static final String KEY_ID = "id";
 
     public static final String KEY_PARAGRAPH = "paragraph";
     public static final String KEY_LIST = "list";

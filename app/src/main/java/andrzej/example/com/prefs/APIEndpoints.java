@@ -1,6 +1,8 @@
 package andrzej.example.com.prefs;
 
 
+import andrzej.example.com.utils.StringOperations;
+
 public class APIEndpoints {
 
     public static final String WIKI_NAME = "http://pl.mlp.wikia.com";
@@ -27,11 +29,16 @@ public class APIEndpoints {
     public static final String URL_NEWEST = WIKI_NAME + "/api/v1/Articles/New"; //takies limit
 
 
+    //Random Articles
+    public static final String URL_RANDOM = WIKI_NAME + "/api/v1/Articles/List"; //takes limit(int), offset(str)
+
     //Query Strings
     public static final String URL_QUERY = "query=";
     public static final String URL_ID = "id=";
     public static final String URL_IDS = "ids=";
     public static final String URL_LIMIT = "limit=";
+    public static final String URL_EXPAND = "expand=";
+    public static final String URL_OFFSET = "offset=";
     public static final String URL_MIN_ARTICLE_QUALITY = "minArticleQuality=";
     public static final String URL_ALLOW_DUPLICATES = "allowDuplicates=";
 
@@ -40,8 +47,18 @@ public class APIEndpoints {
     public static final String URL_NAMESPACES = "namespaces=0%2C14";// 0,14 is default
 
 
-    public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Kategoria:"}; //if search title contains one of these words don't show it to user
+    public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Transkrypty/", "Kategoria:"}; //if search title contains one of these words don't show it to user
 
+
+    public static String getUrlRandom(int limit){
+        return URL_RANDOM +
+                URL_CHAR_QUESTION +
+                URL_EXPAND + 0 +
+                URL_CHAR_AMEPERSAND +
+                URL_LIMIT + limit +
+                URL_CHAR_AMEPERSAND +
+                URL_OFFSET + StringOperations.generateRandomString(3);
+    }
 
     public static String getUrlSearch(String query, int limit) {
         return URL_SEARCH +

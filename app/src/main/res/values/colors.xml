@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ColorPrimary">#e91e63</color>
-    <color name="ColorPrimaryDark">#c2185b</color>
-    <color name="tabsScrollColor">#ad1457</color>
+    <color name="ColorPrimary">#424242</color>
+    <color name="ColorPrimaryDark">#212121</color>
+    <color name="tabsScrollColor">#000000</color>
 
-    <color name="background">#fce4ec</color>
+    <color name="background">#fafafa</color>
 
     <color name="drawer_option_active">#e0e0e0</color>
     <color name="drawer_background">#fafafa</color>

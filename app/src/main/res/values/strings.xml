@@ -40,4 +40,10 @@
     <string name="menu_copy">Kopiuj</string>
     <string name="menu_share">Udostępnij</string>
     <string name="share_via">Udostępnij za pomocą</string>
+    <string name="drawer_random_article">Losowa strona</string>
+    <string name="drawer_saved_articles">Zapisane strony</string>
+    <string name="drawer_history">Historia</string>
+    <string name="drawer_today">Dzisiaj</string>
+    <string name="drawer_articles">Artykuły</string>
+    <string name="drawer_settings">Ustawienia</string>
 </resources>

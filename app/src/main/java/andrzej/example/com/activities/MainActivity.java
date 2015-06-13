@@ -3,6 +3,7 @@ package andrzej.example.com.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -12,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.Random;
@@ -19,6 +22,7 @@ import java.util.Random;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
+import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
@@ -26,6 +30,7 @@ import andrzej.example.com.models.Article;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
 
 public class MainActivity extends MaterialNavigationDrawer {
 
@@ -34,7 +39,7 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     //Sekcje, które muszą być globalne.
     MaterialSection section_main;
-    MaterialSection section_random;
+    public static MaterialSection section_random;
     MaterialSection section_saved;
     MaterialSection section_history;
     MaterialSection section_settings;
@@ -54,31 +59,34 @@ public class MainActivity extends MaterialNavigationDrawer {
         this.setDrawerHeaderImage(images[random_int]);
 
 
-        section_main = newSection("Dzisiaj", new MainFragment());
+        section_main = newSection(getResources().getString(R.string.drawer_today), getResources().getDrawable(R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
         addSection(section_main);
 
-        section_history = newSection("Historia", new HistoryFragment());
+        section_history = newSection(getResources().getString(R.string.drawer_history), getResources().getDrawable(R.drawable.ic_history_grey600_24dp), new HistoryFragment());
         addSection(section_history);
 
-        section_saved = newSection("Zapisany strony", new SavedArticlesFragment());
+        section_saved = newSection(getResources().getString(R.string.drawer_saved_articles), getResources().getDrawable(R.drawable.ic_content_save_all_grey600_24dp), new SavedArticlesFragment());
         addSection(section_saved);
 
-        //Not really random
-        Fragment fragment = new ArticleFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("article_id", 1986);
-        bundle.putString("article_title", "Spike");
-        fragment.setArguments(bundle);
 
-        section_random = newSection("Losowa strona", fragment);
+        section_random = newSection(getResources().getString(R.string.drawer_random_article), getResources().getDrawable(R.drawable.ic_dice_5_grey600_24dp), new RandomArticleFragment());
         addSection(section_random);
+        section_random.setOnClickListener(new MaterialSectionListener() {
+            @Override
+            public void onClick(MaterialSection materialSection) {
+                setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
+                setSection(section_article);
+                materialSection.select();
+            }
+        });
 
-        section_article = newSection("Artykuły", new ArticleFragment());
+        section_article = newSection(getResources().getString(R.string.drawer_articles), new ArticleFragment());
         addSection(section_article);
         section_article.getView().setVisibility(View.GONE);
 
-        section_settings = newSection("Ustawienia", new Intent(this, SharedPreferenceActivity.class));
+        section_settings = newSection(getResources().getString(R.string.drawer_settings), getResources().getDrawable(R.drawable.ic_settings_grey600_24dp), new Intent(this, SharedPreferenceActivity.class));
         addBottomSection(section_settings);
+
 
     }
 
