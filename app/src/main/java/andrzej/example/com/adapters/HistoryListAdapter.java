@@ -16,20 +16,10 @@ import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
-import andrzej.example.com.models.SearchResult;
-
-
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;

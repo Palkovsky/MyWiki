@@ -36,4 +36,8 @@
     <string name="pref_header_sample">Ustawienia</string>
     <string name="app_build">Alpha -2.0</string>
     <string name="menu_structure">Struktura artykułu</string>
+    <string name="menu_selectAll">Zaznacz wszystko</string>
+    <string name="menu_copy">Kopiuj</string>
+    <string name="menu_share">Udostępnij</string>
+    <string name="share_via">Udostępnij za pomocą</string>
 </resources>

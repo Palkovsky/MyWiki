@@ -299,7 +299,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     String img_url = image.getString(ArticleImage.KEY_SRC);
                                     String caption = null;
                                     if (image.has(ArticleImage.KEY_CAPTION))
-                                        image.getString(ArticleImage.KEY_CAPTION);
+                                        caption = image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0) {
                                         imgs.add(new ArticleImage(img_url, caption));

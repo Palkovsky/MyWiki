@@ -57,6 +57,8 @@ public class ArticleViewsManager {
         itemTv.setText(Html.fromHtml(data));
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);
+        itemTv.setTextIsSelectable(true);
+        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -91,6 +93,8 @@ public class ArticleViewsManager {
             itemTv.setText(Html.fromHtml(list_string));
             itemTv.setLineSpacing(lineSpacing, 1);
             itemTv.setTextSize(textSize);
+            itemTv.setTextIsSelectable(true);
+            itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -106,7 +110,9 @@ public class ArticleViewsManager {
 
         TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
-        itemTv.setText(Html.fromHtml("&#8226;"+ label + "<br/>"));
+        itemTv.setText(Html.fromHtml("&#8226;" + label + "<br/>"));
+        itemTv.setTextIsSelectable(true);
+        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -155,6 +161,8 @@ public class ArticleViewsManager {
             TextView itemTv = new TextView(c);
             itemTv.setTypeface(null, Typeface.ITALIC);
             itemTv.setText(caption);
+            itemTv.setTextIsSelectable(true);
+            itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
             LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
@@ -208,6 +216,9 @@ public class ArticleViewsManager {
 
         itemTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         itemTv.setText(text);
+        itemTv.setTextIsSelectable(true);
+        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(

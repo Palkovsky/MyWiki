@@ -121,29 +121,6 @@ public class HistoryFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                /*
-                new MaterialDialog.Builder(getActivity()).callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        super.onPositive(dialog);
-
-                        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
-                        db.deleteItem(items.get(position).getDb_id());
-                        db.close();
-
-                        items.remove(position);
-                        mAdapter.notifyDataSetChanged();
-
-                        reInitViews(items.size());
-                    }
-
-                }).content(getActivity().getResources().getString(R.string.removeOneQuestion))
-                        .positiveText(getActivity().getResources().getString(R.string.yes))
-                        .negativeText(getActivity().getResources().getString(R.string.no)).show();
-
-                return true;
-            }
-            */
                 listHistory.setItemChecked(position, !mAdapter.isPositionChecked(position));
                 return false;
             }
