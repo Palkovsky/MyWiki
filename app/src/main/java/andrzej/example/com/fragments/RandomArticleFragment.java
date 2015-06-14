@@ -65,6 +65,7 @@ import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
 import andrzej.example.com.utils.StringOperations;
@@ -106,6 +107,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     //Flasg
     public static boolean scrollingWithDrawer = false;
+
 
     public RandomArticleFragment() {
         // Required empty public constructor
@@ -167,7 +169,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         refreshHeaders();
 
 
-        //mDrawerListView.addHeaderView(drawerHeader);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -199,8 +200,12 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-                if(mActionModes.size()>0){
-                    for(ActionMode item : mActionModes)
+
+                if (mDrawerLayout != null && mStructureAdapter != null)
+                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+
+                if (mActionModes.size() > 0) {
+                    for (ActionMode item : mActionModes)
                         item.finish();
                 }
             }
@@ -313,7 +318,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                                     if (img_url != null && img_url.trim().length() > 0) {
                                         imgs.add(new ArticleImage(img_url, caption));
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
+                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
                                     }
                                 }
 
@@ -564,6 +569,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         mActionModes.clear();
         setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
         parallaxIv.setImageResource(0);
+        parallaxIv.setImageDrawable(null);
         fetchRandomArticle();
     }
 

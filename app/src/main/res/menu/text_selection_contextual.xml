@@ -3,9 +3,21 @@
     xmlns:appcompat="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_copy"
+        android:title="@string/menu_copy"
+        android:icon="@drawable/ic_content_copy_white_24dp"
+        appcompat:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/menu_share"
         android:title="@string/menu_share"
         android:icon="@android:drawable/ic_menu_share"
+        appcompat:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_search"
+        android:title="@string/menu_search"
+        android:icon="@android:drawable/ic_menu_search"
         appcompat:showAsAction="ifRoom"/>
 
 </menu>

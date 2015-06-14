@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,13 +53,25 @@ public class ArticleViewsManager {
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
 
-        TextView itemTv = new TextView(MyApplication.getAppContext());
+        final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
         itemTv.setText(Html.fromHtml(data));
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);
+
+        final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
+
+        itemTv.setCustomSelectionActionModeCallback(action_mode);
         itemTv.setTextIsSelectable(true);
-        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+
+        itemTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                itemTv.startActionMode(action_mode);
+                return false;
+            }
+        });
+
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -88,13 +101,23 @@ public class ArticleViewsManager {
                     list_string += "&#8226;" + item;
             }
 
-            TextView itemTv = new TextView(MyApplication.getAppContext());
+            final TextView itemTv = new TextView(MyApplication.getAppContext());
             itemTv.setTypeface(null, Typeface.NORMAL);
             itemTv.setText(Html.fromHtml(list_string));
             itemTv.setLineSpacing(lineSpacing, 1);
             itemTv.setTextSize(textSize);
+            final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
+
+            itemTv.setCustomSelectionActionModeCallback(action_mode);
             itemTv.setTextIsSelectable(true);
-            itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+
+            itemTv.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    itemTv.startActionMode(action_mode);
+                    return false;
+                }
+            });
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -108,18 +131,29 @@ public class ArticleViewsManager {
 
     public void addListItemToLayout(String label, int level, int layout_level) {
 
-        TextView itemTv = new TextView(MyApplication.getAppContext());
+        final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
         itemTv.setText(Html.fromHtml("&#8226;" + label + "<br/>"));
         itemTv.setTextIsSelectable(true);
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);
-        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+        final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
+
+        itemTv.setCustomSelectionActionModeCallback(action_mode);
+        itemTv.setTextIsSelectable(true);
+
+        itemTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                itemTv.startActionMode(action_mode);
+                return false;
+            }
+        });
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(15*level*layout_level, 0, 0, 0);
+        params.setMargins(15 * level * layout_level, 0, 0, 0);
 
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
@@ -160,11 +194,21 @@ public class ArticleViewsManager {
         imageLl.addView(imageView);
 
         if (caption != null && caption.trim().length() > 0) {
-            TextView itemTv = new TextView(c);
+            final TextView itemTv = new TextView(c);
             itemTv.setTypeface(null, Typeface.ITALIC);
             itemTv.setText(caption);
+            final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
+
+            itemTv.setCustomSelectionActionModeCallback(action_mode);
             itemTv.setTextIsSelectable(true);
-            itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+
+            itemTv.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    itemTv.startActionMode(action_mode);
+                    return false;
+                }
+            });
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
             LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
@@ -211,22 +255,32 @@ public class ArticleViewsManager {
     }
 
     private TextView getTextView(int size, String text, int level) {
-        TextView itemTv = new TextView(MyApplication.getAppContext());
+        final TextView itemTv = new TextView(MyApplication.getAppContext());
         if (level <= 2)
             itemTv.setTypeface(null, Typeface.BOLD);
 
 
         itemTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         itemTv.setText(text);
+        final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
+
+        itemTv.setCustomSelectionActionModeCallback(action_mode);
         itemTv.setTextIsSelectable(true);
-        itemTv.setCustomSelectionActionModeCallback(new TextSelectionCallback(itemTv, c));
+
+        itemTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                itemTv.startActionMode(action_mode);
+                return false;
+            }
+        });
 
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(5*level, 25, 0, 25);
+        params.setMargins(5 * level, 25, 0, 25);
 
         itemTv.setLayoutParams(params);
 

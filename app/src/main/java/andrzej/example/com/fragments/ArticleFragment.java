@@ -64,6 +64,7 @@ import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
 import andrzej.example.com.utils.StringOperations;
@@ -107,6 +108,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public static boolean scrollingWithDrawer = false;
 
     Display display;
+
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -194,6 +196,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
+
+                if(mDrawerLayout!=null && mStructureAdapter!=null)
+                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+
+
                 if(mActionModes.size()>0){
                     for(ActionMode item : mActionModes)
                         item.finish();
@@ -312,7 +319,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     if (img_url != null && img_url.trim().length() > 0) {
                                         imgs.add(new ArticleImage(img_url, caption));
 
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
+                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
 
                                     }
                                 }

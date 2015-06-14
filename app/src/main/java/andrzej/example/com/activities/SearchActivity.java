@@ -175,6 +175,8 @@ public class SearchActivity extends AppCompatActivity {
         if (!NetworkUtils.isNetworkAvailable(this))
             fetchingProgressBar.setVisibility(View.GONE);
 
+
+
     }
 
     @Override
