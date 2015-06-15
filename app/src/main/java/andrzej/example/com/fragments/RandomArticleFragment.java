@@ -1,6 +1,5 @@
 package andrzej.example.com.fragments;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -11,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,23 +19,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.nirhart.parallaxscroll.views.ParallaxScrollView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -49,11 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
-import andrzej.example.com.fab.FloatingActionButton;
-import andrzej.example.com.fab.ObservableScrollView;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
@@ -64,6 +56,7 @@ import andrzej.example.com.models.ArticleSection;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.observablescrollview.ObservableScrollView;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
@@ -84,7 +77,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     LinearLayout loadingLl;
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
-    andrzej.example.com.fab.FloatingActionButton fab;
     public static DrawerLayout mDrawerLayout;
     ListView mDrawerListView;
     ActionBarDrawerToggle drawerToggle;
@@ -145,12 +137,9 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
         loadingLl = (LinearLayout) v.findViewById(R.id.loadingLl);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
-        fab = (andrzej.example.com.fab.FloatingActionButton) v.findViewById(R.id.fab);
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
 
-        fab.hide(false);
-        fab.attachToScrollView(parallaxSv);
 
         imgs.clear();
         sections.clear();
@@ -169,6 +158,29 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         refreshHeaders();
 
 
+
+        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                finishActionMode();
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -179,7 +191,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                         if (headers.get(position).getView() != null) {
                             parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
                             mDrawerLayout.closeDrawer(Gravity.RIGHT);
-                            fab.hide();
                         }
                     }
                 });
@@ -190,8 +201,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             @Override
             public void onScrollChanged() {
                 int posY = parallaxSv.getScrollY();
-                if (posY <= 800)
-                    fab.hide(true);
+                if (posY <= 800) ;
 
             }
         });
@@ -204,10 +214,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 if (mDrawerLayout != null && mStructureAdapter != null)
                     mDrawerLayout.closeDrawer(Gravity.RIGHT);
 
-                if (mActionModes.size() > 0) {
-                    for (ActionMode item : mActionModes)
-                        item.finish();
-                }
+                finishActionMode();
             }
 
             @Override
@@ -223,17 +230,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             }
         });
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        parallaxSv.smoothScrollTo(0, 0);
-                    }
-                });
-            }
-        });
+
 
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,6 +262,14 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         return v;
     }
 
+    public static void finishActionMode() {
+        if (mActionModes != null && mActionModes.size() > 0) {
+            for (ActionMode item : mActionModes) {
+                item.finish();
+            }
+            mActionModes.clear();
+        }
+    }
 
     private void fetchArticleContent(int id) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemContent(id), (String) null,
@@ -566,7 +571,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         rootArticleLl.removeAllViews();
         refreshHeaders();
         imgs.clear();
-        mActionModes.clear();
+        finishActionMode();
         setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
         parallaxIv.setImageResource(0);
         parallaxIv.setImageDrawable(null);

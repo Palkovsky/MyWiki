@@ -46,4 +46,5 @@
     <string name="drawer_today">Dzisiaj</string>
     <string name="drawer_articles">Artykuły</string>
     <string name="drawer_settings">Ustawienia</string>
+    <string name="copy">Skopiowano do schowka</string>
 </resources>

@@ -75,11 +75,11 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_random.setOnClickListener(new MaterialSectionListener() {
             @Override
             public void onClick(MaterialSection materialSection) {
-                if(NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
+                if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
                     setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
                     setSection(section_article);
                     materialSection.select();
-                }else {
+                } else {
                     Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                     materialSection.unSelect();
                 }
@@ -93,6 +93,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_settings = newSection(getResources().getString(R.string.drawer_settings), getResources().getDrawable(R.drawable.ic_settings_grey600_24dp), new Intent(this, SharedPreferenceActivity.class));
         addBottomSection(section_settings);
 
+        getToolbar().setCollapsible(true);
 
     }
 
@@ -161,10 +162,13 @@ public class MainActivity extends MaterialNavigationDrawer {
         } else {
             if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
             } else {
                 ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), "Strona główna");
                 ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
             }
         }
     }
+
 }

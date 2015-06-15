@@ -30,7 +30,7 @@
             android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="@xml/searchable"
-                android:value=".SearchResultsActivity" />
+                android:value="andrzej.example.com.activities.SearchActivity" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />

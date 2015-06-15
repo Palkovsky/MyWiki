@@ -1,8 +1,8 @@
 package andrzej.example.com.fragments;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,7 +10,9 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
@@ -22,9 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -32,13 +32,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.nirhart.parallaxscroll.views.ParallaxScrollView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -51,8 +51,6 @@ import java.util.List;
 
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
-import andrzej.example.com.fab.FloatingActionButton;
-import andrzej.example.com.fab.ObservableScrollView;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
@@ -63,6 +61,9 @@ import andrzej.example.com.models.ArticleSection;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.observablescrollview.ObservableScrollView;
+import andrzej.example.com.observablescrollview.ObservableScrollViewCallbacks;
+import andrzej.example.com.observablescrollview.ScrollState;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
@@ -71,7 +72,7 @@ import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
 
     //UI
     ImageView parallaxIv;
@@ -83,7 +84,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     LinearLayout loadingLl;
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
-    andrzej.example.com.fab.FloatingActionButton fab;
     public static DrawerLayout mDrawerLayout;
     ListView mDrawerListView;
     ActionBarDrawerToggle drawerToggle;
@@ -105,9 +105,13 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     ArticleHistoryDbHandler db;
 
     //Flasg
-    public static boolean scrollingWithDrawer = false;
+    private boolean scrollActPerformed = false;
 
+    //stuff
+    private int mLastScrollY;
+    private int mScrollThreshold = 20;
     Display display;
+    Point size = new Point();
 
 
     public ArticleFragment() {
@@ -145,17 +149,14 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
         loadingLl = (LinearLayout) v.findViewById(R.id.loadingLl);
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
-        fab = (andrzej.example.com.fab.FloatingActionButton) v.findViewById(R.id.fab);
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
 
-        fab.hide(false);
-        fab.attachToScrollView(parallaxSv);
-
-        viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
+        viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
 
         display = getActivity().getWindowManager().getDefaultDisplay();
+        display.getSize(size);
 
         setLoadingLayout();
 
@@ -164,103 +165,158 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         refreshHeaders();
 
 
+        parallaxSv.setScrollViewCallbacks(this);
+
+        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
+
+                                        {
+                                            @Override
+                                            public void onDrawerSlide(View drawerView, float slideOffset) {
+                                                finishActionMode();
+                                            }
+
+                                            @Override
+                                            public void onDrawerOpened(View drawerView) {
+
+                                            }
+
+                                            @Override
+                                            public void onDrawerClosed(View drawerView) {
+
+                                            }
+
+                                            @Override
+                                            public void onDrawerStateChanged(int newState) {
+
+                                            }
+                                        }
+
+        );
+
         //mDrawerListView.addHeaderView(drawerHeader);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
+        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
 
-                        if (headers.get(position).getView() != null) {
-                            parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
-                            mDrawerLayout.closeDrawer(Gravity.RIGHT);
-                            fab.hide();
-                        }
-                    }
-                });
-            }
-        });
+                                               {
+                                                   @Override
+                                                   public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                                                       new Handler().post(new Runnable() {
+                                                           @Override
+                                                           public void run() {
 
-        parallaxSv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                int posY = parallaxSv.getScrollY();
-                if (posY <= 800)
-                    fab.hide(true);
+                                                               if (headers.get(position).getView() != null) {
+                                                                   parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
+                                                                   mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                                                               }
+                                                           }
+                                                       });
+                                                   }
+                                               }
 
-            }
-        });
+        );
 
+        parallaxSv.getViewTreeObserver().
 
-        ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
+                addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                                               @Override
+                                               public void onScrollChanged() {
+                                                   int posY = parallaxSv.getScrollY();
+                                                   if (posY <= 800) ;
 
-                if(mDrawerLayout!=null && mStructureAdapter!=null)
-                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                                               }
+                                           }
+
+                );
 
 
-                if(mActionModes.size()>0){
-                    for(ActionMode item : mActionModes)
-                        item.finish();
-                }
-            }
+        ((MaterialNavigationDrawer) this.
 
-            @Override
-            public void onDrawerOpened(View drawerView) {
-            }
+                getActivity()
 
-            @Override
-            public void onDrawerClosed(View drawerView) {
-            }
+        ).
 
-            @Override
-            public void onDrawerStateChanged(int newState) {
-            }
-        });
+                setDrawerListener(new DrawerLayout.DrawerListener() {
+                                      @Override
+                                      public void onDrawerSlide(View drawerView, float slideOffset) {
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        parallaxSv.smoothScrollTo(0, 0);
-                    }
-                });
-            }
-        });
+                                          if (mDrawerLayout != null && mStructureAdapter != null)
+                                              mDrawerLayout.closeDrawer(Gravity.RIGHT);
 
-        retryBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (NetworkUtils.isNetworkAvailable(getActivity())) {
-                    mSwipeRefreshLayout.setEnabled(true);
-                    refreshHeaders();
-                    mSwipeRefreshLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSwipeRefreshLayout.setRefreshing(true);
-                            fetchArticleInfo(article_id);
-                        }
-                    });
-                } else
-                    Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
-            }
-        });
+
+                                          finishActionMode();
+                                      }
+
+                                      @Override
+                                      public void onDrawerOpened(View drawerView) {
+                                      }
+
+                                      @Override
+                                      public void onDrawerClosed(View drawerView) {
+                                      }
+
+                                      @Override
+                                      public void onDrawerStateChanged(int newState) {
+                                      }
+                                  }
+
+                );
+
+
+        retryBtn.setOnClickListener(new View.OnClickListener()
+
+                                    {
+                                        @Override
+                                        public void onClick(View v) {
+                                            if (NetworkUtils.isNetworkAvailable(getActivity())) {
+                                                mSwipeRefreshLayout.setEnabled(true);
+                                                refreshHeaders();
+                                                mSwipeRefreshLayout.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        mSwipeRefreshLayout.setRefreshing(true);
+                                                        fetchArticleInfo(article_id);
+                                                    }
+                                                });
+                                            } else
+                                                Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+        );
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         titleTv.setText(article_title);
-        setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
 
-        if (NetworkUtils.isNetworkAvailable(getActivity()))
+        setImageViewBackground(parallaxIv, getResources()
+
+                        .
+
+                                getDrawable(R.drawable.logo)
+
+        );
+
+        if (NetworkUtils.isNetworkAvailable(
+
+                getActivity()
+
+        ))
+
             fetchArticleInfo(article_id);
+
         else
+
             setNoInternetLayout();
 
         return v;
+    }
+
+    public static void finishActionMode() {
+        if (mActionModes != null && mActionModes.size() > 0) {
+            for (ActionMode item : mActionModes) {
+                item.finish();
+            }
+            mActionModes.clear();
+        }
     }
 
 
@@ -399,11 +455,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
 
-    private void addImageView(String img_url, String caption){
+    private void addImageView(String img_url, String caption) {
         int screenSize = getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK;
 
-        switch(screenSize) {
+        switch (screenSize) {
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 1280), caption);
                 break;
@@ -517,6 +573,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         rootArticleLl.removeAllViews();
+        finishActionMode();
         refreshHeaders();
         fetchArticleInfo(article_id);
     }
@@ -543,5 +600,29 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
+        if (scrollState == ScrollState.UP) {
+            if (ab.isShowing()) {
+                ab.hide();
+            }
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!ab.isShowing()) {
+                ab.show();
+            }
+        }
     }
 }

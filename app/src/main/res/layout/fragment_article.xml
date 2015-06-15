@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <andrzej.example.com.fab.ObservableScrollView
+            <andrzej.example.com.observablescrollview.ObservableScrollView
                 android:id="@+id/parallaxSv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,28 +86,10 @@
 
 
                 </RelativeLayout>
-            </andrzej.example.com.fab.ObservableScrollView>
+            </andrzej.example.com.observablescrollview.ObservableScrollView>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:orientation="horizontal">
-
-            <andrzej.example.com.fab.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_gravity="bottom|right"
-                android:src="@drawable/ic_arrow_up_white_24dp"
-                fab:fab_colorNormal="@color/header_background"
-                fab:fab_colorPressed="@color/list_item_selected"
-                fab:fab_colorRipple="@color/list_item_selected" />
-        </LinearLayout>
 
 
         <!-- Loading Layout -->

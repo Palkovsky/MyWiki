@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import andrzej.example.com.fragments.ArticleFragment;
+import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -67,10 +69,14 @@ public class ArticleViewsManager {
         itemTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                ArticleFragment.finishActionMode();
+                RandomArticleFragment.finishActionMode();
                 itemTv.startActionMode(action_mode);
                 return false;
             }
         });
+
+
 
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
@@ -114,10 +120,13 @@ public class ArticleViewsManager {
             itemTv.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    ArticleFragment.finishActionMode();
+                    RandomArticleFragment.finishActionMode();
                     itemTv.startActionMode(action_mode);
                     return false;
                 }
             });
+
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -145,6 +154,8 @@ public class ArticleViewsManager {
         itemTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                ArticleFragment.finishActionMode();
+                RandomArticleFragment.finishActionMode();
                 itemTv.startActionMode(action_mode);
                 return false;
             }
@@ -205,6 +216,8 @@ public class ArticleViewsManager {
             itemTv.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    ArticleFragment.finishActionMode();
+                    RandomArticleFragment.finishActionMode();
                     itemTv.startActionMode(action_mode);
                     return false;
                 }
@@ -270,6 +283,8 @@ public class ArticleViewsManager {
         itemTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                ArticleFragment.finishActionMode();
+                RandomArticleFragment.finishActionMode();
                 itemTv.startActionMode(action_mode);
                 return false;
             }

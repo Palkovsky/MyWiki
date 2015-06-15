@@ -1,8 +1,14 @@
 package andrzej.example.com.utils;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Browser;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -12,9 +18,13 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.activities.SearchActivity;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
+import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.network.NetworkUtils;
 
 class TextSelectionCallback implements ActionMode.Callback {
 
@@ -41,6 +51,7 @@ class TextSelectionCallback implements ActionMode.Callback {
 
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
         mode.setTitle("");
+        bodyView.requestFocus();
 
         if (menu.findItem(android.R.id.selectAll) != null)
             menu.findItem(android.R.id.selectAll).setVisible(false);
@@ -63,6 +74,12 @@ class TextSelectionCallback implements ActionMode.Callback {
 
         switch (item.getItemId()) {
 
+            case R.id.menu_copy:
+                BasicUtils.clipData(c, text);
+                Toast.makeText(c, c.getResources().getString(R.string.copy), Toast.LENGTH_SHORT).show();
+                mode.finish();
+                break;
+
             case R.id.menu_share:
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
@@ -73,20 +90,28 @@ class TextSelectionCallback implements ActionMode.Callback {
                 c.startActivity(i);
                 break;
 
-            case R.id.menu_search:
-                Toast.makeText(c, text, Toast.LENGTH_SHORT).show();
-                break;
 
-            case R.id.menu_copy:
-                BasicUtils.clipData(c, text);
+            case R.id.menu_search:
+                if (!TextUtils.isEmpty(text)) {
+                    Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra(SearchManager.QUERY, text);
+                    intent.putExtra(Browser.EXTRA_APPLICATION_ID, c.getPackageName());
+                    try {
+                        c.startActivity(intent);
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        // If no app handles it, do nothing.
+                    }
+                }
                 mode.finish();
                 break;
+
         }
         return false;
     }
 
     public void onDestroyActionMode(ActionMode mode) {
+        bodyView.clearFocus();
     }
-
 
 }

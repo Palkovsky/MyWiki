@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -78,6 +79,9 @@ public class SearchActivity extends AppCompatActivity {
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
+    //KEYS
+    public static final String QUERY_KEY = "QUERY_KEY";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +120,8 @@ public class SearchActivity extends AppCompatActivity {
                     resultIntent.putExtra("article_title", searchResult.getTitle());
                     setResult(Activity.RESULT_OK, resultIntent);
                     finish();
-                }else
+
+                } else
                     Toast.makeText(MyApplication.getAppContext(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
 
             }
@@ -174,7 +179,6 @@ public class SearchActivity extends AppCompatActivity {
 
         if (!NetworkUtils.isNetworkAvailable(this))
             fetchingProgressBar.setVisibility(View.GONE);
-
 
 
     }
@@ -271,6 +275,16 @@ public class SearchActivity extends AppCompatActivity {
 
         searchView.setIconified(false);
 
+
+        //Accept search query
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String value = extras.getString(QUERY_KEY).trim();
+            if (value.length() > 0) {
+                searchView.setQuery(value, true);
+            }
+        }
+
         return true;
     }
 
@@ -366,6 +380,7 @@ public class SearchActivity extends AppCompatActivity {
                                 fetchingProgressBar.setVisibility(View.GONE);
                                 noRecordsTv.setVisibility(View.VISIBLE);
                                 results_listview.setVisibility(View.GONE);
+
                             } else {
                                 fetchingProgressBar.setVisibility(View.GONE);
                             }
