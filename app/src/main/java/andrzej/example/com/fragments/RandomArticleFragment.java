@@ -2,15 +2,19 @@ package andrzej.example.com.fragments;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.ActionMode;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,6 +61,8 @@ import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.observablescrollview.ObservableScrollView;
+import andrzej.example.com.observablescrollview.ObservableScrollViewCallbacks;
+import andrzej.example.com.observablescrollview.ScrollState;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
@@ -65,7 +71,7 @@ import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class RandomArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class RandomArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
 
     //UI
     ImageView parallaxIv;
@@ -99,6 +105,13 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     //Flasg
     public static boolean scrollingWithDrawer = false;
+    private boolean isSignificantDelta = false;
+
+    //stuff
+    private int mLastScrollY;
+    private int mScrollThreshold = 25;
+    Display display;
+    Point size = new Point();
 
 
     public RandomArticleFragment() {
@@ -150,6 +163,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
 
+        display = getActivity().getWindowManager().getDefaultDisplay();
+        display.getSize(size);
 
         setLoadingLayout();
 
@@ -157,7 +172,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         mDrawerListView.setAdapter(mStructureAdapter);
         refreshHeaders();
 
-
+        parallaxSv.setScrollViewCallbacks(this);
 
         mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -252,7 +267,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
+        //ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null)
+        setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
 
         if (NetworkUtils.isNetworkAvailable(getActivity()))
             fetchRandomArticle();
@@ -406,6 +422,9 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     @Override
     public void onPause() {
         super.onPause();
+        if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
+            ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
+        }
         db.close();
     }
 
@@ -600,5 +619,33 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        isSignificantDelta = Math.abs(scrollY - mLastScrollY) > mScrollThreshold;
+        mLastScrollY = scrollY;
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
+
+        if (scrollState == ScrollState.UP) {
+            if (ab.isShowing() && mLastScrollY > size.y * 1.6 && isSignificantDelta) {
+                ab.hide();
+            }
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!ab.isShowing()) {
+                ab.show();
+            }
+        }
+
+        isSignificantDelta = false;
     }
 }

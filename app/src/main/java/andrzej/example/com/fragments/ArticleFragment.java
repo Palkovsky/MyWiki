@@ -3,11 +3,13 @@ package andrzej.example.com.fragments;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -24,6 +26,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,6 +72,7 @@ import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
+import andrzej.example.com.utils.BasicUtils;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -105,11 +110,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     ArticleHistoryDbHandler db;
 
     //Flasg
-    private boolean scrollActPerformed = false;
+    private boolean  isSignificantDelta = false;
 
     //stuff
     private int mLastScrollY;
-    private int mScrollThreshold = 20;
+    private int mScrollThreshold = 25;
     Display display;
     Point size = new Point();
 
@@ -204,6 +209,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                                            public void run() {
 
                                                                if (headers.get(position).getView() != null) {
+                                                                   if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
+                                                                       ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
+                                                                   }
                                                                    parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
                                                                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
                                                                }
@@ -240,7 +248,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                           if (mDrawerLayout != null && mStructureAdapter != null)
                                               mDrawerLayout.closeDrawer(Gravity.RIGHT);
-
 
                                           finishActionMode();
                                       }
@@ -287,24 +294,14 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         titleTv.setText(article_title);
 
-        setImageViewBackground(parallaxIv, getResources()
-
-                        .
-
-                                getDrawable(R.drawable.logo)
-
-        );
+        //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
+        setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
 
         if (NetworkUtils.isNetworkAvailable(
-
                 getActivity()
-
         ))
-
             fetchArticleInfo(article_id);
-
         else
-
             setNoInternetLayout();
 
         return v;
@@ -477,6 +474,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onPause() {
         super.onPause();
+
+        if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
+            ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
+        }
         db.close();
     }
 
@@ -498,6 +499,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
                                 JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
                                 int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
+
+                                if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
+                                    orginal_width = BaseConfig.MAX_IMAGE_SIZE;
 
                                 thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
 
@@ -564,8 +568,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         int currentVersion = Build.VERSION.SDK_INT;
 
         if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+            imageView.setBackground(null);
             imageView.setBackground(drawable);
         } else {
+            imageView.setBackgroundDrawable(null);
             imageView.setBackgroundDrawable(drawable);
         }
     }
@@ -604,7 +610,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
-
+        isSignificantDelta = Math.abs(scrollY - mLastScrollY) > mScrollThreshold;
+        mLastScrollY = scrollY;
     }
 
     @Override
@@ -615,14 +622,17 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
         ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
-        if (scrollState == ScrollState.UP) {
-            if (ab.isShowing()) {
-                ab.hide();
+
+            if (scrollState == ScrollState.UP) {
+                if (ab.isShowing() && mLastScrollY > size.y * 1.6 && isSignificantDelta) {
+                    ab.hide();
+                }
+            } else if (scrollState == ScrollState.DOWN) {
+                if (!ab.isShowing()) {
+                    ab.show();
+                }
             }
-        } else if (scrollState == ScrollState.DOWN) {
-            if (!ab.isShowing()) {
-                ab.show();
-            }
-        }
+
+        isSignificantDelta = false;
     }
 }

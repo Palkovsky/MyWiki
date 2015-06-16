@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -59,6 +60,7 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         this.setDrawerHeaderImage(images[random_int]);
 
+        getSupportActionBar().setShowHideAnimationEnabled(true);
 
         section_main = newSection(getResources().getString(R.string.drawer_today), getResources().getDrawable(R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
         addSection(section_main);

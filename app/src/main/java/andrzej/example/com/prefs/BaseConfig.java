@@ -8,4 +8,6 @@ public class BaseConfig {
 
     public static final int searchLimit = 25;
     public static final int lastEditedLimit = 10;
+
+    public static final int MAX_IMAGE_SIZE = 500;
 }
