@@ -29,6 +29,7 @@ import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -96,6 +97,9 @@ public class MainActivity extends MaterialNavigationDrawer {
         addBottomSection(section_settings);
 
         getToolbar().setCollapsible(true);
+
+        int[] ids = {3730};
+        Log.e(null, APIEndpoints.getUrlRelatedPages(ids, 5));
 
     }
 

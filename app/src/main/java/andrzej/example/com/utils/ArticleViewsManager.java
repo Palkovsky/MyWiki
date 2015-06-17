@@ -83,7 +83,7 @@ public class ArticleViewsManager {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(15 * level, 0, 0, 0);
+        params.setMargins(10 * level, 0, 0, 0);
 
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
@@ -171,7 +171,7 @@ public class ArticleViewsManager {
 
     }
 
-    public void addImageViewToLayout(String img_url, String caption) {
+    public ImageView addImageViewToLayout(String img_url, String caption) {
 
 
         LinearLayout imageLl = new LinearLayout(MyApplication.getAppContext());
@@ -238,6 +238,7 @@ public class ArticleViewsManager {
 
         ll.addView(imageLl);
 
+        return imageView;
     }
 
     public TextView addHeader(int level, String label) {

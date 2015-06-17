@@ -49,6 +49,19 @@ public class APIEndpoints {
 
     public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Transkrypty/", "Kategoria:"}; //if search title contains one of these words don't show it to user
 
+    public static final String getUrlRelatedPages(int[] ids, int limit){
+        String url = URL_RELATED_PAGES +
+                URL_CHAR_QUESTION +
+                URL_LIMIT + limit +
+                URL_CHAR_AMEPERSAND;
+
+        for(int id : ids){
+            url += Integer.toString(id)+",";
+        }
+
+        return url;
+
+    }
 
     public static String getUrlRandom(int limit){
         return URL_RANDOM +

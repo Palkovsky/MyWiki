@@ -1,5 +1,7 @@
 package andrzej.example.com.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -8,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -110,11 +113,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     ArticleHistoryDbHandler db;
 
     //Flasg
-    private boolean  isSignificantDelta = false;
+    private boolean isSignificantDelta = false;
 
     //stuff
     private int mLastScrollY;
-    private int mScrollThreshold = 25;
+    private int mScrollThreshold = 5;
     Display display;
     Point size = new Point();
 
@@ -133,6 +136,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
+
 
         db = new ArticleHistoryDbHandler(getActivity());
 
@@ -370,34 +374,23 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         caption = image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0) {
-                                        imgs.add(new ArticleImage(img_url, caption));
+                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        imgs.add(new ArticleImage(img_url, caption, imgs.size()));
 
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        final ArticleImage imageItem = imgs.get(imgs.size() - 1);
+
+                                        iv.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
 
                                     }
                                 }
 
                             }
 
-                            if (imgs.size() > 0) {
-                                Picasso.with(MyApplication.getAppContext()).load(imgs.get(0).getImg_url()).into(parallaxIv, new Callback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        parallaxIv.setBackgroundColor(Color.WHITE);
-
-                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, imgs.get(0).getImg_url());
-                                        db.addItem(item);
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                    }
-                                });
-                            } else {
-                                ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
-                                db.addItem(item);
-                            }
 
                             mSwipeRefreshLayout.setRefreshing(false);
 
@@ -474,7 +467,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onPause() {
         super.onPause();
-
+        finishActionMode();
         if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
             ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
         }
@@ -505,7 +498,35 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
 
-                                imgs.add(new ArticleImage(thumbnail_url));
+                                imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                            }
+
+                            if (imgs.size() > 0) {
+                                final ArticleImage image = imgs.get(0);
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        parallaxIv.setBackgroundColor(Color.WHITE);
+                                        parallaxIv.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Toast.makeText(getActivity(), "ParallaxIv: " + image.getPosition(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
+
+                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
+                                        db.addItem(item);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+
+                                    }
+                                });
+                            } else {
+                                ArticleHistoryItem historyItemitem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                db.addItem(historyItemitem);
                             }
 
                             fetchArticleContent(id);
@@ -623,15 +644,27 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
         ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
 
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean showToolbar = settings.getBoolean("TOOLBAR_HIDING_PREF", true);
+
+        if (showToolbar) {
             if (scrollState == ScrollState.UP) {
                 if (ab.isShowing() && mLastScrollY > size.y * 1.6 && isSignificantDelta) {
                     ab.hide();
                 }
             } else if (scrollState == ScrollState.DOWN) {
                 if (!ab.isShowing()) {
-                    ab.show();
+                    if (mLastScrollY > size.y * 1.6) {
+                        if (isSignificantDelta)
+                            ab.show();
+                    } else
+                        ab.show();
                 }
             }
+        } else {
+            if (!ab.isShowing())
+                ab.show();
+        }
 
         isSignificantDelta = false;
     }

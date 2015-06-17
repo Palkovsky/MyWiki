@@ -1,5 +1,6 @@
 package andrzej.example.com.fragments;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -7,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -109,7 +111,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     //stuff
     private int mLastScrollY;
-    private int mScrollThreshold = 25;
+    private int mScrollThreshold = 15;
     Display display;
     Point size = new Point();
 
@@ -202,6 +204,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 new Handler().post(new Runnable() {
                     @Override
                     public void run() {
+
+                        if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
+                            ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
+                        }
 
                         if (headers.get(position).getView() != null) {
                             parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
@@ -338,33 +344,23 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                         caption = image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0) {
-                                        imgs.add(new ArticleImage(img_url, caption));
-                                        viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        imgs.add(new ArticleImage(img_url, caption, imgs.size()));
+
+                                        final ArticleImage imageItem = imgs.get(imgs.size() - 1);
+
+                                        iv.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Toast.makeText(getActivity(), imageItem.getPosition() + "", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
                                     }
                                 }
 
                             }
 
-                            if (imgs.size() > 0) {
-                                final String img_url = imgs.get(0).getImg_url();
-                                Picasso.with(MyApplication.getAppContext()).load(img_url).into(parallaxIv, new Callback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        parallaxIv.setBackgroundColor(Color.WHITE);
-
-                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, img_url);
-                                        db.addItem(item);
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                    }
-                                });
-                            } else {
-                                ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
-                                db.addItem(item);
-                            }
 
                             mSwipeRefreshLayout.setRefreshing(false);
 
@@ -422,6 +418,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     @Override
     public void onPause() {
         super.onPause();
+        finishActionMode();
         if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
             ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
         }
@@ -448,7 +445,35 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                                 thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
 
-                                imgs.add(new ArticleImage(thumbnail_url));
+                                imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                            }
+
+                            if (imgs.size() > 0) {
+                                final ArticleImage image = imgs.get(0);
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        parallaxIv.setBackgroundColor(Color.WHITE);
+                                        parallaxIv.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Toast.makeText(getActivity(), "ParallaxIv: " + image.getPosition(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
+
+                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
+                                        db.addItem(item);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+
+                                    }
+                                });
+                            } else {
+                                ArticleHistoryItem historyItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                db.addItem(historyItem);
                             }
 
                             fetchArticleContent(id);
@@ -636,14 +661,26 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
         ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
 
-        if (scrollState == ScrollState.UP) {
-            if (ab.isShowing() && mLastScrollY > size.y * 1.6 && isSignificantDelta) {
-                ab.hide();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean showToolbar = settings.getBoolean("TOOLBAR_HIDING_PREF", true);
+
+        if (showToolbar) {
+            if (scrollState == ScrollState.UP) {
+                if (ab.isShowing() && mLastScrollY > size.y * 1.6 && isSignificantDelta) {
+                    ab.hide();
+                }
+            } else if (scrollState == ScrollState.DOWN) {
+                if (!ab.isShowing()) {
+                    if (mLastScrollY > size.y * 1.6) {
+                        if (isSignificantDelta)
+                            ab.show();
+                    } else
+                        ab.show();
+                }
             }
-        } else if (scrollState == ScrollState.DOWN) {
-            if (!ab.isShowing()) {
+        } else {
+            if (!ab.isShowing())
                 ab.show();
-            }
         }
 
         isSignificantDelta = false;

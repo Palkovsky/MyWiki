@@ -22,6 +22,12 @@
             android:defaultValue="10"
             android:textColor="@color/font_color"
             />
+
+        <CheckBoxPreference
+            android:key="TOOLBAR_HIDING_PREF"
+            android:title="Znikanie toolbaru"
+            android:summary="Zanikanie toolbaru przy scrollowaniu."
+            android:defaultValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Informacje">

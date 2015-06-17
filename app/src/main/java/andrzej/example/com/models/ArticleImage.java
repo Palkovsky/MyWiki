@@ -14,14 +14,17 @@ public class ArticleImage {
 
     private String img_url;
     private String label;
+    private int position;
 
-    public ArticleImage(String img_url) {
+    public ArticleImage(String img_url, int position) {
         this.img_url = img_url;
+        this.position = position;
     }
 
-    public ArticleImage(String img_url, String label) {
+    public ArticleImage(String img_url, String label, int position) {
         this.img_url = img_url;
         this.label = label;
+        this.position = position;
     }
 
     public String getImg_url() {
@@ -38,5 +41,13 @@ public class ArticleImage {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }
