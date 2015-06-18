@@ -14,9 +14,39 @@
             />
 
         <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="PARAGRAPH_MARGIN_PREF"
+            android:title="Margines akapitów"
+            android:summary="Pionowy margines między akapitami."
+            android:numeric="integer"
+            android:maxLength="2"
+            android:defaultValue="10"
+            android:textColor="@color/font_color"
+            />
+
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="HEADERS_MARGIN_PREF"
+            android:title="Margines nagłówków"
+            android:summary="Pionowy margines między nagłówkami."
+            android:numeric="integer"
+            android:maxLength="2"
+            android:defaultValue="20"
+            android:textColor="@color/font_color"
+            />
+
+        <andrzej.example.com.views.MaterialEditTextPreference
             android:key="LINE_SPACING_PREF"
             android:title="Line spacing"
             android:summary="Odległość między liniami tekstu w artykułach."
+            android:numeric="integer"
+            android:maxLength="2"
+            android:defaultValue="10"
+            android:textColor="@color/font_color"
+            />
+
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="LEFT_MARGIN_CON_PREF"
+            android:title="Lewy margines"
+            android:summary="Stała na podstawie której będzie oblcizany lewy margines."
             android:numeric="integer"
             android:maxLength="2"
             android:defaultValue="10"

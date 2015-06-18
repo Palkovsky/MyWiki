@@ -21,7 +21,6 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.SharedPrefsKeys;
-import andrzej.example.com.views.LetterSpacingTextView;
 
 /**
  * Created by andrzej on 08.06.15.
@@ -34,6 +33,11 @@ public class ArticleViewsManager {
     private static final int h2_size = 28;
     private static final int h3_size = 24;
     private static final int h4_size = 20;
+
+    private static int paragraph_vertical_margin = 10;
+    private static int header_vertical_margin = 20;
+    private static int paragraphLeftMarginCons = 10;
+    private static final int imageView_margin = 25;
 
 
     private static int textSize = 18; //defaults
@@ -54,6 +58,8 @@ public class ArticleViewsManager {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
+        paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
+        paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
@@ -83,8 +89,7 @@ public class ArticleViewsManager {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(10 * level, 0, 0, 0);
-
+        params.setMargins(paragraphLeftMarginCons * level, paragraph_vertical_margin, 0, paragraph_vertical_margin);
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
     }
@@ -160,11 +165,15 @@ public class ArticleViewsManager {
                 return false;
             }
         });
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
+        paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
+
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(15 * level * layout_level, 0, 0, 0);
+        params.setMargins(paragraphLeftMarginCons * level * layout_level, 0, 0, 0);
 
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
@@ -194,9 +203,9 @@ public class ArticleViewsManager {
                 LinearLayout.LayoutParams.MATCH_PARENT);
 
         if (caption != null && caption.trim().length() > 0)
-            params_iv.setMargins(0, 25, 0, 0);
+            params_iv.setMargins(0, imageView_margin, 0, 0);
         else
-            params_iv.setMargins(0, 25, 0, 25);
+            params_iv.setMargins(0, imageView_margin, 0, imageView_margin);
 
         //setting image position
         imageView.setId(R.id.imageViewProgramatically);
@@ -227,7 +236,7 @@ public class ArticleViewsManager {
             LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
-            params_tv.setMargins(0, 0, 0, 25);
+            params_tv.setMargins(0, 0, 0, imageView_margin);
 
             itemTv.setGravity(Gravity.CENTER_HORIZONTAL);
 
@@ -293,10 +302,13 @@ public class ArticleViewsManager {
 
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
+        header_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_HEADERS_MARGIN, header_vertical_margin);
+
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(5 * level, 25, 0, 25);
+        params.setMargins(5 * level, header_vertical_margin, 0, header_vertical_margin);
 
         itemTv.setLayoutParams(params);
 
