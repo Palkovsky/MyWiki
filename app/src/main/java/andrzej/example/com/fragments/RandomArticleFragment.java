@@ -1,5 +1,6 @@
 package andrzej.example.com.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import andrzej.example.com.activities.GalleryActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -93,7 +95,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     String article_title;
 
     // Lists
-    private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
+    public static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
     public static List<ActionMode> mActionModes = new ArrayList<>();
@@ -352,7 +354,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                         iv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Toast.makeText(getActivity(), imageItem.getPosition() + "", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_RANDOM);
+                                                intent.putExtra(GalleryActivity.KEY_POSITON, imageItem.getPosition());
+                                                startActivity(intent);
                                             }
                                         });
 
@@ -457,7 +462,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                         parallaxIv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Toast.makeText(getActivity(), "ParallaxIv: " + image.getPosition(), Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_RANDOM);
+                                                intent.putExtra(GalleryActivity.KEY_POSITON, image.getPosition());
+                                                startActivity(intent);
                                             }
                                         });
 

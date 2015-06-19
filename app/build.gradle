@@ -22,6 +22,7 @@ android {
 
 repositories{
     mavenCentral()
+
 }
 
 dependencies {
@@ -36,4 +37,5 @@ dependencies {
     compile 'com.github.nirhart:parallaxscroll:1.0'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.github.chrisbanes.photoview:library:1.2.3'
 }

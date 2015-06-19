@@ -46,7 +46,7 @@
         <andrzej.example.com.views.MaterialEditTextPreference
             android:key="LEFT_MARGIN_CON_PREF"
             android:title="Lewy margines"
-            android:summary="Stała na podstawie której będzie oblcizany lewy margines."
+            android:summary="Stała na podstawie której będzie obliczany lewy margines."
             android:numeric="integer"
             android:maxLength="2"
             android:defaultValue="10"

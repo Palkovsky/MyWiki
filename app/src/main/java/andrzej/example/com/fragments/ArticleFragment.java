@@ -1,11 +1,10 @@
 package andrzej.example.com.fragments;
 
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,8 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -29,13 +26,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +39,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.nirhart.parallaxscroll.views.ParallaxScrollView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -56,6 +49,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.activities.GalleryActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -75,7 +69,6 @@ import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
-import andrzej.example.com.utils.BasicUtils;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -100,7 +93,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     String article_title;
 
     // Lists
-    private List<ArticleImage> imgs = new ArrayList<ArticleImage>();
+    public static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
     public static List<ActionMode> mActionModes = new ArrayList<>();
@@ -382,7 +375,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         iv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
+                                                intent.putExtra(GalleryActivity.KEY_POSITON, imageItem.getPosition());
+                                                startActivity(intent);
+                                                //Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
                                             }
                                         });
 
@@ -510,7 +507,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         parallaxIv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Toast.makeText(getActivity(), "ParallaxIv: " + image.getPosition(), Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
+                                                intent.putExtra(GalleryActivity.KEY_POSITON, image.getPosition());
+                                                startActivity(intent);
                                             }
                                         });
 
@@ -600,6 +600,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         rootArticleLl.removeAllViews();
+        imgs.clear();
         finishActionMode();
         refreshHeaders();
         fetchArticleInfo(article_id);

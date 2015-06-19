@@ -15,7 +15,6 @@ public class StringOperations {
 
     public static String pumpUpSize(String url, int size) {
         String size_str = String.valueOf(size);
-        Log.e(null, "Oryginał: " + url);
 
         if (url.contains("/scale-to-width/")) {
             String chunk_string_beg = "/scale-to-width/";
@@ -39,7 +38,6 @@ public class StringOperations {
                     }
 
                     URL url_check = new URL(url_return);
-                    Log.e(null, url_return);
                     return url_return;
                 } catch (MalformedURLException e) {
                     return url;
@@ -58,11 +56,9 @@ public class StringOperations {
             if (index_beg <= 0 || index_end <= 0 || index_beg >= url.length() || index_end > url.length())
                 return url;
             else {
-                Log.e(null, url.replaceFirst("\\/latest", "/latest/scale-to-width/" + size_str));
                 try {
                     String return_url = url.replaceFirst("\\/latest", "/latest/scale-to-width/" + size_str);
                     URL url_validation = new URL(return_url);
-                    Log.e(null, return_url);
                     return return_url;
                 } catch (MalformedURLException e) {
                     return url;
