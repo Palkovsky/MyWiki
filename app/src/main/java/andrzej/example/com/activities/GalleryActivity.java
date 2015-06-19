@@ -2,6 +2,7 @@ package andrzej.example.com.activities;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -11,13 +12,18 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import andrzej.example.com.adapters.GalleryViewPagerAdapter;
 import andrzej.example.com.fragments.ArticleFragment;
@@ -25,6 +31,7 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.utils.BasicUtils;
+import andrzej.example.com.utils.StringOperations;
 
 public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -38,9 +45,11 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     private Toolbar toolbar;
     private TextView captionTv;
     private ViewPager pager;
+    private LinearLayout bottomToolbar;
 
     //Crutials
     int positon = 0;
+    private static Context context;
 
     //Lists
     private List<ArticleImage> imgs;
@@ -48,15 +57,20 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     //Adapter
     private GalleryViewPagerAdapter mAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        GalleryActivity.context = getApplicationContext();
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarAutoConfig(toolbar);
         pager = (ViewPager) findViewById(R.id.gallery_pager);
         captionTv = (TextView) findViewById(R.id.gallery_captionTv);
+        bottomToolbar = (LinearLayout) findViewById(R.id.gallery_bottomToolbar);
+
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -74,6 +88,11 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
     }
 
+    public static Context getAppContext() {
+        return GalleryActivity.context;
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -81,6 +100,11 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -92,6 +116,16 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
             case R.id.action_download:
                 ArticleImage iItem = imgs.get(positon);
                 downloadFile(iItem.getImg_url(), iItem.getLabel());
+                break;
+
+            case R.id.action_share:
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, imgs.get(positon).getImg_url());
+                Intent i = Intent.createChooser(sharingIntent, getResources().getString(R.string.share_via));
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
                 break;
 
             case R.id.action_copy:
@@ -106,6 +140,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private List<ArticleImage> initArray(String type) {
         if (type.equals(KEY_ARTICLE))
@@ -163,8 +198,9 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
                 direct.mkdirs();
             }
 
-            DownloadManager mgr = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager mgr = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
+            uRl = StringOperations.pumpUpSize(uRl, 1280);
             Uri downloadUri = Uri.parse(uRl);
             DownloadManager.Request request = new DownloadManager.Request(
                     downloadUri);
@@ -173,17 +209,36 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
             if (caption == null || caption.trim().length() <= 0)
                 caption = "";
 
-            request.setAllowedNetworkTypes(
-                    DownloadManager.Request.NETWORK_WIFI
-                            | DownloadManager.Request.NETWORK_MOBILE)
-                    .setAllowedOverRoaming(false).setTitle("Pobieranie obrazka...")
-                    .setDescription(caption)
-                    .setDestinationInExternalPublicDir(getResources().getString(R.string.app_name) + "DownloadedImages", uRl);
+            String[] extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif"};
+            String filename = null;
 
-            mgr.enqueue(request);
+            for (String extension : extensions) {
+                if (uRl.contains(extension)) {
 
-            Toast.makeText(this, getResources().getString(R.string.download_beg), Toast.LENGTH_SHORT).show();
-        }catch (IllegalStateException e){
+                    int index_end = uRl.indexOf(extension) + extension.length();
+                    String temp = uRl.substring(0, index_end);
+                    int index_beg = temp.lastIndexOf("/") + 1;
+
+                    filename = uRl.substring(index_beg, index_end);
+                    break;
+                }
+            }
+
+            if (filename != null) {
+                request.setAllowedNetworkTypes(
+                        DownloadManager.Request.NETWORK_WIFI
+                                | DownloadManager.Request.NETWORK_MOBILE)
+                        .setAllowedOverRoaming(false).setTitle("Pobieranie obrazka...")
+                        .setDescription(caption)
+                        .setDestinationInExternalPublicDir(getResources().getString(R.string.app_name), filename);
+
+                mgr.enqueue(request);
+
+                Toast.makeText(this, getResources().getString(R.string.download_beg), Toast.LENGTH_SHORT).show();
+            } else
+                Toast.makeText(this, getResources().getString(R.string.download_error), Toast.LENGTH_SHORT).show();
+
+        } catch (IllegalStateException e) {
             Toast.makeText(this, getResources().getString(R.string.download_error), Toast.LENGTH_SHORT).show();
         }
 

@@ -24,7 +24,7 @@
     <string name="no">Nie</string>
     <string name="removeOneQuestion">Czy na pewno chcesz usunąć?</string>
     <string name="pref_header_sample">Ustawienia</string>
-    <string name="app_build">Beta 0.6.5341</string>
+    <string name="app_build">Beta 0.6.6341</string>
     <string name="menu_structure">Struktura artykułu</string>
     <string name="menu_selectAll">Zaznacz wszystko</string>
     <string name="menu_copy">Kopiuj</string>
@@ -58,4 +58,5 @@
     <string name="action_copy">Skopiuj link</string>
     <string name="download_beg">Rozpoczęto pobieranie obrazka...</string>
     <string name="download_error">Wystąpił błąd podczas pobierania</string>
+    <string name="action_share">Udostępnij</string>
 </resources>

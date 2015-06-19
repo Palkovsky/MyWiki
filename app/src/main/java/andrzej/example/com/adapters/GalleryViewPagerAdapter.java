@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import andrzej.example.com.activities.GalleryActivity;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.utils.StringOperations;
@@ -45,9 +46,10 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
         return view == ((RelativeLayout) object);
     }
 
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        PhotoView imgDisplay;
+        final PhotoView imgDisplay;
         final ProgressBar progressBar;
         RelativeLayout rootView;
 
@@ -68,7 +70,7 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
 
                 String imgUrl = imageItem.getImg_url();
                 if(position>0)
-                    imgUrl = StringOperations.pumpUpSize(imgUrl, 1280);
+                    imgUrl = StringOperations.pumpUpSize(imgUrl, 1080);
 
                 Picasso.with(getContext()).load(imgUrl).into(imgDisplay, new Callback() {
                     @Override

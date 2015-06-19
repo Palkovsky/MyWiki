@@ -561,24 +561,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         requestQueue.add(request);
     }
 
-    private void addImageView(String img_url, String caption) {
-        int screenSize = getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK;
-
-        switch (screenSize) {
-            case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 1280), caption);
-                break;
-            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 920), caption);
-                break;
-            case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 720), caption);
-                break;
-            default:
-                viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, 600), caption);
-        }
-    }
 
 
     private void setNoInternetLayout() {
