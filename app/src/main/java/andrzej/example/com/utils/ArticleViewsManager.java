@@ -43,9 +43,12 @@ public class ArticleViewsManager {
     private static int textSize = 18; //defaults
     private static int lineSpacing = 10;
 
+    SharedPreferences prefs;
+
 
     public ArticleViewsManager(Context c) {
         this.c = c;
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
     }
 
     public void setLayout(LinearLayout ll) {
@@ -55,7 +58,6 @@ public class ArticleViewsManager {
     //Adding Views
     public void addTextViewToLayout(String data, int level) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
         paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
@@ -83,7 +85,6 @@ public class ArticleViewsManager {
         });
 
 
-
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -96,7 +97,6 @@ public class ArticleViewsManager {
 
     public void addListToLayout(ArrayList<String> list) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
 
@@ -166,7 +166,6 @@ public class ArticleViewsManager {
             }
         });
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
 
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
@@ -302,7 +301,6 @@ public class ArticleViewsManager {
 
         itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.c);
         header_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_HEADERS_MARGIN, header_vertical_margin);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(

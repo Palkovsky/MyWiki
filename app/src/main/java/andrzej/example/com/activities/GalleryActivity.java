@@ -30,8 +30,10 @@ import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.utils.BasicUtils;
 import andrzej.example.com.utils.StringOperations;
+import andrzej.example.com.views.FixedViewPager;
 
 public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -44,7 +46,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     //Ui
     private Toolbar toolbar;
     private TextView captionTv;
-    private ViewPager pager;
+    private FixedViewPager pager;
     private LinearLayout bottomToolbar;
 
     //Crutials
@@ -67,7 +69,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarAutoConfig(toolbar);
-        pager = (ViewPager) findViewById(R.id.gallery_pager);
+        pager = (FixedViewPager) findViewById(R.id.gallery_pager);
         captionTv = (TextView) findViewById(R.id.gallery_captionTv);
         bottomToolbar = (LinearLayout) findViewById(R.id.gallery_bottomToolbar);
 
@@ -114,8 +116,11 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         switch (item.getItemId()) {
             case R.id.action_download:
-                ArticleImage iItem = imgs.get(positon);
-                downloadFile(iItem.getImg_url(), iItem.getLabel());
+                if (NetworkUtils.isNetworkAvailable(this)) {
+                    ArticleImage iItem = imgs.get(positon);
+                    downloadFile(iItem.getImg_url(), iItem.getLabel());
+                } else
+                    Toast.makeText(this, getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.action_share:
@@ -173,10 +178,13 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         ArticleImage item = imgs.get(position);
 
-        if (item.getLabel() != null)
+        if (item.getLabel() != null) {
             captionTv.setText(item.getLabel());
-        else
+            bottomToolbar.setVisibility(View.VISIBLE);
+        } else {
             captionTv.setText("");
+            bottomToolbar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
