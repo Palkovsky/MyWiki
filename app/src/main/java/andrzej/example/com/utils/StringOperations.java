@@ -31,7 +31,7 @@ public class StringOperations {
                     String url_return;
 
                     if (StringUtils.countMatches(url, width_substring) > 1) {
-                        URL uri = new URL(url.replaceFirst("/scale-to-width/"+width_substring, "/scale-to-width/"+size_str));
+                        URL uri = new URL(url.replaceFirst("/scale-to-width/" + width_substring, "/scale-to-width/" + size_str));
                         return uri.toString();
                     } else {
                         url_return = url.replaceFirst(width_substring, size_str);
@@ -44,9 +44,23 @@ public class StringOperations {
                 }
             }
 
-        } else
+        } else if (url.contains("/latest/window-crop/width")) {
 
-        {
+            /*
+            Za bardzo rozciąga
+            String chunk_string_beg = "/latest/window-crop/width/";
+            String chunk_string_end = "/x-offset/";
+            int index_beg = url.indexOf(chunk_string_beg) + chunk_string_beg.length();
+            int index_end = url.indexOf(chunk_string_end);
+            String initialSize = url.substring(index_beg, index_end);
+
+            if(StringUtils.countMatches(url, initialSize)==1)
+                url = url.replaceFirst(initialSize, size_str);
+            */
+
+            return url;
+
+        } else {
             //http://vignette4.wikia.nocookie.net/mlp/images/e/e9/Dreppy_x666.png/revision/latest?cb=20130715174906&path-prefix=pl
             String chunk_string_beg = "/latest";
 

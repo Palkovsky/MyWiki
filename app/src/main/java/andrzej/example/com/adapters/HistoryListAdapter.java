@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,7 @@ public class HistoryListAdapter extends BaseAdapter {
 
         ArticleHistoryItem item = myList.get(position);
         if(item!=null){
+
             mViewHolder.tvTitle.setText(item.getLabel());
             mViewHolder.groupTv.setText(item.getDateInString());
 
@@ -96,9 +98,8 @@ public class HistoryListAdapter extends BaseAdapter {
                     mViewHolder.groupTv.setVisibility(View.VISIBLE);
                 }else
                     mViewHolder.groupTv.setVisibility(View.GONE);
-
-
             }
+
 
             if (mSelection.get(position) != null) {
                 mViewHolder.rootLayout.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\

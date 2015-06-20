@@ -1,15 +1,11 @@
 package andrzej.example.com.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
-import andrzej.example.com.activities.SearchActivity;
 import andrzej.example.com.adapters.HistoryListAdapter;
 
 import andrzej.example.com.databases.ArticleHistoryDbHandler;

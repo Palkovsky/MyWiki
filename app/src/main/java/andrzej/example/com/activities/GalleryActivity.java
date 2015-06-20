@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,10 +46,10 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     public static final String KEY_RANDOM = "key_random_article";
 
     //Ui
-    private Toolbar toolbar;
+    private static Toolbar toolbar;
+    private static LinearLayout bottomToolbar;
     private TextView captionTv;
     private FixedViewPager pager;
-    private LinearLayout bottomToolbar;
 
     //Crutials
     int positon = 0;
@@ -58,6 +60,9 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
     //Adapter
     private GalleryViewPagerAdapter mAdapter;
+
+    //Flags
+    public static boolean isInterfaceHidden = false;
 
 
     @Override
@@ -108,6 +113,26 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
     }
 
+    public static void hideInterface() {
+        if(!isInterfaceHidden()) {
+            toolbar.animate().translationY(-toolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2));
+            bottomToolbar.animate().translationY(bottomToolbar.getHeight()).setInterpolator(new DecelerateInterpolator(2));
+            isInterfaceHidden = true;
+        }
+    }
+
+    public static void showInterface() {
+        if(isInterfaceHidden()) {
+            toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2));
+            bottomToolbar.animate().translationY(0).setInterpolator(new AccelerateInterpolator(2));
+            isInterfaceHidden = false;
+        }
+    }
+
+    public static boolean isInterfaceHidden() {
+        return isInterfaceHidden;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -117,8 +142,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
         switch (item.getItemId()) {
             case R.id.action_download:
                 if (NetworkUtils.isNetworkAvailable(this)) {
-                    ArticleImage iItem = imgs.get(positon);
-                    downloadFile(iItem.getImg_url(), iItem.getLabel());
+                    downloadFile(imgs.get(positon));
                 } else
                     Toast.makeText(this, getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 break;
@@ -177,8 +201,9 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
         this.positon = position;
 
         ArticleImage item = imgs.get(position);
+        showInterface();
 
-        if (item.getLabel() != null) {
+        if (item.getLabel() != null && item.getLabel().trim().length() > 0) {
             captionTv.setText(item.getLabel());
             bottomToolbar.setVisibility(View.VISIBLE);
         } else {
@@ -195,7 +220,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     public void onPageScrollStateChanged(int state) {
     }
 
-    public void downloadFile(String uRl, String caption) {
+    public void downloadFile(ArticleImage item) {
 
 
         try {
@@ -208,7 +233,11 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
             DownloadManager mgr = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
+            String uRl = item.getImg_url();
+            String caption = item.getLabel();
+
             uRl = StringOperations.pumpUpSize(uRl, 1280);
+
             Uri downloadUri = Uri.parse(uRl);
             DownloadManager.Request request = new DownloadManager.Request(
                     downloadUri);

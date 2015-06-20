@@ -21,6 +21,7 @@ import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.utils.StringOperations;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by andrzej on 19.06.15.
@@ -66,7 +67,7 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
             imgDisplay = (PhotoView) viewLayout.findViewById(R.id.gallery_image);
 
             if (position < imgs.size()) {
-                ArticleImage imageItem = imgs.get(position);
+                final ArticleImage imageItem = imgs.get(position);
 
                 String imgUrl = imageItem.getImg_url();
                 if(position>0)
@@ -76,6 +77,16 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
                     @Override
                     public void onSuccess() {
                         progressBar.setVisibility(View.GONE);
+
+                        imgDisplay.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+                            @Override
+                            public void onPhotoTap(View view, float v, float v1) {
+                                if(GalleryActivity.isInterfaceHidden())
+                                    GalleryActivity.showInterface();
+                                else
+                                    GalleryActivity.hideInterface();
+                            }
+                        });
                     }
 
                     @Override
