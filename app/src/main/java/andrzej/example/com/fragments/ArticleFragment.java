@@ -2,7 +2,6 @@ package andrzej.example.com.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -70,6 +69,7 @@ import andrzej.example.com.observablescrollview.ObservableScrollViewCallbacks;
 import andrzej.example.com.observablescrollview.ScrollState;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
 import andrzej.example.com.utils.StringOperations;
@@ -564,7 +564,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void fetchSimilarArticles() {
         final int id = article_id;
         int[] ids = {id};
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRelatedPages(ids, BaseConfig.MAX_RELATED_PAGES), (String) null,
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int loadingLimit = prefs.getInt(SharedPrefsKeys.RECOMMENDATIONS_LIMIT_PREF, BaseConfig.MAX_RELATED_PAGES);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRelatedPages(ids, loadingLimit), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -596,17 +600,17 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                             @Override
                                             public void onClick(View v) {
 
-                                                //Toast.makeText(getActivity(), recommendation.getTitle(), Toast.LENGTH_SHORT).show();
-                                                Fragment fragment = new ArticleFragment();
-                                                Bundle bundle = new Bundle();
-                                                bundle.putInt("article_id", recommendation.getId());
-                                                bundle.putString("article_title", recommendation.getTitle());
-                                                fragment.setArguments(bundle);
+                                                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                                                    Fragment fragment = new ArticleFragment();
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putInt("article_id", recommendation.getId());
+                                                    bundle.putString("article_title", recommendation.getTitle());
+                                                    fragment.setArguments(bundle);
 
-                                                ((MaterialNavigationDrawer) getActivity()).setFragment(new MainFragment(), "Strona główna");
-                                                ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_main);
-                                                ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
-                                                ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
+                                                    ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+                                                }else
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }

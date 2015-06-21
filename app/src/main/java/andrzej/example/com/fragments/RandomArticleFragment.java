@@ -2,7 +2,6 @@ package andrzej.example.com.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -15,7 +14,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -39,7 +38,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.nirhart.parallaxscroll.views.ParallaxScrollView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -71,6 +69,7 @@ import andrzej.example.com.observablescrollview.ObservableScrollViewCallbacks;
 import andrzej.example.com.observablescrollview.ScrollState;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
 import andrzej.example.com.utils.StringOperations;
@@ -91,7 +90,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     ArticleViewsManager viewsManager;
     public static DrawerLayout mDrawerLayout;
     ListView mDrawerListView;
-    ActionBarDrawerToggle drawerToggle;
 
     private int article_id;
     String article_title;
@@ -379,6 +377,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                             headers = ArrayHelpers.headersRemoveLevels(headers);
                             mStructureAdapter.notifyDataSetChanged();
 
+                            fetchSimilarArticles();
+
                             setInternetPresentLayout();
 
 
@@ -581,6 +581,75 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         requestQueue.add(request);
     }
 
+    private void fetchSimilarArticles() {
+        final int id = article_id;
+        int[] ids = {id};
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int loadingLimit = prefs.getInt(SharedPrefsKeys.RECOMMENDATIONS_LIMIT_PREF, BaseConfig.MAX_RELATED_PAGES);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRelatedPages(ids, loadingLimit), (String) null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONObject items_object = response.getJSONObject(Article.KEY_ITEMS);
+
+                            //Teoretycznie ten endpoint mógłby zwracać wiele takich, ale my chcemy tylko dla danego artykułu
+                            JSONArray items = items_object.getJSONArray(String.valueOf(id));
+
+                            if (items.length() > 0) {
+                                TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
+                                headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));
+                                mStructureAdapter.notifyDataSetChanged();
+                                for (int i = 0; i < items.length(); i++) {
+                                    JSONObject item = items.getJSONObject(i);
+
+                                    int articleId = item.getInt(Recommendation.KEY_ID);
+                                    String articleTitle = item.getString(Recommendation.KEY_TITLE);
+                                    String imgUrl = item.getString(Recommendation.KEY_IMGURL);
+
+                                    if (articleId >= 0 && articleTitle != null && articleTitle.trim().length() > 0) {
+
+                                        final Recommendation recommendation = new Recommendation(articleId, articleTitle, imgUrl, recommendations.size());
+
+                                        recommendations.add(recommendation);
+
+                                        LinearLayout ll = viewsManager.addRecommendationButtonToLayout(recommendation);
+                                        ll.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+
+                                                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                                                    Fragment fragment = new ArticleFragment();
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putInt("article_id", recommendation.getId());
+                                                    bundle.putString("article_title", recommendation.getTitle());
+                                                    fragment.setArguments(bundle);
+
+                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
+                                                    ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+                                                }else
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(null, error.getMessage());
+            }
+        });
+
+        requestQueue.add(request);
+    }
 
 
     private void setNoInternetLayout() {
@@ -622,22 +691,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-
-        //((MaterialNavigationDrawer) getActivity()).setFragment(new MainFragment(), "Strona główna");
-        //((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_main);
         ((MaterialNavigationDrawer) getActivity()).setFragment(new RandomArticleFragment(),  getResources().getString(R.string.drawer_random_article));
         ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-
-        /*
-        rootArticleLl.removeAllViews();
-        refreshHeaders();
-        imgs.clear();
-        finishActionMode();
-        setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
-        parallaxIv.setImageResource(0);
-        parallaxIv.setImageDrawable(null);
-        fetchRandomArticle();
-        */
     }
 
     @Override

@@ -42,7 +42,6 @@ public class Recommendation {
                 imgUrl = imgUrl.replaceFirst('/' + sizeSubstring + '/', '/' + String.valueOf(size) + '/');
         }
 
-        Log.e(null, "zwracany url: " + imgUrl);
         return imgUrl;
     }
 

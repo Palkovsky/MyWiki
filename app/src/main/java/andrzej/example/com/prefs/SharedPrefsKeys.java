@@ -9,4 +9,5 @@ public class SharedPrefsKeys {
     public static final String KEY_PARAGRAPH_MARGIN = "PARAGRAPH_MARGIN_PREF";
     public static final String KEY_HEADERS_MARGIN = "HEADERS_MARGIN_PREF";
     public static final String KEY_PAR_MARGIN_LEFT_CON = "LEFT_MARGIN_CON_PREF";
+    public static final String RECOMMENDATIONS_LIMIT_PREF = "RECOMMENDATIONS_LIMIT_PREF";
 }

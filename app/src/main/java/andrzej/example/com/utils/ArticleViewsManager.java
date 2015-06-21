@@ -8,6 +8,7 @@ import android.text.Html;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -189,12 +190,14 @@ public class ArticleViewsManager {
         recommendationLl.setOrientation(LinearLayout.HORIZONTAL);
         recommendationLl.setBackground(c.getResources().getDrawable(R.drawable.selectable_item_background));
 
-        LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         LLParams.setMargins(paragraphLeftMarginCons * 2, 0, 0, 10);
         recommendationLl.setGravity(Gravity.CENTER_VERTICAL);
         recommendationLl.setLayoutParams(LLParams);
 
         ImageView imageView = new ImageView(c);
+        LinearLayout.LayoutParams ivParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.2f);
+        imageView.setLayoutParams(ivParams);
         imageView.setAdjustViewBounds(true);
 
         Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).placeholder(c.getResources().getDrawable(R.drawable.ic_action_picture)).error(c.getResources().getDrawable(R.drawable.ic_action_picture)).into(imageView);
@@ -207,8 +210,8 @@ public class ArticleViewsManager {
 
         LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params_tv.setMargins(25, 0, 0, 0);
+                LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+        params_tv.setMargins(40, 0, 0, 0);
         textView.setLayoutParams(params_tv);
 
         recommendationLl.addView(textView);

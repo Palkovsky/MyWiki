@@ -53,6 +53,17 @@
             android:textColor="@color/font_color"
             />
 
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="RECOMMENDATIONS_LIMIT_PREF"
+            android:title="Limit rekomendacji"
+            android:summary="Limit rekomendowanych artykułów wyświetlana pod każdym z nich."
+            android:numeric="integer"
+            android:maxLength="1"
+            android:defaultValue="3"
+            android:textColor="@color/font_color"
+            />
+
+
         <CheckBoxPreference
             android:key="TOOLBAR_HIDING_PREF"
             android:title="Znikanie toolbaru"
