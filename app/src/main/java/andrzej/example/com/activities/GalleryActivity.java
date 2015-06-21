@@ -200,15 +200,17 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         this.positon = position;
 
-        ArticleImage item = imgs.get(position);
-        showInterface();
+        if(imgs.size()>0) {
+            ArticleImage item = imgs.get(position);
+            showInterface();
 
-        if (item.getLabel() != null && item.getLabel().trim().length() > 0) {
-            captionTv.setText(item.getLabel());
-            bottomToolbar.setVisibility(View.VISIBLE);
-        } else {
-            captionTv.setText("");
-            bottomToolbar.setVisibility(View.INVISIBLE);
+            if (item.getLabel() != null && item.getLabel().trim().length() > 0) {
+                captionTv.setText(item.getLabel());
+                bottomToolbar.setVisibility(View.VISIBLE);
+            } else {
+                captionTv.setText("");
+                bottomToolbar.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

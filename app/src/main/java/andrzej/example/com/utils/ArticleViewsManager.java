@@ -20,6 +20,7 @@ import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 
 /**
@@ -39,6 +40,7 @@ public class ArticleViewsManager {
     private static int paragraphLeftMarginCons = 10;
     private static final int imageView_margin = 25;
 
+    private static final int recommendationsImageSize = 360;
 
     private static int textSize = 18; //defaults
     private static int lineSpacing = 10;
@@ -179,9 +181,44 @@ public class ArticleViewsManager {
 
     }
 
+    public LinearLayout addRecommendationButtonToLayout(Recommendation recommendation){
+
+        paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
+
+        LinearLayout recommendationLl = new LinearLayout(MyApplication.getAppContext());
+        recommendationLl.setOrientation(LinearLayout.HORIZONTAL);
+        recommendationLl.setBackground(c.getResources().getDrawable(R.drawable.selectable_item_background));
+
+        LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        LLParams.setMargins(paragraphLeftMarginCons * 2, 0, 0, 10);
+        recommendationLl.setGravity(Gravity.CENTER_VERTICAL);
+        recommendationLl.setLayoutParams(LLParams);
+
+        ImageView imageView = new ImageView(c);
+        imageView.setAdjustViewBounds(true);
+
+        Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).placeholder(c.getResources().getDrawable(R.drawable.ic_action_picture)).error(c.getResources().getDrawable(R.drawable.ic_action_picture)).into(imageView);
+        recommendationLl.addView(imageView);
+
+        TextView textView = new TextView(c);
+        textView.setGravity(Gravity.CENTER_VERTICAL);
+        textView.setText(recommendation.getTitle());
+        textView.setTextColor(c.getResources().getColor(R.color.font_color));
+
+        LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params_tv.setMargins(25, 0, 0, 0);
+        textView.setLayoutParams(params_tv);
+
+        recommendationLl.addView(textView);
+
+        ll.addView(recommendationLl);
+
+        return recommendationLl;
+    }
+
     public ImageView addImageViewToLayout(String img_url, String caption) {
-
-
         LinearLayout imageLl = new LinearLayout(MyApplication.getAppContext());
         imageLl.setOrientation(LinearLayout.VERTICAL);
 

@@ -59,4 +59,5 @@
     <string name="download_beg">Rozpoczęto pobieranie obrazka...</string>
     <string name="download_error">Wystąpił błąd podczas pobierania</string>
     <string name="action_share">Udostępnij</string>
+    <string name="relatedHeader">See also</string>
 </resources>

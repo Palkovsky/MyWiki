@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Random;
 
 import andrzej.example.com.activities.GalleryActivity;
+import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -61,6 +62,7 @@ import andrzej.example.com.models.ArticleHeader;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
+import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
@@ -98,6 +100,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     public static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
+    private List<Recommendation> recommendations = new ArrayList<>();
     public static List<ActionMode> mActionModes = new ArrayList<>();
     ArticleStructureListAdapter mStructureAdapter;
 
@@ -122,15 +125,19 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         // Required empty public constructor
     }
 
+    private void reInitVars() {
+        article_id = -1;
+        article_title = null;
+        imgs.clear();
+        headers.clear();
+        recommendations.clear();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*
-        Bundle bundle = this.getArguments();
-        article_id = bundle.getInt("article_id", -1);
-        article_title = bundle.getString("article_title");
-*/
+        reInitVars();
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -445,16 +452,33 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                             String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
 
                             if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
-                                JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
-                                int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
 
-                                thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                try {
+                                    JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
 
-                                imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                                    if (orginal_dimens != null) {
+                                        int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
+
+                                        if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
+                                            orginal_width = BaseConfig.MAX_IMAGE_SIZE;
+
+
+                                        thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                    }
+
+                                    imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                                }catch (JSONException e){
+                                    ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                    db.addItem(iItem);
+                                }
                             }
 
                             if (imgs.size() > 0) {
                                 final ArticleImage image = imgs.get(0);
+
+                                ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
+                                db.addItem(iItem);
+
                                 Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
@@ -468,10 +492,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                                 startActivity(intent);
                                             }
                                         });
-
-
-                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
-                                        db.addItem(item);
                                     }
 
                                     @Override
@@ -540,7 +560,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                             article_id = item.getInt(Article.KEY_ID);
                             article_title = item.getString(Article.KEY_TITLE);
                             titleTv.setText(article_title);
-
+                            setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
 
                             fetchArticleInfo(article_id);
 
@@ -602,6 +622,13 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+
+        //((MaterialNavigationDrawer) getActivity()).setFragment(new MainFragment(), "Strona główna");
+        //((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_main);
+        ((MaterialNavigationDrawer) getActivity()).setFragment(new RandomArticleFragment(),  getResources().getString(R.string.drawer_random_article));
+        ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+
+        /*
         rootArticleLl.removeAllViews();
         refreshHeaders();
         imgs.clear();
@@ -610,6 +637,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         parallaxIv.setImageResource(0);
         parallaxIv.setImageDrawable(null);
         fetchRandomArticle();
+        */
     }
 
     @Override

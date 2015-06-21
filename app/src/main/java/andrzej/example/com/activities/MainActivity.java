@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import java.util.Random;
 
+import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -28,6 +29,7 @@ import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.DrawerImages;
@@ -41,7 +43,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static final int REQUEST_CODE_TEST = 0;
 
     //Sekcje, które muszą być globalne.
-    MaterialSection section_main;
+    public static MaterialSection section_main;
     public static MaterialSection section_random;
     MaterialSection section_saved;
     MaterialSection section_history;
@@ -97,9 +99,6 @@ public class MainActivity extends MaterialNavigationDrawer {
         addBottomSection(section_settings);
 
         getToolbar().setCollapsible(true);
-
-        int[] ids = {3730};
-        Log.e(null, APIEndpoints.getUrlRelatedPages(ids, 5));
 
     }
 

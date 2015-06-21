@@ -49,21 +49,28 @@ public class APIEndpoints {
 
     public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Transkrypty/", "Kategoria:"}; //if search title contains one of these words don't show it to user
 
-    public static final String getUrlRelatedPages(int[] ids, int limit){
+    public static final String getUrlRelatedPages(int[] ids, int limit) {
         String url = URL_RELATED_PAGES +
                 URL_CHAR_QUESTION +
                 URL_LIMIT + limit +
-                URL_CHAR_AMEPERSAND;
+                URL_CHAR_AMEPERSAND +
+                URL_IDS;
 
-        for(int id : ids){
-            url += Integer.toString(id)+",";
+        int iterator = 0;
+        for (int id : ids) {
+            if (iterator == ids.length - 1)
+                url += Integer.toString(id);
+            else {
+                url += id + ",";
+                iterator++;
+            }
         }
-
+        iterator = 0;
         return url;
 
     }
 
-    public static String getUrlRandom(int limit){
+    public static String getUrlRandom(int limit) {
         return URL_RANDOM +
                 URL_CHAR_QUESTION +
                 URL_EXPAND + 0 +
@@ -81,32 +88,32 @@ public class APIEndpoints {
                 URL_LIMIT + Integer.toString(limit);
     }
 
-    public static String getUrlItemContent(int id){
-        return  URL_ARTICLE_CONTENT +
+    public static String getUrlItemContent(int id) {
+        return URL_ARTICLE_CONTENT +
                 URL_CHAR_QUESTION +
                 URL_ID + String.valueOf(id);
     }
 
-    public static String getUrlItemDetalis(int[] ids){
+    public static String getUrlItemDetalis(int[] ids) {
         String url = URL_ARTICLE_DETALIS +
                 URL_CHAR_QUESTION +
                 URL_IDS;
-        for(int id : ids){
-            url+=Integer.toString(id)+",";
+        for (int id : ids) {
+            url += Integer.toString(id) + ",";
         }
         return url;
     }
 
-    public static String getLastEdited(int limit){
-        return  URL_LAST_EDITED +
+    public static String getLastEdited(int limit) {
+        return URL_LAST_EDITED +
                 URL_CHAR_QUESTION +
                 URL_LIMIT + String.valueOf(limit) +
                 URL_CHAR_AMEPERSAND +
                 URL_ALLOW_DUPLICATES + String.valueOf(false);
     }
 
-    public static String getNewestUrl(int limit){
-        return  URL_NEWEST +
+    public static String getNewestUrl(int limit) {
+        return URL_NEWEST +
                 URL_CHAR_QUESTION +
                 URL_LIMIT + String.valueOf(limit);
     }

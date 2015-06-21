@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.GalleryActivity;
+import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -59,6 +61,7 @@ import andrzej.example.com.models.ArticleHeader;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
+import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
@@ -96,6 +99,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
+    private List<Recommendation> recommendations = new ArrayList<>();
     public static List<ActionMode> mActionModes = new ArrayList<>();
     ArticleStructureListAdapter mStructureAdapter;
 
@@ -119,13 +123,23 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Required empty public constructor
     }
 
+    private void reInitVars() {
+        article_id = -1;
+        article_title = null;
+        imgs.clear();
+        headers.clear();
+        recommendations.clear();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        reInitVars();
         Bundle bundle = this.getArguments();
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
+        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -395,7 +409,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             mStructureAdapter.notifyDataSetChanged();
 
                             setInternetPresentLayout();
-
+                            fetchSimilarArticles();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -465,23 +479,39 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 setInternetPresentLayout();
                             else
                                 setNoInternetLayout();
+
                             JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
                             String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
 
                             if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
-                                JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
-                                int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
 
-                                if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
-                                    orginal_width = BaseConfig.MAX_IMAGE_SIZE;
+                                try {
+                                    JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
 
-                                thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                    if (orginal_dimens != null) {
+                                        int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
 
-                                imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                                        if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
+                                            orginal_width = BaseConfig.MAX_IMAGE_SIZE;
+
+
+                                        thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                    }
+
+                                    imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                                }catch (JSONException e){
+                                    ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                    db.addItem(iItem);
+                                }
                             }
 
                             if (imgs.size() > 0) {
                                 final ArticleImage image = imgs.get(0);
+
+                                ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
+                                db.addItem(iItem);
+
+
                                 Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
@@ -497,18 +527,15 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         });
 
 
-                                        ArticleHistoryItem item = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
-                                        db.addItem(item);
                                     }
 
                                     @Override
                                     public void onError() {
-
                                     }
                                 });
-                            } else {
-                                ArticleHistoryItem historyItemitem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
-                                db.addItem(historyItemitem);
+                            }else{
+                                ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                db.addItem(iItem);
                             }
 
                             fetchArticleContent(id);
@@ -535,7 +562,69 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void fetchSimilarArticles() {
+        final int id = article_id;
+        int[] ids = {id};
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRelatedPages(ids, BaseConfig.MAX_RELATED_PAGES), (String) null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONObject items_object = response.getJSONObject(Article.KEY_ITEMS);
 
+                            //Teoretycznie ten endpoint mógłby zwracać wiele takich, ale my chcemy tylko dla danego artykułu
+                            JSONArray items = items_object.getJSONArray(String.valueOf(id));
+
+                            if (items.length() > 0) {
+                                TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
+                                headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));
+                                mStructureAdapter.notifyDataSetChanged();
+                                for (int i = 0; i < items.length(); i++) {
+                                    JSONObject item = items.getJSONObject(i);
+
+                                    int articleId = item.getInt(Recommendation.KEY_ID);
+                                    String articleTitle = item.getString(Recommendation.KEY_TITLE);
+                                    String imgUrl = item.getString(Recommendation.KEY_IMGURL);
+
+                                    if (articleId >= 0 && articleTitle != null && articleTitle.trim().length() > 0) {
+
+                                        final Recommendation recommendation = new Recommendation(articleId, articleTitle, imgUrl, recommendations.size());
+
+                                        recommendations.add(recommendation);
+
+                                        LinearLayout ll = viewsManager.addRecommendationButtonToLayout(recommendation);
+                                        ll.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+
+                                                //Toast.makeText(getActivity(), recommendation.getTitle(), Toast.LENGTH_SHORT).show();
+                                                Fragment fragment = new ArticleFragment();
+                                                Bundle bundle = new Bundle();
+                                                bundle.putInt("article_id", recommendation.getId());
+                                                bundle.putString("article_title", recommendation.getTitle());
+                                                fragment.setArguments(bundle);
+
+                                                ((MaterialNavigationDrawer) getActivity()).setFragment(new MainFragment(), "Strona główna");
+                                                ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_main);
+                                                ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
+                                                ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(null, error.getMessage());
+            }
+        });
+
+        requestQueue.add(request);
     }
 
 
@@ -583,6 +672,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onRefresh() {
         rootArticleLl.removeAllViews();
         imgs.clear();
+        recommendations.clear();
         finishActionMode();
         refreshHeaders();
         fetchArticleInfo(article_id);

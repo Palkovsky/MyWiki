@@ -10,4 +10,6 @@ public class BaseConfig {
     public static final int lastEditedLimit = 10;
 
     public static final int MAX_IMAGE_SIZE = 500;
+
+    public static final int MAX_RELATED_PAGES = 3;
 }
