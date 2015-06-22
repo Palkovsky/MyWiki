@@ -41,7 +41,7 @@ public class ArticleViewsManager {
     private static int paragraphLeftMarginCons = 10;
     private static final int imageView_margin = 25;
 
-    private static final int recommendationsImageSize = 360;
+    private static int recommendationsImageSize = 360;
 
     private static int textSize = 18; //defaults
     private static int lineSpacing = 10;
@@ -185,6 +185,7 @@ public class ArticleViewsManager {
     public LinearLayout addRecommendationButtonToLayout(Recommendation recommendation){
 
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
+        recommendationsImageSize = prefs.getInt(SharedPrefsKeys.RECOMMENDATION_IMAGE_SIZE_PREF, recommendationsImageSize);
 
         LinearLayout recommendationLl = new LinearLayout(MyApplication.getAppContext());
         recommendationLl.setOrientation(LinearLayout.HORIZONTAL);

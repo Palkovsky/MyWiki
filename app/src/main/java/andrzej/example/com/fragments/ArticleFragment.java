@@ -62,6 +62,7 @@ import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
 import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.observablescrollview.ObservableScrollView;
@@ -117,6 +118,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private int mScrollThreshold = 5;
     Display display;
     Point size = new Point();
+    SharedPreferences prefs;
 
 
     public ArticleFragment() {
@@ -140,6 +142,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
         ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -315,6 +318,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         else
             setNoInternetLayout();
 
+        MainActivity.addToSessionArticleHistory(article_id, article_title);
         return v;
     }
 
@@ -381,7 +385,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         caption = image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0) {
-                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        int scaleTo = prefs.getInt(SharedPrefsKeys.ARTICLE_IMAGES_SIZE_PREF, BaseConfig.imageSize);
+                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, scaleTo), caption);
                                         imgs.add(new ArticleImage(img_url, caption, imgs.size()));
 
                                         final ArticleImage imageItem = imgs.get(imgs.size() - 1);
@@ -499,7 +504,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     }
 
                                     imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
-                                }catch (JSONException e){
+                                } catch (JSONException e) {
                                     ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                     db.addItem(iItem);
                                 }
@@ -533,7 +538,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     public void onError() {
                                     }
                                 });
-                            }else{
+                            } else {
                                 ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                 db.addItem(iItem);
                             }
@@ -600,7 +605,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                             @Override
                                             public void onClick(View v) {
 
-                                                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                                                if (NetworkUtils.isNetworkAvailable(getActivity())) {
                                                     Fragment fragment = new ArticleFragment();
                                                     Bundle bundle = new Bundle();
                                                     bundle.putInt("article_id", recommendation.getId());
@@ -609,7 +614,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                                     ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
                                                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                                                }else
+                                                } else
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
                                         });

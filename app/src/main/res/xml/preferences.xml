@@ -63,6 +63,26 @@
             android:textColor="@color/font_color"
             />
 
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="ARTICLE_IMAGES_SIZE_PREF"
+            android:title="Skalowanie zdjęć"
+            android:summary="Skalowanie zdjęć w artykułach."
+            android:numeric="integer"
+            android:maxLength="3"
+            android:defaultValue="600"
+            android:textColor="@color/font_color"
+            />
+
+        <andrzej.example.com.views.MaterialEditTextPreference
+            android:key="RECOMMENDATION_IMAGE_SIZE_PREF"
+            android:title="Skalowanie zdjęć(Related Pages)"
+            android:summary="Skalowanie zdjęć w 'zobacz również'."
+            android:numeric="integer"
+            android:maxLength="3"
+            android:defaultValue="360"
+            android:textColor="@color/font_color"
+            />
+
 
         <CheckBoxPreference
             android:key="TOOLBAR_HIDING_PREF"

@@ -186,7 +186,7 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                if(mAdapter!=null && mActionMode!=null)
+                if (mAdapter != null && mActionMode != null)
                     mActionMode.finish();
             }
 

@@ -117,6 +117,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     private int mScrollThreshold = 15;
     Display display;
     Point size = new Point();
+    SharedPreferences prefs;
 
 
     public RandomArticleFragment() {
@@ -136,6 +137,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
 
         reInitVars();
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
@@ -288,6 +291,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         else
             setNoInternetLayout();
 
+
         return v;
     }
 
@@ -351,7 +355,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                         caption = image.getString(ArticleImage.KEY_CAPTION);
 
                                     if (img_url != null && img_url.trim().length() > 0) {
-                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, BaseConfig.imageSize), caption);
+                                        int scaleTo = prefs.getInt(SharedPrefsKeys.ARTICLE_IMAGES_SIZE_PREF, BaseConfig.imageSize);
+                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, scaleTo), caption);
                                         imgs.add(new ArticleImage(img_url, caption, imgs.size()));
 
                                         final ArticleImage imageItem = imgs.get(imgs.size() - 1);

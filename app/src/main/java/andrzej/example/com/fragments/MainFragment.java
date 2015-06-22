@@ -1,37 +1,21 @@
 package andrzej.example.com.fragments;
 
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import andrzej.example.com.mlpwiki.MyApplication;
+import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
-import andrzej.example.com.prefs.APIEndpoints;
-import andrzej.example.com.prefs.BaseConfig;
 
 
 public class MainFragment extends Fragment {

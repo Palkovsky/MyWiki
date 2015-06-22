@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.mlpwiki.R;
 
 

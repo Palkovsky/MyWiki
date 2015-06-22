@@ -3,24 +3,21 @@ package andrzej.example.com.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -28,10 +25,8 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.Article;
-import andrzej.example.com.models.ArticleHistoryItem;
+import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
-import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.DrawerImages;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -45,10 +40,12 @@ public class MainActivity extends MaterialNavigationDrawer {
     //Sekcje, które muszą być globalne.
     public static MaterialSection section_main;
     public static MaterialSection section_random;
-    MaterialSection section_saved;
-    MaterialSection section_history;
-    MaterialSection section_settings;
+    public static MaterialSection section_saved;
+    public static MaterialSection section_history;
+    public static MaterialSection section_settings;
     public static MaterialSection section_article;
+
+    public static List<SessionArticleHistory> sessionArticleHistory = new ArrayList();
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -65,17 +62,17 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         getSupportActionBar().setShowHideAnimationEnabled(true);
 
-        section_main = newSection(getResources().getString(R.string.drawer_today), getResources().getDrawable(R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
+        section_main = newSection(getResources().getString(R.string.drawer_today), ContextCompat.getDrawable(this, R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
         addSection(section_main);
 
-        section_history = newSection(getResources().getString(R.string.drawer_history), getResources().getDrawable(R.drawable.ic_history_grey600_24dp), new HistoryFragment());
+        section_history = newSection(getResources().getString(R.string.drawer_history), ContextCompat.getDrawable(this, R.drawable.ic_history_grey600_24dp), new HistoryFragment());
         addSection(section_history);
 
-        section_saved = newSection(getResources().getString(R.string.drawer_saved_articles), getResources().getDrawable(R.drawable.ic_content_save_all_grey600_24dp), new SavedArticlesFragment());
+        section_saved = newSection(getResources().getString(R.string.drawer_saved_articles), ContextCompat.getDrawable(this, R.drawable.ic_content_save_all_grey600_24dp), new SavedArticlesFragment());
         addSection(section_saved);
 
 
-        section_random = newSection(getResources().getString(R.string.drawer_random_article), getResources().getDrawable(R.drawable.ic_dice_5_grey600_24dp), new RandomArticleFragment());
+        section_random = newSection(getResources().getString(R.string.drawer_random_article), ContextCompat.getDrawable(this, R.drawable.ic_dice_5_grey600_24dp), new RandomArticleFragment());
         addSection(section_random);
         section_random.setOnClickListener(new MaterialSectionListener() {
             @Override
@@ -95,7 +92,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         addSection(section_article);
         section_article.getView().setVisibility(View.GONE);
 
-        section_settings = newSection(getResources().getString(R.string.drawer_settings), getResources().getDrawable(R.drawable.ic_settings_grey600_24dp), new Intent(this, SharedPreferenceActivity.class));
+        section_settings = newSection(getResources().getString(R.string.drawer_settings), ContextCompat.getDrawable(this, R.drawable.ic_settings_grey600_24dp), new Intent(this, SharedPreferenceActivity.class));
         addBottomSection(section_settings);
 
         getToolbar().setCollapsible(true);
@@ -155,25 +152,70 @@ public class MainActivity extends MaterialNavigationDrawer {
         }
     }
 
+    public static void addToSessionArticleHistory(int id, String label) {
+        SessionArticleHistory item = new SessionArticleHistory(id, label);
+
+        if (sessionArticleHistory.size() > 0) {
+            if (sessionArticleHistory.get(sessionArticleHistory.size() - 1).getId() != item.getId())
+                sessionArticleHistory.add(item);
+        } else
+            sessionArticleHistory.add(item);
+    }
+
     @Override
     public void onBackPressed() {
         MaterialSection current_section = this.getCurrentSection();
+
+        if (current_section != section_article)
+            sessionArticleHistory.clear();
 
         if (current_section == section_main) {
             Intent setIntent = new Intent(Intent.ACTION_MAIN);
             setIntent.addCategory(Intent.CATEGORY_HOME);
             setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(setIntent);
-        } else {
+        } else if (current_section == section_article) {
             if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
             } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
             } else {
-                ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), "Strona główna");
-                ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                if (sessionArticleHistory.size() > 1) {
+                    SessionArticleHistory item = sessionArticleHistory.get(sessionArticleHistory.size() - 2);
+                    sessionArticleHistory.remove(sessionArticleHistory.size() - 1);
+
+
+                    Fragment fragment = new ArticleFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("article_id", item.getId());
+                    bundle.putString("article_title", item.getTitle());
+                    fragment.setArguments(bundle);
+
+                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(fragment, item.getTitle());
+                    ((MaterialNavigationDrawer) MainActivity.this).setSection(section_article);
+                } else {
+                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
+                    ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                }
             }
+
+        } else {
+            ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
+            ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+
         }
     }
+            /*
+            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            } else {
+                ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
+                ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+            }
+            */
+
 
 }
+
