@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -40,6 +41,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -73,6 +76,8 @@ import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
+import andrzej.example.com.utils.BaseBackPressedListener;
+import andrzej.example.com.utils.OnBackPressedListener;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -133,6 +138,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         recommendations.clear();
     }
 
+    private void nullifyAllVars() {
+        if (mDrawerLayout.getChildCount() > 0)
+            mDrawerLayout.removeAllViews();
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,31 +197,41 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         parallaxSv.setScrollViewCallbacks(this);
 
-        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
+        ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
+            @Override
+            public void doBack() {
+                SessionArticleHistory item = MainActivity.sessionArticleHistory.get(MainActivity.sessionArticleHistory.size() - 2);
+                MainActivity.sessionArticleHistory.remove(MainActivity.sessionArticleHistory.size() - 1);
 
-                                        {
-                                            @Override
-                                            public void onDrawerSlide(View drawerView, float slideOffset) {
-                                                finishActionMode();
-                                            }
+                setPage(item.getId(), item.getTitle());
+            }
+        });
 
-                                            @Override
-                                            public void onDrawerOpened(View drawerView) {
+                mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
 
-                                            }
+                                                {
+                                                    @Override
+                                                    public void onDrawerSlide(View drawerView, float slideOffset) {
+                                                        finishActionMode();
+                                                    }
 
-                                            @Override
-                                            public void onDrawerClosed(View drawerView) {
+                                                    @Override
+                                                    public void onDrawerOpened(View drawerView) {
 
-                                            }
+                                                    }
 
-                                            @Override
-                                            public void onDrawerStateChanged(int newState) {
+                                                    @Override
+                                                    public void onDrawerClosed(View drawerView) {
 
-                                            }
-                                        }
+                                                    }
 
-        );
+                                                    @Override
+                                                    public void onDrawerStateChanged(int newState) {
+
+                                                    }
+                                                }
+
+                );
 
         //mDrawerListView.addHeaderView(drawerHeader);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -260,7 +281,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                       @Override
                                       public void onDrawerSlide(View drawerView, float slideOffset) {
 
-                                          if (mDrawerLayout != null && mStructureAdapter != null)
+                                          if (mDrawerLayout.getChildCount() > 0 && drawerView != null && mDrawerLayout != null && mStructureAdapter != null)
                                               mDrawerLayout.closeDrawer(Gravity.RIGHT);
 
                                           finishActionMode();
@@ -309,7 +330,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         titleTv.setText(article_title);
 
         //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
-        setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
+        //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
 
         if (NetworkUtils.isNetworkAvailable(
                 getActivity()
@@ -472,6 +493,20 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         db.close();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        viewsManager.destroyAllViews();
+        nullifyAllVars();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewsManager.destroyAllViews();
+        nullifyAllVars();
+    }
+
     private void fetchArticleInfo(final int id) {
         int[] array = {id};
         mActionModes.clear();
@@ -517,7 +552,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 db.addItem(iItem);
 
 
-                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).memoryPolicy(MemoryPolicy.NO_CACHE).
+                                        networkPolicy(NetworkPolicy.NO_CACHE).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);
@@ -538,7 +574,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     public void onError() {
                                     }
                                 });
+
                             } else {
+                                setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+                                parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
                                 ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                 db.addItem(iItem);
                             }
@@ -605,6 +646,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                             public void onClick(View v) {
 
                                                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
+
+                                                    setPage(recommendation.getId(), recommendation.getTitle());
+
+                                                    /*
                                                     Fragment fragment = new ArticleFragment();
                                                     Bundle bundle = new Bundle();
                                                     bundle.putInt("article_id", recommendation.getId());
@@ -613,7 +658,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                                     ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
                                                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                                                }
+                                                    */
+                                                } else
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }
@@ -633,6 +680,26 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         requestQueue.add(request);
     }
 
+
+
+
+    private void setPage(int id, String title) {
+        setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+        parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+        parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+        rootArticleLl.removeAllViews();
+        imgs.clear();
+        recommendations.clear();
+        finishActionMode();
+        refreshHeaders();
+        article_id = id;
+        article_title = title;
+        setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
+        titleTv.setText(article_title);
+        MainActivity.addToSessionArticleHistory(article_id, article_title);
+        fetchArticleInfo(article_id);
+    }
 
     private void setNoInternetLayout() {
         parallaxSv.setVisibility(View.GONE);

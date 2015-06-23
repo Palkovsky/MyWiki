@@ -79,10 +79,15 @@
             android:summary="Skalowanie zdjęć w 'zobacz również'."
             android:numeric="integer"
             android:maxLength="3"
-            android:defaultValue="360"
+            android:defaultValue="250"
             android:textColor="@color/font_color"
             />
 
+        <CheckBoxPreference
+            android:key="RANDOM_ARTICLE_FETCHING_PREF"
+            android:title="Random Article fetching"
+            android:summary="Znajdje nowy po swipe-to-refresh."
+            android:defaultValue="false" />
 
         <CheckBoxPreference
             android:key="TOOLBAR_HIDING_PREF"

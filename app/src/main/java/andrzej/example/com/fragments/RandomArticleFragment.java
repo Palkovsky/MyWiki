@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,6 +42,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -62,6 +67,7 @@ import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
 import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.observablescrollview.ObservableScrollView;
@@ -72,6 +78,7 @@ import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
+import andrzej.example.com.utils.OnBackPressedListener;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -132,6 +139,11 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         recommendations.clear();
     }
 
+    private void nullifyAllVars() {
+        if (mDrawerLayout.getChildCount() > 0)
+            mDrawerLayout.removeAllViews();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,6 +197,26 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         refreshHeaders();
 
         parallaxSv.setScrollViewCallbacks(this);
+
+
+        ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
+            @Override
+            public void doBack() {
+                SessionArticleHistory item = MainActivity.sessionArticleHistory.get(MainActivity.sessionArticleHistory.size() - 2);
+                MainActivity.sessionArticleHistory.remove(MainActivity.sessionArticleHistory.size() - 1);
+
+
+                MainActivity.articleFragment = new ArticleFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("article_id", item.getId());
+                bundle.putString("article_title", item.getTitle());
+                MainActivity.articleFragment.setArguments(bundle);
+
+
+                ((MaterialNavigationDrawer) getActivity()).setFragment(MainActivity.articleFragment, item.getTitle());
+                ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+            }
+        });
 
         mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -262,7 +294,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         });
 
 
-
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -284,7 +315,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         //ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null)
-        setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
+        //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
 
         if (NetworkUtils.isNetworkAvailable(getActivity()))
             fetchRandomArticle();
@@ -475,7 +506,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                     }
 
                                     imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
-                                }catch (JSONException e){
+                                } catch (JSONException e) {
                                     ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                     db.addItem(iItem);
                                 }
@@ -487,7 +518,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                 ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
                                 db.addItem(iItem);
 
-                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).into(parallaxIv, new Callback() {
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).memoryPolicy(MemoryPolicy.NO_CACHE).
+                                        networkPolicy(NetworkPolicy.NO_CACHE).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);
@@ -508,6 +540,9 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                     }
                                 });
                             } else {
+                                setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+                                parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
                                 ArticleHistoryItem historyItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                 db.addItem(historyItem);
                             }
@@ -568,7 +603,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                             article_id = item.getInt(Article.KEY_ID);
                             article_title = item.getString(Article.KEY_TITLE);
                             titleTv.setText(article_title);
-                            setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
+                            //setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
 
                             fetchArticleInfo(article_id);
 
@@ -627,16 +662,17 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                             @Override
                                             public void onClick(View v) {
 
-                                                if(NetworkUtils.isNetworkAvailable(getActivity())) {
-                                                    Fragment fragment = new ArticleFragment();
+                                                if (NetworkUtils.isNetworkAvailable(getActivity())) {
+                                                    MainActivity.articleFragment = new ArticleFragment();
                                                     Bundle bundle = new Bundle();
                                                     bundle.putInt("article_id", recommendation.getId());
                                                     bundle.putString("article_title", recommendation.getTitle());
-                                                    fragment.setArguments(bundle);
+                                                    MainActivity.articleFragment.setArguments(bundle);
 
-                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
+                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(MainActivity.articleFragment, article_title);
                                                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                                                }
+                                                } else
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }
@@ -696,8 +732,37 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        ((MaterialNavigationDrawer) getActivity()).setFragment(new RandomArticleFragment(),  getResources().getString(R.string.drawer_random_article));
-        ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+
+        boolean fetchNew = prefs.getBoolean(SharedPrefsKeys.RANDOM_ARTICLE_FETCHING_PREF, false);
+
+        if (fetchNew) {
+            /*
+            ((MaterialNavigationDrawer) getActivity()).setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
+            ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
+            */
+            setRandomPage();
+        } else {
+            rootArticleLl.removeAllViews();
+            imgs.clear();
+            recommendations.clear();
+            finishActionMode();
+            refreshHeaders();
+            fetchArticleInfo(article_id);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        viewsManager.destroyAllViews();
+        nullifyAllVars();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewsManager.destroyAllViews();
+        nullifyAllVars();
     }
 
     @Override
@@ -762,5 +827,17 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         }
 
         isSignificantDelta = false;
+    }
+
+    private void setRandomPage() {
+        setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+        parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+        parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+        rootArticleLl.removeAllViews();
+        imgs.clear();
+        recommendations.clear();
+        finishActionMode();
+        refreshHeaders();
+        fetchRandomArticle();
     }
 }

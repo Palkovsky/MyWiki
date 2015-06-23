@@ -73,6 +73,7 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
                 if(position>0)
                     imgUrl = StringOperations.pumpUpSize(imgUrl, 1080);
 
+                final String finalImgUrl = imgUrl;
                 Picasso.with(getContext()).load(imgUrl).into(imgDisplay, new Callback() {
                     @Override
                     public void onSuccess() {
@@ -92,7 +93,7 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
                     @Override
                     public void onError() {
                         progressBar.setVisibility(View.VISIBLE);
-                        Toast.makeText(getContext(), getContext().getResources().getString(R.string.loading_error), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), finalImgUrl, Toast.LENGTH_SHORT).show();
                     }
                 });
             }

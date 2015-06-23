@@ -12,4 +12,5 @@ public class SharedPrefsKeys {
     public static final String RECOMMENDATIONS_LIMIT_PREF = "RECOMMENDATIONS_LIMIT_PREF";
     public static final String ARTICLE_IMAGES_SIZE_PREF = "ARTICLE_IMAGES_SIZE_PREF";
     public static final String RECOMMENDATION_IMAGE_SIZE_PREF = "RECOMMENDATION_IMAGE_SIZE_PREF";
+    public static final String RANDOM_ARTICLE_FETCHING_PREF = "RANDOM_ARTICLE_FETCHING_PREF";
 }

@@ -3,6 +3,7 @@ package andrzej.example.com.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
@@ -72,7 +73,7 @@ public class ArticleViewsManager {
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
-        itemTv.setText(Html.fromHtml(data));
+        itemTv.setText(data);
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);
 
@@ -193,7 +194,18 @@ public class ArticleViewsManager {
 
         LinearLayout recommendationLl = new LinearLayout(MyApplication.getAppContext());
         recommendationLl.setOrientation(LinearLayout.HORIZONTAL);
-        recommendationLl.setBackground(ContextCompat.getDrawable(c, R.drawable.selectable_item_background));
+
+        int currentVersion = Build.VERSION.SDK_INT;
+
+        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+            recommendationLl.setBackground(null);
+            recommendationLl.setBackground(ContextCompat.getDrawable(c, R.drawable.selectable_item_background));
+        } else {
+            recommendationLl.setBackgroundDrawable(null);
+            recommendationLl.setBackgroundDrawable(ContextCompat.getDrawable(c, R.drawable.selectable_item_background));
+        }
+
+
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         LLParams.setMargins(paragraphLeftMarginCons * 2, 0, 0, 10);
@@ -207,7 +219,8 @@ public class ArticleViewsManager {
         imageView.getLayoutParams().height = recommendationsImageSize;
         imageView.getLayoutParams().width = recommendationsImageSize;
 
-        Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).resize(recommendationsImageSize, recommendationsImageSize).
+        Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).resize(recommendationsImageSize, recommendationsImageSize).memoryPolicy(MemoryPolicy.NO_CACHE).
+                networkPolicy(NetworkPolicy.NO_CACHE).skipMemoryCache().
                 placeholder(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).error(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).into(imageView, new Callback() {
             @Override
             public void onSuccess() {
@@ -372,5 +385,10 @@ public class ArticleViewsManager {
         itemTv.setLayoutParams(params);
 
         return itemTv;
+    }
+
+    public void destroyAllViews(){
+        if(ll.getChildCount() > 0)
+            ll.removeAllViews();
     }
 }

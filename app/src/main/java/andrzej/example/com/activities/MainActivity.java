@@ -14,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,9 +28,11 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
 import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.DrawerImages;
+import andrzej.example.com.utils.OnBackPressedListener;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
@@ -37,6 +42,8 @@ public class MainActivity extends MaterialNavigationDrawer {
     private static Context context;
     public static final int REQUEST_CODE_TEST = 0;
 
+    protected OnBackPressedListener onBackPressedListener;
+
     //Sekcje, które muszą być globalne.
     public static MaterialSection section_main;
     public static MaterialSection section_random;
@@ -44,6 +51,15 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static MaterialSection section_history;
     public static MaterialSection section_settings;
     public static MaterialSection section_article;
+
+
+    //Fragment
+    //public static HistoryFragment historyFragment = new HistoryFragment();
+    public static RandomArticleFragment randomArticleFragment = new RandomArticleFragment();
+    public static ArticleFragment articleFragment = new ArticleFragment();
+    //public static MainFragment mainFragment = new MainFragment();
+    //public static SavedArticlesFragment savedArticlesFragment = new SavedArticlesFragment();
+
 
     public static List<SessionArticleHistory> sessionArticleHistory = new ArrayList();
 
@@ -78,7 +94,7 @@ public class MainActivity extends MaterialNavigationDrawer {
             @Override
             public void onClick(MaterialSection materialSection) {
                 if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
-                    setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
+                    setFragment(randomArticleFragment, getResources().getString(R.string.drawer_random_article));
                     setSection(section_article);
                     materialSection.select();
                 } else {
@@ -98,6 +114,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         getToolbar().setCollapsible(true);
 
     }
+
 
 
     public static Context getAppContext() {
@@ -160,8 +177,8 @@ public class MainActivity extends MaterialNavigationDrawer {
             if (sessionArticleHistory.get(sessionArticleHistory.size() - 1).getId() != item.getId()) {
 
 
-                for(int i=0; i<sessionArticleHistory.size(); i++){
-                    if(sessionArticleHistory.get(i).getId()==item.getId()){
+                for (int i = 0; i < sessionArticleHistory.size(); i++) {
+                    if (sessionArticleHistory.get(i).getId() == item.getId()) {
                         sessionArticleHistory.remove(i);
                     }
                 }
@@ -185,25 +202,28 @@ public class MainActivity extends MaterialNavigationDrawer {
             setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(setIntent);
         } else if (current_section == section_article) {
-            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.getChildCount()>0 && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
-            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.getChildCount()>0 && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
             } else {
                 if (sessionArticleHistory.size() > 1) {
-                    SessionArticleHistory item = sessionArticleHistory.get(sessionArticleHistory.size() - 2);
-                    sessionArticleHistory.remove(sessionArticleHistory.size() - 1);
 
+                    onBackPressedListener.doBack();
 
+                    /*
                     Fragment fragment = new ArticleFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("article_id", item.getId());
                     bundle.putString("article_title", item.getTitle());
                     fragment.setArguments(bundle);
 
+
                     ((MaterialNavigationDrawer) MainActivity.this).setFragment(fragment, item.getTitle());
                     ((MaterialNavigationDrawer) MainActivity.this).setSection(section_article);
+                    */
                 } else {
+
                     ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
                     ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
                     sessionArticleHistory.clear();
@@ -216,6 +236,8 @@ public class MainActivity extends MaterialNavigationDrawer {
             sessionArticleHistory.clear();
         }
     }
+
+
             /*
             if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                 ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
@@ -227,6 +249,8 @@ public class MainActivity extends MaterialNavigationDrawer {
             }
             */
 
-
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
+    }
 }
 
