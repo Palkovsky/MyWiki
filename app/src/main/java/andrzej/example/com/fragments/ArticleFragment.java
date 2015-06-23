@@ -570,7 +570,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         final int id = article_id;
         int[] ids = {id};
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         int loadingLimit = prefs.getInt(SharedPrefsKeys.RECOMMENDATIONS_LIMIT_PREF, BaseConfig.MAX_RELATED_PAGES);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRelatedPages(ids, loadingLimit), (String) null,
@@ -614,8 +613,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                                     ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
                                                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                                                } else
-                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                                                }
                                             }
                                         });
                                     }
@@ -629,7 +627,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.loading_recommendations_error), Toast.LENGTH_SHORT).show();
             }
         });
 
