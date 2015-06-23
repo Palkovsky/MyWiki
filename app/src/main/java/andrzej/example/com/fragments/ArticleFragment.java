@@ -691,9 +691,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         imgs.clear();
         recommendations.clear();
         finishActionMode();
-        refreshHeaders();
         article_id = id;
         article_title = title;
+        refreshHeaders();
         setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
         ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
         titleTv.setText(article_title);
