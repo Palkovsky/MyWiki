@@ -155,9 +155,19 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static void addToSessionArticleHistory(int id, String label) {
         SessionArticleHistory item = new SessionArticleHistory(id, label);
 
+
         if (sessionArticleHistory.size() > 0) {
-            if (sessionArticleHistory.get(sessionArticleHistory.size() - 1).getId() != item.getId())
+            if (sessionArticleHistory.get(sessionArticleHistory.size() - 1).getId() != item.getId()) {
+
+
+                for(int i=0; i<sessionArticleHistory.size(); i++){
+                    if(sessionArticleHistory.get(i).getId()==item.getId()){
+                        sessionArticleHistory.remove(i);
+                    }
+                }
+
                 sessionArticleHistory.add(item);
+            }
         } else
             sessionArticleHistory.add(item);
     }
@@ -196,13 +206,14 @@ public class MainActivity extends MaterialNavigationDrawer {
                 } else {
                     ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
                     ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                    sessionArticleHistory.clear();
                 }
             }
 
         } else {
             ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
             ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
-
+            sessionArticleHistory.clear();
         }
     }
             /*

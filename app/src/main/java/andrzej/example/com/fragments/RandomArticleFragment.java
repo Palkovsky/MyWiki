@@ -448,6 +448,9 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+
+                        MainActivity.addToSessionArticleHistory(article_id, article_title);
+
                         try {
                             if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setInternetPresentLayout();
@@ -649,7 +652,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(null, error.getMessage());
+                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.loading_recommendations_error), Toast.LENGTH_SHORT).show();
             }
         });
 

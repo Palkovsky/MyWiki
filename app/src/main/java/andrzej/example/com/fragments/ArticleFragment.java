@@ -629,7 +629,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(null, error.getMessage());
+                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.loading_recommendations_error), Toast.LENGTH_SHORT).show();
             }
         });
 

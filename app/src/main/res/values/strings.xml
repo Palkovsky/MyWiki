@@ -60,4 +60,5 @@
     <string name="download_error">Wystąpił błąd podczas pobierania</string>
     <string name="action_share">Udostępnij</string>
     <string name="relatedHeader">Zobacz również</string>
+    <string name="loading_recommendations_error">Wystąpił błąd przy ładowaniu rekomendacji</string>
 </resources>

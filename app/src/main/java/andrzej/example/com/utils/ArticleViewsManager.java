@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -13,6 +14,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -182,27 +186,42 @@ public class ArticleViewsManager {
 
     }
 
-    public LinearLayout addRecommendationButtonToLayout(Recommendation recommendation){
+    public LinearLayout addRecommendationButtonToLayout(Recommendation recommendation) {
 
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
         recommendationsImageSize = prefs.getInt(SharedPrefsKeys.RECOMMENDATION_IMAGE_SIZE_PREF, recommendationsImageSize);
 
         LinearLayout recommendationLl = new LinearLayout(MyApplication.getAppContext());
         recommendationLl.setOrientation(LinearLayout.HORIZONTAL);
-        recommendationLl.setBackground(c.getResources().getDrawable(R.drawable.selectable_item_background));
+        recommendationLl.setBackground(ContextCompat.getDrawable(c, R.drawable.selectable_item_background));
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         LLParams.setMargins(paragraphLeftMarginCons * 2, 0, 0, 10);
         recommendationLl.setGravity(Gravity.CENTER_VERTICAL);
         recommendationLl.setLayoutParams(LLParams);
 
-        ImageView imageView = new ImageView(c);
-        LinearLayout.LayoutParams ivParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.2f);
+        final ImageView imageView = new ImageView(c);
+        LinearLayout.LayoutParams ivParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageView.setLayoutParams(ivParams);
         imageView.setAdjustViewBounds(true);
+        imageView.getLayoutParams().height = recommendationsImageSize;
+        imageView.getLayoutParams().width = recommendationsImageSize;
 
-        Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).placeholder(c.getResources().getDrawable(R.drawable.ic_action_picture)).error(c.getResources().getDrawable(R.drawable.ic_action_picture)).into(imageView);
+        Picasso.with(c).load(recommendation.getSquaredImage(recommendationsImageSize)).resize(recommendationsImageSize, recommendationsImageSize).
+                placeholder(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).error(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).into(imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError() {
+                imageView.getLayoutParams().height = recommendationsImageSize;
+                imageView.getLayoutParams().width = recommendationsImageSize;
+            }
+        });
         recommendationLl.addView(imageView);
+
 
         TextView textView = new TextView(c);
         textView.setGravity(Gravity.CENTER_VERTICAL);
@@ -211,7 +230,7 @@ public class ArticleViewsManager {
 
         LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         params_tv.setMargins(40, 0, 0, 0);
         textView.setLayoutParams(params_tv);
 
@@ -236,7 +255,8 @@ public class ArticleViewsManager {
         //imageView.setAdjustViewBounds(true);
         //setting image resource
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        Picasso.with(MyApplication.getAppContext()).load(img_url).placeholder(c.getResources().getDrawable(R.drawable.ic_action_picture)).error(c.getResources().getDrawable(R.drawable.ic_action_picture)).into(imageView);
+        Picasso.with(MyApplication.getAppContext()).load(img_url).placeholder(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).memoryPolicy(MemoryPolicy.NO_CACHE).
+                networkPolicy(NetworkPolicy.NO_CACHE).error(ContextCompat.getDrawable(c, R.drawable.ic_action_picture)).into(imageView);
 
         LinearLayout.LayoutParams params_iv = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
