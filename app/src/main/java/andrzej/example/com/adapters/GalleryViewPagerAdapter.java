@@ -12,6 +12,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -82,7 +84,7 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
                         imgDisplay.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
                             @Override
                             public void onPhotoTap(View view, float v, float v1) {
-                                if(GalleryActivity.isInterfaceHidden())
+                                if (GalleryActivity.isInterfaceHidden())
                                     GalleryActivity.showInterface();
                                 else
                                     GalleryActivity.hideInterface();
@@ -93,7 +95,6 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
                     @Override
                     public void onError() {
                         progressBar.setVisibility(View.VISIBLE);
-                        Toast.makeText(getContext(), finalImgUrl, Toast.LENGTH_SHORT).show();
                     }
                 });
             }

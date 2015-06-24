@@ -274,7 +274,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
-                if (mDrawerLayout != null && mStructureAdapter != null)
+                if (mDrawerLayout.getChildCount() > 0 && drawerView != null && mDrawerLayout != null && mStructureAdapter != null)
                     mDrawerLayout.closeDrawer(Gravity.RIGHT);
 
                 finishActionMode();
@@ -518,8 +518,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                 ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
                                 db.addItem(iItem);
 
-                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).memoryPolicy(MemoryPolicy.NO_CACHE).
-                                        networkPolicy(NetworkPolicy.NO_CACHE).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);

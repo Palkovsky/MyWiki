@@ -155,7 +155,7 @@ public class ArticleViewsManager {
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
-        itemTv.setText(Html.fromHtml("&#8226;" + label + "<br/>"));
+        itemTv.setText(Html.fromHtml("<br/> &#8226;" + label));
         itemTv.setTextIsSelectable(true);
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);

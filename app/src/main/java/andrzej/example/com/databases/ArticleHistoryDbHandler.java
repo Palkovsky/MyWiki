@@ -13,6 +13,7 @@ import java.util.List;
 
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 
 /**
@@ -22,7 +23,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Database Name
     private static final String DATABASE_NAME = "articleHistory";
@@ -36,9 +37,10 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
     private static final String KEY_NAME = "name";
     private static final String KEY_THUMBNAIL_URL = "url";
     private static final String KEY_VISIT_DATE = "visited_at";
+    private static final String KEY_WIKI_NAME = "wiki";
 
     private final String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_HISTORY + "("
-            + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_WIKI_ID + " INTEGER, " + KEY_THUMBNAIL_URL + " TEXT, " + KEY_VISIT_DATE + " TEXT)";
+            + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_WIKI_ID + " INTEGER, " + KEY_THUMBNAIL_URL + " TEXT, " + KEY_VISIT_DATE + " TEXT, " + KEY_WIKI_NAME + " TEXT)";
 
 
     public ArticleHistoryDbHandler(Context context) {
@@ -61,18 +63,19 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
     public void addItem(ArticleHistoryItem item) {
 
-        if(!getDateInString(System.currentTimeMillis()).contains(getLastItem().getDateInString())){
+        if (!getDateInString(System.currentTimeMillis()).contains(getLastItem().getDateInString())) {
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getLabel()); // Contact Name
             values.put(KEY_WIKI_ID, item.getId());
             values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
             values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
+            values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
 
             // Inserting Row
             SQLiteDatabase db = this.getWritableDatabase();
             db.insert(TABLE_HISTORY, null, values);
             db.close(); // Closing database connection
-        }else {
+        } else {
             if (!item.getLabel().equals(getLastItem().getLabel())) {
                 deleteSmart(item.getLabel(), item.getDateInString());
 
@@ -81,6 +84,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
                 values.put(KEY_WIKI_ID, item.getId());
                 values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
                 values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
+                values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
 
                 // Inserting Row
                 SQLiteDatabase db = this.getWritableDatabase();
@@ -94,7 +98,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_NAME + "=?", new String[]{name}, null, null, null, null);
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?", new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
 
         // looping through all rows and adding to list
         if (cursor.getCount() > 0) {
@@ -174,15 +178,15 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
                             String search) {
         SQLiteDatabase sampleDB = this.getReadableDatabase();
         Cursor c = sampleDB.rawQuery("SELECT * FROM "
-                + TABLE_HISTORY + " where " + field + " like '%" + search
-                + "%' ORDER BY " + KEY_VISIT_DATE + " DESC", null);
+                + TABLE_HISTORY + " where " + KEY_WIKI_NAME + " =? AND " + field + " like '%" + search
+                + "%' ORDER BY " + KEY_VISIT_DATE + " DESC", new String[]{APIEndpoints.WIKI_NAME});
         return c;
     }
 
     public List<ArticleHistoryItem> getAllItems() {
         List<ArticleHistoryItem> contactList = new ArrayList<ArticleHistoryItem>();
         // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_VISIT_DATE + " DESC";
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " WHERE " + KEY_WIKI_NAME + "='" + APIEndpoints.WIKI_NAME + "' ORDER BY " + KEY_VISIT_DATE + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -207,8 +211,11 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
     public ArticleHistoryItem getLastItem() {
         SQLiteDatabase db = this.getReadableDatabase();
 
+        //Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
+        //        KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?", new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
+
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, null, null, null, null, null);
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_WIKI_NAME + "=?", new String[] {APIEndpoints.WIKI_NAME}, null, null, null);
 
         if (cursor != null)
             cursor.moveToLast();
@@ -223,7 +230,6 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         }
         return new ArticleHistoryItem();
     }
-
 
 
     public int getContactsCount() {
@@ -248,8 +254,8 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{
-                        KEY_NAME, KEY_VISIT_DATE}, KEY_NAME + "=?",
-                new String[]{name}, null, null, null, null);
+                        KEY_NAME, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND "+ KEY_WIKI_NAME + "=?",
+                new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();

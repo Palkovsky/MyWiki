@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +51,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     private static LinearLayout bottomToolbar;
     private TextView captionTv;
     private FixedViewPager pager;
+    private FrameLayout galleryContainer;
 
     //Crutials
     int positon = 0;
@@ -74,6 +76,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarAutoConfig(toolbar);
+        galleryContainer = (FrameLayout) findViewById(R.id.gallery_container);
         pager = (FixedViewPager) findViewById(R.id.gallery_pager);
         captionTv = (TextView) findViewById(R.id.gallery_captionTv);
         bottomToolbar = (LinearLayout) findViewById(R.id.gallery_bottomToolbar);
@@ -93,6 +96,12 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
             pager.addOnPageChangeListener(this);
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        galleryContainer.removeAllViews();
     }
 
     public static Context getAppContext() {

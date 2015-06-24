@@ -552,8 +552,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 db.addItem(iItem);
 
 
-                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).memoryPolicy(MemoryPolicy.NO_CACHE).
-                                        networkPolicy(NetworkPolicy.NO_CACHE).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
+                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
                                     @Override
                                     public void onSuccess() {
                                         parallaxIv.setBackgroundColor(Color.WHITE);

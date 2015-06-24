@@ -5,7 +5,7 @@ import andrzej.example.com.utils.StringOperations;
 
 public class APIEndpoints {
 
-    public static final String WIKI_NAME = "http://pl.mlp.wikia.com";
+    public static String WIKI_NAME = "http://pl.mlp.wikia.com";
 
     //Symbols
     public static final String URL_CHAR_QUESTION = "?";
@@ -47,7 +47,7 @@ public class APIEndpoints {
     public static final String URL_NAMESPACES = "namespaces=0%2C14";// 0,14 is default
 
 
-    public static final String[] STOP_WORDS = {"/Galeria", "/Transkrypty", "Transkrypty/", "Kategoria:"}; //if search title contains one of these words don't show it to user
+    public static final String[] STOP_WORDS = {"/", ":"}; //if search title contains one of these words don't show it to user
 
     public static final String getUrlRelatedPages(int[] ids, int limit) {
         String url = URL_RELATED_PAGES +

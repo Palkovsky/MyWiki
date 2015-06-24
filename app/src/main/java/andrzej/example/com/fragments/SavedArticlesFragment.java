@@ -21,7 +21,6 @@ public class SavedArticlesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -29,6 +28,7 @@ public class SavedArticlesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_saved_articles, container, false);
+        MainActivity.sessionArticleHistory.clear();
 
         return v;
     }

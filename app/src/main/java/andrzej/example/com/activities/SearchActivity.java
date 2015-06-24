@@ -87,6 +87,8 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        MainActivity.sessionArticleHistory.clear();
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.searching));
         setSupportActionBar(toolbar);

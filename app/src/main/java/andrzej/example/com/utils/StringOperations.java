@@ -16,7 +16,7 @@ public class StringOperations {
     public static String pumpUpSize(String url, int size) {
         String size_str = String.valueOf(size);
 
-        if (url.contains("/scale-to-width/")) {
+        if (url.contains("/scale-to-width/") && !url.contains("/scale-to-width-down/")) {
             String chunk_string_beg = "/scale-to-width/";
             String chunk_string_end = "?cb=";
 
@@ -44,6 +44,20 @@ public class StringOperations {
                 }
             }
 
+        } else if (url.contains("/scale-to-width-down/")) {
+
+            String chunk_beg = "/scale-to-width-down/";
+            String chunk_end = "?cb=";
+
+            int index_start = url.indexOf(chunk_beg) + chunk_beg.length();
+            int index_end = url.indexOf(chunk_end);
+
+            String currentSize = url.substring(index_start, index_end);
+
+            url = url.replaceFirst("/scale-to-width-down/" + currentSize, "/scale-to-width-down/" + size_str);
+
+            Log.e(null, "upgraded url: " + url);
+            return url;
         } else if (url.contains("/latest/window-crop/width")) {
 
             /*
