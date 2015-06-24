@@ -51,7 +51,6 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     private static LinearLayout bottomToolbar;
     private TextView captionTv;
     private FixedViewPager pager;
-    private FrameLayout galleryContainer;
 
     //Crutials
     int positon = 0;
@@ -76,7 +75,6 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarAutoConfig(toolbar);
-        galleryContainer = (FrameLayout) findViewById(R.id.gallery_container);
         pager = (FixedViewPager) findViewById(R.id.gallery_pager);
         captionTv = (TextView) findViewById(R.id.gallery_captionTv);
         bottomToolbar = (LinearLayout) findViewById(R.id.gallery_bottomToolbar);
@@ -94,6 +92,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
             pager.setCurrentItem(positon);
 
             pager.addOnPageChangeListener(this);
+
         }
 
     }
@@ -101,7 +100,6 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        galleryContainer.removeAllViews();
     }
 
     public static Context getAppContext() {

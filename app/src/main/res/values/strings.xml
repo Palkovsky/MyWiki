@@ -24,14 +24,14 @@
     <string name="no">Nie</string>
     <string name="removeOneQuestion">Czy na pewno chcesz usunąć?</string>
     <string name="pref_header_sample">Ustawienia</string>
-    <string name="app_build">Beta 0.6.6341</string>
+    <string name="app_build">Beta 0.6.6441</string>
     <string name="menu_structure">Struktura artykułu</string>
     <string name="menu_selectAll">Zaznacz wszystko</string>
     <string name="menu_copy">Kopiuj</string>
     <string name="menu_share">Udostępnij</string>
     <string name="share_via">Udostępnij za pomocą</string>
     <string name="drawer_random_article">Losowa strona</string>
-    <string name="drawer_saved_articles">Zapisane strony</string>
+    <string name="drawer_saved_articles">Wybierz wikię</string>
     <string name="drawer_history">Historia</string>
     <string name="drawer_today">Dzisiaj</string>
     <string name="drawer_articles">Artykuły</string>

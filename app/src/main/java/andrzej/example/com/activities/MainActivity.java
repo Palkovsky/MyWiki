@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,9 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,10 +21,9 @@ import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
-import andrzej.example.com.fragments.SavedArticlesFragment;
+import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.Article;
 import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.DrawerImages;
@@ -47,7 +42,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     //Sekcje, które muszą być globalne.
     public static MaterialSection section_main;
     public static MaterialSection section_random;
-    public static MaterialSection section_saved;
+    public static MaterialSection section_management;
     public static MaterialSection section_history;
     public static MaterialSection section_settings;
     public static MaterialSection section_article;
@@ -58,7 +53,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static RandomArticleFragment randomArticleFragment = new RandomArticleFragment();
     public static ArticleFragment articleFragment = new ArticleFragment();
     //public static MainFragment mainFragment = new MainFragment();
-    //public static SavedArticlesFragment savedArticlesFragment = new SavedArticlesFragment();
+    //public static WikisManagementFragment wikisManagementFragment = new WikisManagementFragment();
 
 
     public static List<SessionArticleHistory> sessionArticleHistory = new ArrayList();
@@ -84,8 +79,16 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_history = newSection(getResources().getString(R.string.drawer_history), ContextCompat.getDrawable(this, R.drawable.ic_history_grey600_24dp), new HistoryFragment());
         addSection(section_history);
 
-        section_saved = newSection(getResources().getString(R.string.drawer_saved_articles), ContextCompat.getDrawable(this, R.drawable.ic_content_save_all_grey600_24dp), new SavedArticlesFragment());
-        addSection(section_saved);
+        section_management = newSection(getResources().getString(R.string.drawer_saved_articles), ContextCompat.getDrawable(this, R.drawable.ic_content_save_all_grey600_24dp), new WikisManagementFragment());
+        addSection(section_management);
+        section_management.setOnClickListener(new MaterialSectionListener() {
+            @Override
+            public void onClick(MaterialSection materialSection) {
+                setFragment(new WikisManagementFragment(), getResources().getString(R.string.drawer_saved_articles));
+                setSection(section_management);
+                materialSection.select();
+            }
+        });
 
 
         section_random = newSection(getResources().getString(R.string.drawer_random_article), ContextCompat.getDrawable(this, R.drawable.ic_dice_5_grey600_24dp), new RandomArticleFragment());
