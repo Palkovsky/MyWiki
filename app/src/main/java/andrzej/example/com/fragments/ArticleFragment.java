@@ -683,6 +683,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 
     private void setPage(int id, String title) {
+        requestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
         setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
         parallaxIv.setBackgroundColor(Color.TRANSPARENT);
         parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));

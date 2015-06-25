@@ -38,4 +38,5 @@ dependencies {
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
+    compile 'com.jpardogo.materialtabstrip:library:1.0.6'
 }

@@ -735,10 +735,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         boolean fetchNew = prefs.getBoolean(SharedPrefsKeys.RANDOM_ARTICLE_FETCHING_PREF, false);
 
         if (fetchNew) {
-            /*
-            ((MaterialNavigationDrawer) getActivity()).setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
-            ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-            */
             setRandomPage();
         } else {
             rootArticleLl.removeAllViews();
@@ -829,6 +825,12 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void setRandomPage() {
+        requestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
         setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
         parallaxIv.setBackgroundColor(Color.TRANSPARENT);
         parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));

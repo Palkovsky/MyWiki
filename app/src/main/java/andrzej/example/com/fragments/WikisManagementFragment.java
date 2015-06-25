@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.fragments.ManagementTabs.TabsAdapter;
@@ -18,7 +19,7 @@ import andrzej.example.com.views.SlidingTabLayout;
 
 public class WikisManagementFragment extends Fragment {
 
-    FrameLayout rootView;
+    LinearLayout rootView;
     TabsAdapter mAdapter;
     ViewPager mPager;
     SlidingTabLayout mTabs;
@@ -41,7 +42,7 @@ public class WikisManagementFragment extends Fragment {
 
         mAdapter = new TabsAdapter(getActivity().getSupportFragmentManager(), TabsPrefs.mTitles, TabsPrefs.mTabsNum);
 
-        rootView = (FrameLayout) v.findViewById(R.id.managementRootView);
+        rootView = (LinearLayout) v.findViewById(R.id.managementRootView);
 
         mPager = (ViewPager) v.findViewById(R.id.managementPager);
         mPager.setAdapter(mAdapter);

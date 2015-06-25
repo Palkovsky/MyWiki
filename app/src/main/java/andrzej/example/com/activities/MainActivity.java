@@ -119,7 +119,6 @@ public class MainActivity extends MaterialNavigationDrawer {
     }
 
 
-
     public static Context getAppContext() {
         return MainActivity.context;
     }
@@ -196,23 +195,27 @@ public class MainActivity extends MaterialNavigationDrawer {
     public void onBackPressed() {
         MaterialSection current_section = this.getCurrentSection();
 
-        if (current_section != section_article)
-            sessionArticleHistory.clear();
+        if (isDrawerOpen())
+            closeDrawer();
+        else {
 
-        if (current_section == section_main) {
-            Intent setIntent = new Intent(Intent.ACTION_MAIN);
-            setIntent.addCategory(Intent.CATEGORY_HOME);
-            setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(setIntent);
-        } else if (current_section == section_article) {
-            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.getChildCount()>0 && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
-            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.getChildCount()>0 && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
-            } else {
-                if (sessionArticleHistory.size() > 1) {
+            if (current_section != section_article)
+                sessionArticleHistory.clear();
 
-                    onBackPressedListener.doBack();
+            if (current_section == section_main) {
+                Intent setIntent = new Intent(Intent.ACTION_MAIN);
+                setIntent.addCategory(Intent.CATEGORY_HOME);
+                setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(setIntent);
+            } else if (current_section == section_article) {
+                if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.getChildCount() > 0 && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                    ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.getChildCount() > 0 && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                    RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                } else {
+                    if (sessionArticleHistory.size() > 1) {
+
+                        onBackPressedListener.doBack();
 
                     /*
                     Fragment fragment = new ArticleFragment();
@@ -225,32 +228,22 @@ public class MainActivity extends MaterialNavigationDrawer {
                     ((MaterialNavigationDrawer) MainActivity.this).setFragment(fragment, item.getTitle());
                     ((MaterialNavigationDrawer) MainActivity.this).setSection(section_article);
                     */
-                } else {
+                    } else {
 
-                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
-                    ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
-                    sessionArticleHistory.clear();
+                        ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
+                        ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                        sessionArticleHistory.clear();
+                    }
                 }
-            }
 
-        } else {
-            ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
-            ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
-            sessionArticleHistory.clear();
-        }
-    }
-
-
-            /*
-            if (ArticleFragment.mDrawerLayout != null && ArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                ArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
-            } else if (RandomArticleFragment.mDrawerLayout != null && RandomArticleFragment.mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
             } else {
                 ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
                 ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                sessionArticleHistory.clear();
             }
-            */
+        }
+    }
+
 
     public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
         this.onBackPressedListener = onBackPressedListener;
