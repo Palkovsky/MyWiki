@@ -26,9 +26,12 @@ import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.DrawerImages;
 import andrzej.example.com.utils.OnBackPressedListener;
+import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
+import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
 
@@ -47,6 +50,8 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static MaterialSection section_settings;
     public static MaterialSection section_article;
 
+    //Accounts
+    public static MaterialAccount account;
 
     //Fragment
     //public static HistoryFragment historyFragment = new HistoryFragment();
@@ -69,9 +74,11 @@ public class MainActivity extends MaterialNavigationDrawer {
         Random r = new Random();
         int random_int = r.nextInt(images.length);
 
-        this.setDrawerHeaderImage(images[random_int]);
+        //this.setDrawerHeaderImage(images[random_int]);
 
-        getSupportActionBar().setShowHideAnimationEnabled(true);
+
+        account = new MaterialAccount(this.getResources(), StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME),APIEndpoints.WIKI_NAME,null, images[random_int]);
+        this.addAccount(account);
 
         section_main = newSection(getResources().getString(R.string.drawer_today), ContextCompat.getDrawable(this, R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
         addSection(section_main);

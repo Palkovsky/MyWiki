@@ -118,11 +118,12 @@
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/articleErrorMessage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
-                android:text="@string/no_internet_conn" />
+                android:text="@string/download_error" />
 
             <com.beardedhen.androidbootstrap.BootstrapButton
                 android:id="@+id/noInternetBtn"

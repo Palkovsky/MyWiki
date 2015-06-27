@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wiki_man_input_content"/>
+
+    <andrzej.example.com.views.MaterialEditText
+        android:id="@+id/mangementInputLabelET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+
+        android:layout_marginLeft="8dp"
+
+        android:layout_marginRight="8dp"
+        android:hint="@string/man_label_hint"
+        android:inputType="textNoSuggestions"
+
+        app:met_baseColor="@android:color/black"
+        app:met_clearButton="true"
+        app:met_errorColor="#ddaa00"
+        app:met_primaryColor="@color/list_item_highlight" />
+
+
+    <andrzej.example.com.views.MaterialEditText
+        android:id="@+id/mangementInputUrlET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+
+        android:layout_marginLeft="8dp"
+
+        android:layout_marginRight="8dp"
+        android:hint="@string/man_url_hint"
+        android:inputType="textNoSuggestions"
+
+        app:met_baseColor="@android:color/black"
+        app:met_clearButton="true"
+        app:met_errorColor="#ddaa00"
+        app:met_primaryColor="@color/list_item_highlight" />
+</LinearLayout>

@@ -10,14 +10,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -42,8 +38,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -96,6 +90,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
     public static DrawerLayout mDrawerLayout;
+    TextView errorMessage;
     ListView mDrawerListView;
 
     private int article_id;
@@ -176,7 +171,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
-
+        errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
 
         imgs.clear();
         sections.clear();
@@ -692,7 +687,15 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
 
+    private void setErrorMessage() {
+        if (NetworkUtils.isNetworkAvailable(getActivity()))
+            errorMessage.setText(getActivity().getResources().getString(R.string.loading_error));
+        else
+            errorMessage.setText(getActivity().getResources().getString(R.string.no_internet_conn));
+    }
+
     private void setNoInternetLayout() {
+        setErrorMessage();
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
         loadingLl.setVisibility(View.GONE);
@@ -700,6 +703,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void setInternetPresentLayout() {
+        setErrorMessage();
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);

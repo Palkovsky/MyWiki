@@ -11,12 +11,10 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -41,8 +39,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -76,7 +72,6 @@ import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.ArrayHelpers;
 import andrzej.example.com.utils.ArticleViewsManager;
-import andrzej.example.com.utils.BaseBackPressedListener;
 import andrzej.example.com.utils.OnBackPressedListener;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
@@ -95,6 +90,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
     public static DrawerLayout mDrawerLayout;
+    TextView errorMessage;
     ListView mDrawerListView;
     ActionBarDrawerToggle drawerToggle;
 
@@ -181,6 +177,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         retryBtn = (BootstrapButton) v.findViewById(R.id.noInternetBtn);
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
+        errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
 
         viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
@@ -207,31 +204,31 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
-                mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
+        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
 
-                                                {
-                                                    @Override
-                                                    public void onDrawerSlide(View drawerView, float slideOffset) {
-                                                        finishActionMode();
-                                                    }
+                                        {
+                                            @Override
+                                            public void onDrawerSlide(View drawerView, float slideOffset) {
+                                                finishActionMode();
+                                            }
 
-                                                    @Override
-                                                    public void onDrawerOpened(View drawerView) {
+                                            @Override
+                                            public void onDrawerOpened(View drawerView) {
 
-                                                    }
+                                            }
 
-                                                    @Override
-                                                    public void onDrawerClosed(View drawerView) {
+                                            @Override
+                                            public void onDrawerClosed(View drawerView) {
 
-                                                    }
+                                            }
 
-                                                    @Override
-                                                    public void onDrawerStateChanged(int newState) {
+                                            @Override
+                                            public void onDrawerStateChanged(int newState) {
 
-                                                    }
-                                                }
+                                            }
+                                        }
 
-                );
+        );
 
         //mDrawerListView.addHeaderView(drawerHeader);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -680,8 +677,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
 
-
-
     private void setPage(int id, String title) {
         requestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override
@@ -706,7 +701,15 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         fetchArticleInfo(article_id);
     }
 
+    private void setErrorMessage() {
+        if (NetworkUtils.isNetworkAvailable(getActivity()))
+            errorMessage.setText(getActivity().getResources().getString(R.string.loading_error));
+        else
+            errorMessage.setText(getActivity().getResources().getString(R.string.no_internet_conn));
+    }
+
     private void setNoInternetLayout() {
+        setErrorMessage();
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
         loadingLl.setVisibility(View.GONE);
@@ -714,6 +717,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void setInternetPresentLayout() {
+        setErrorMessage();
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);
