@@ -13,6 +13,7 @@ public class SharedPrefsKeys {
     public static final String ARTICLE_IMAGES_SIZE_PREF = "ARTICLE_IMAGES_SIZE_PREF";
     public static final String RECOMMENDATION_IMAGE_SIZE_PREF = "RECOMMENDATION_IMAGE_SIZE_PREF";
     public static final String RANDOM_ARTICLE_FETCHING_PREF = "RANDOM_ARTICLE_FETCHING_PREF";
+    public static final String LITE_ARTICLE_PREF = "LITE_ARTICLE_PREF";
 
     public static String NIGHT_MODE_ENABLED_PREF = "NIGHT_MODE_ENABLED_PREF";
 }

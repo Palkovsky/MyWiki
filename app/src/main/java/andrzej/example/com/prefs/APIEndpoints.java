@@ -5,7 +5,7 @@ import andrzej.example.com.utils.StringOperations;
 
 public class APIEndpoints {
 
-    public static String WIKI_NAME = "http://pl.mlp.wikia.com";
+    public static String WIKI_NAME = "http://starwars.wikia.com";
 
     //Symbols
     public static String URL_CHAR_QUESTION = "?";

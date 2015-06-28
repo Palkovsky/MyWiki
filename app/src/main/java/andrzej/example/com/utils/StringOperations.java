@@ -16,6 +16,8 @@ public class StringOperations {
     public static String pumpUpSize(String url, int size) {
         String size_str = String.valueOf(size);
 
+        Log.e(null, "URL DO ZMIANY: " + url);
+
         if (url.contains("/scale-to-width/") && !url.contains("/scale-to-width-down/")) {
             String chunk_string_beg = "/scale-to-width/";
             String chunk_string_end = "?cb=";

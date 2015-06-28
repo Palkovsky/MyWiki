@@ -84,6 +84,12 @@
             />
 
         <CheckBoxPreference
+            android:key="LITE_ARTICLE_PREF"
+            android:title="Podstawowy widok"
+            android:summary="Sprawia, że artykuły ładują się szybciej."
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
             android:key="RANDOM_ARTICLE_FETCHING_PREF"
             android:title="Random Article fetching"
             android:summary="Znajdje nowy po swipe-to-refresh."

@@ -3,6 +3,7 @@ package andrzej.example.com.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
@@ -54,6 +55,7 @@ public class ArticleViewsManager {
 
     SharedPreferences prefs;
 
+
     boolean nightMode;
 
 
@@ -74,17 +76,19 @@ public class ArticleViewsManager {
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
         paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
+        boolean liteArtice = prefs.getBoolean(SharedPrefsKeys.LITE_ARTICLE_PREF, false);
+
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
+
         itemTv.setTypeface(null, Typeface.NORMAL);
         itemTv.setText(data);
-        itemTv.setTextSize(textSize);
-        itemTv.setLineSpacing(lineSpacing, 1);
 
         final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
 
         itemTv.setCustomSelectionActionModeCallback(action_mode);
         itemTv.setTextIsSelectable(true);
+
 
         itemTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -96,18 +100,25 @@ public class ArticleViewsManager {
             }
         });
 
-
         if (!nightMode)
             itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
         else
             itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(paragraphLeftMarginCons * level, paragraph_vertical_margin, 0, paragraph_vertical_margin);
-        itemTv.setLayoutParams(params);
-        ll.addView(itemTv);
+        if(!liteArtice) {
+            itemTv.setTextSize(textSize);
+            itemTv.setLineSpacing(lineSpacing, 1);
+
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(paragraphLeftMarginCons * level, paragraph_vertical_margin, 0, paragraph_vertical_margin);
+            itemTv.setLayoutParams(params);
+        }
+
+            ll.addView(itemTv);
+
 
         return itemTv;
     }
