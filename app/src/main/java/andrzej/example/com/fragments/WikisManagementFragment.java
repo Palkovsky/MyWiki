@@ -139,6 +139,12 @@ public class WikisManagementFragment extends Fragment {
                             ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
                         }
                     }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        super.onNegative(dialog);
+                        dialog.dismiss();
+                    }
                 });
 
                 dialog.show();

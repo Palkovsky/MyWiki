@@ -65,7 +65,8 @@
     <string name="wiki_man_input_title">Konfiguracja nowej wikii</string>
     <string name="wiki_man_input_content">Podaj nazwę, która będzie wyświetlana na liście oraz link do danej wikii. Należy pamiętać, że różne wikie inaczej działają. Więc mogą wystąpić pewne problemy z niektórymi stronami. Przykładowe URL: \'http://pl.mlp.wikia.com\'.</string>
     <string name="man_label_hint">Nazwa wyświetlana</string>
-    <string name="man_url_hint">http://nonsensopedia.wikia.com</string>
+    <string name="man_url_hint">Np. nonsensopedia</string>
     <string name="ok">Ok</string>
     <string name="cancel">Anuluj</string>
+    <string name="menu_nightMode">Tryb Nocny</string>
 </resources>

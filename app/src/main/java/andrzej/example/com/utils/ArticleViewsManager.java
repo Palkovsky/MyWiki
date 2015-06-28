@@ -26,6 +26,7 @@ import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
 import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 
@@ -53,6 +54,8 @@ public class ArticleViewsManager {
 
     SharedPreferences prefs;
 
+    boolean nightMode;
+
 
     public ArticleViewsManager(Context c) {
         this.c = c;
@@ -64,9 +67,10 @@ public class ArticleViewsManager {
     }
 
     //Adding Views
-    public void addTextViewToLayout(String data, int level) {
+    public TextView addTextViewToLayout(String data, int level) {
 
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
+        nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
         paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
@@ -93,7 +97,10 @@ public class ArticleViewsManager {
         });
 
 
-        itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        if (!nightMode)
+            itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        else
+            itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -101,57 +108,14 @@ public class ArticleViewsManager {
         params.setMargins(paragraphLeftMarginCons * level, paragraph_vertical_margin, 0, paragraph_vertical_margin);
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
+
+        return itemTv;
     }
 
-    public void addListToLayout(ArrayList<String> list) {
 
-        textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
-        lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
+    public TextView addListItemToLayout(String label, int level, int layout_level) {
 
-        if (list != null && list.size() > 0) {
-            String list_string = "";
-
-            int counter = 0;
-            for (String item : list) {
-                counter++;
-                if (counter < list.size())
-                    list_string += "&#8226;" + item + "<br/>";
-                else
-                    list_string += "&#8226;" + item;
-            }
-
-            final TextView itemTv = new TextView(MyApplication.getAppContext());
-            itemTv.setTypeface(null, Typeface.NORMAL);
-            itemTv.setText(Html.fromHtml(list_string));
-            itemTv.setLineSpacing(lineSpacing, 1);
-            itemTv.setTextSize(textSize);
-            final TextSelectionCallback action_mode = new TextSelectionCallback(itemTv, c);
-
-            itemTv.setCustomSelectionActionModeCallback(action_mode);
-            itemTv.setTextIsSelectable(true);
-
-            itemTv.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    ArticleFragment.finishActionMode();
-                    RandomArticleFragment.finishActionMode();
-                    itemTv.startActionMode(action_mode);
-                    return false;
-                }
-            });
-
-            itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(15, 0, 0, 0);
-
-            itemTv.setLayoutParams(params);
-            ll.addView(itemTv);
-        }
-    }
-
-    public void addListItemToLayout(String label, int level, int layout_level) {
+        nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
@@ -176,7 +140,11 @@ public class ArticleViewsManager {
 
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
 
-        itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        if (!nightMode)
+            itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        else
+            itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
+
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -185,12 +153,14 @@ public class ArticleViewsManager {
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);
 
+        return itemTv;
     }
 
     public LinearLayout addRecommendationButtonToLayout(Recommendation recommendation) {
 
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
         recommendationsImageSize = prefs.getInt(SharedPrefsKeys.RECOMMENDATION_IMAGE_SIZE_PREF, recommendationsImageSize);
+        nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
 
         LinearLayout recommendationLl = new LinearLayout(MyApplication.getAppContext());
         recommendationLl.setOrientation(LinearLayout.HORIZONTAL);
@@ -204,7 +174,6 @@ public class ArticleViewsManager {
             recommendationLl.setBackgroundDrawable(null);
             recommendationLl.setBackgroundDrawable(ContextCompat.getDrawable(c, R.drawable.selectable_item_background));
         }
-
 
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -239,13 +208,22 @@ public class ArticleViewsManager {
         TextView textView = new TextView(c);
         textView.setGravity(Gravity.CENTER_VERTICAL);
         textView.setText(recommendation.getTitle());
-        textView.setTextColor(c.getResources().getColor(R.color.font_color));
+        if (!nightMode)
+            textView.setTextColor(c.getResources().getColor(R.color.font_color));
+        else
+            textView.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
         LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         params_tv.setMargins(40, 0, 0, 0);
         textView.setLayoutParams(params_tv);
+
+
+        if (ArticleFragment.textViews != null)
+            ArticleFragment.textViews.add(textView);
+        if (RandomArticleFragment.textViews != null)
+            RandomArticleFragment.textViews.add(textView);
 
         recommendationLl.addView(textView);
 
@@ -257,6 +235,8 @@ public class ArticleViewsManager {
     public ImageView addImageViewToLayout(String img_url, String caption) {
         LinearLayout imageLl = new LinearLayout(MyApplication.getAppContext());
         imageLl.setOrientation(LinearLayout.VERTICAL);
+
+        nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         imageLl.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -304,8 +284,10 @@ public class ArticleViewsManager {
                     return false;
                 }
             });
-            itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
-
+            if (!nightMode)
+                itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+            else
+                itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
             LinearLayout.LayoutParams params_tv = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
@@ -314,6 +296,11 @@ public class ArticleViewsManager {
             itemTv.setGravity(Gravity.CENTER_HORIZONTAL);
 
             itemTv.setLayoutParams(params_tv);
+
+            if(ArticleFragment.textViews!=null)
+                ArticleFragment.textViews.add(itemTv);
+            if (RandomArticleFragment.textViews != null)
+                RandomArticleFragment.textViews.add(itemTv);
 
             imageLl.addView(itemTv);
         }
@@ -351,6 +338,9 @@ public class ArticleViewsManager {
     }
 
     private TextView getTextView(int size, String text, int level) {
+
+        nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         if (level <= 2)
             itemTv.setTypeface(null, Typeface.BOLD);
@@ -373,7 +363,10 @@ public class ArticleViewsManager {
             }
         });
 
-        itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        if (!nightMode)
+            itemTv.setTextColor(c.getResources().getColor(R.color.font_color));
+        else
+            itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
         header_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_HEADERS_MARGIN, header_vertical_margin);
 
@@ -387,8 +380,9 @@ public class ArticleViewsManager {
         return itemTv;
     }
 
-    public void destroyAllViews(){
-        if(ll.getChildCount() > 0)
+    public void destroyAllViews() {
+        if (ll.getChildCount() > 0)
             ll.removeAllViews();
     }
+
 }

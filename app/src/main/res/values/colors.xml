@@ -20,4 +20,8 @@
     <color name="fabPrimary">#d32f2f</color>
     <color name="fabPrimaryPressed">#c62828</color>
     <color name="fabRipple">#e53935</color>
+
+
+    <color name="nightBackground">#212121</color>
+    <color name="nightFontColor">#fafafa</color>
 </resources>

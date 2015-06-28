@@ -87,6 +87,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     LinearLayout noInternetLl;
     LinearLayout rootArticleLl;
     LinearLayout loadingLl;
+    LinearLayout parallaxPart;
     BootstrapButton retryBtn;
     ArticleViewsManager viewsManager;
     public static DrawerLayout mDrawerLayout;
@@ -102,6 +103,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
     private List<Recommendation> recommendations = new ArrayList<>();
+    public static List<TextView> textViews = new ArrayList<>();
     public static List<ActionMode> mActionModes = new ArrayList<>();
     ArticleStructureListAdapter mStructureAdapter;
 
@@ -132,11 +134,13 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         imgs.clear();
         headers.clear();
         recommendations.clear();
+        textViews.clear();
     }
 
     private void nullifyAllVars() {
         if (mDrawerLayout.getChildCount() > 0)
             mDrawerLayout.removeAllViews();
+        textViews.clear();
 
     }
 
@@ -178,19 +182,21 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
         errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
+        parallaxPart = (LinearLayout) v.findViewById(R.id.rootOfRootsArticle);
 
         viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
 
         display = getActivity().getWindowManager().getDefaultDisplay();
         display.getSize(size);
+        textViews.add(errorMessage);
 
         setLoadingLayout();
+        setUpColorScheme();
 
         mStructureAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
         mDrawerListView.setAdapter(mStructureAdapter);
         refreshHeaders();
-
 
         parallaxSv.setScrollViewCallbacks(this);
 
@@ -370,10 +376,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 int level = section.getInt(Article.KEY_LEVEL);
                                 String title = section.getString(Article.KEY_TITLE);
+                                TextView headerView = viewsManager.addHeader(level, title);
+                                textViews.add(headerView);
                                 if (level != 1)
-                                    headers.add(new ArticleHeader(level, title, viewsManager.addHeader(level, title)));
+                                    headers.add(new ArticleHeader(level, title, headerView));
                                 else
-                                    headers.get(0).setView(viewsManager.addHeader(level, title));
+                                    headers.get(0).setView(headerView);
 
                                 if (content.length() > 0) {
                                     for (int j = 0; j < content.length(); j++) {
@@ -383,7 +391,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                         if (type.equals(Article.KEY_PARAGRAPH)) {
                                             String text = content_section.getString(Article.KEY_TEXT);
                                             if (text != null && text.trim().length() > 0)
-                                                viewsManager.addTextViewToLayout(text, level);
+                                                textViews.add(viewsManager.addTextViewToLayout(text, level));
                                         } else if (type.equals(Article.KEY_LIST)) {
                                             JSONArray elements = content_section.getJSONArray(Article.KEY_ELEMENTS);
                                             if (elements != null && elements.length() > 0)
@@ -465,7 +473,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                 JSONObject element = elements.getJSONObject(i);
                 String text = element.getString(Article.KEY_TEXT);
-                viewsManager.addListItemToLayout(text, tree_level, layout_level);
+                textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level));
                 JSONArray nested_elements = element.getJSONArray(Article.KEY_ELEMENTS);
 
                 if (nested_elements != null && nested_elements.length() > 0) {
@@ -645,16 +653,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                                     setPage(recommendation.getId(), recommendation.getTitle());
 
-                                                    /*
-                                                    Fragment fragment = new ArticleFragment();
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putInt("article_id", recommendation.getId());
-                                                    bundle.putString("article_title", recommendation.getTitle());
-                                                    fragment.setArguments(bundle);
 
-                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
-                                                    ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
-                                                    */
                                                 } else
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
@@ -698,6 +697,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
         titleTv.setText(article_title);
         MainActivity.addToSessionArticleHistory(article_id, article_title);
+        setUpColorScheme();
         fetchArticleInfo(article_id);
     }
 
@@ -779,6 +779,23 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 else
                     mDrawerLayout.openDrawer(Gravity.RIGHT);
                 break;
+
+            case R.id.menu_nightMode:
+                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+
+                SharedPreferences.Editor editor = prefs.edit();
+
+
+                if(nightMode){
+                    setUpNormalMode();
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                }else {
+                    setUpNightMode();
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
+                }
+
+                editor.commit();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -822,5 +839,32 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
 
         isSignificantDelta = false;
+    }
+
+    private void setUpColorScheme(){
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+
+        if(nightMode)
+            setUpNightMode();
+        else
+            setUpNormalMode();
+    }
+
+    private void setUpNightMode(){
+        parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        for(TextView item : textViews){
+            item.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+        }
+    }
+
+    private void setUpNormalMode(){
+        parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        for(TextView item : textViews){
+            item.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+        }
     }
 }

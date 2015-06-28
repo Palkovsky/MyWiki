@@ -12,6 +12,12 @@
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_magnify_white_48dp"
-        appcompat:showAsAction="always"/>
+        appcompat:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_nightMode"
+        android:title="@string/menu_nightMode"
+        android:icon="@drawable/ic_weather_sunset_white_24dp"
+        appcompat:showAsAction="ifRoom"/>
 
 </menu>
