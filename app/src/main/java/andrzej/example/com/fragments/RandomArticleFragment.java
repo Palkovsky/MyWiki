@@ -793,7 +793,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 break;
 
             case R.id.menu_nightMode:
-                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
                 SharedPreferences.Editor editor = prefs.edit();
 
@@ -873,8 +873,14 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         fetchRandomArticle();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUpColorScheme();
+    }
+
     private void setUpColorScheme(){
-        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
         if(nightMode)
             setUpNightMode();
@@ -882,20 +888,22 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             setUpNormalMode();
     }
 
-    private void setUpNightMode(){
+    private void setUpNightMode() {
         parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
-        for(TextView item : textViews){
+        for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
         }
     }
 
-    private void setUpNormalMode(){
+    private void setUpNormalMode() {
         parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
-        for(TextView item : textViews){
+        for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         }
     }

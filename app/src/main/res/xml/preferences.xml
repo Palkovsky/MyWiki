@@ -84,9 +84,8 @@
             />
 
         <CheckBoxPreference
-            android:key="LITE_ARTICLE_PREF"
-            android:title="Podstawowy widok"
-            android:summary="Sprawia, że artykuły ładują się szybciej."
+            android:key="NIGHT_MODE_ENABLED_PREF"
+            android:title="Tryb nocny"
             android:defaultValue="false" />
 
         <CheckBoxPreference
@@ -100,6 +99,13 @@
             android:title="Znikanie toolbaru"
             android:summary="Zanikanie toolbaru przy scrollowaniu."
             android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="LITE_ARTICLE_PREF"
+            android:title="Podstawowy widok"
+            android:summary="Sprawia, że artykuły ładują się szybciej."
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Informacje">

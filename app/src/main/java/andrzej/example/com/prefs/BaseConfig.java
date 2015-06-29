@@ -12,4 +12,6 @@ public class BaseConfig {
     public static final int MAX_IMAGE_SIZE = 500;
 
     public static final int MAX_RELATED_PAGES = 3;
+
+    public static boolean NIGHT_MODE_DEFAULT = false;
 }

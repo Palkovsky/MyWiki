@@ -1,7 +1,9 @@
 package andrzej.example.com.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +37,8 @@ import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.views.MaterialEditText;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -44,6 +49,7 @@ public class HistoryFragment extends Fragment {
     TextView noRecordsTv;
     MaterialEditText filterEt;
     ListView listHistory;
+    FrameLayout rootView;
 
     //ADapter
     public static HistoryListAdapter mAdapter;
@@ -77,6 +83,7 @@ public class HistoryFragment extends Fragment {
         items = db.getAllItems();
         db.close();
 
+        rootView = (FrameLayout) v.findViewById(R.id.history_rootView);
         noRecordsTv = (TextView) v.findViewById(R.id.noRecordsTv);
         filterEt = (MaterialEditText) v.findViewById(R.id.historyEditText);
         listHistory = (ListView) v.findViewById(R.id.historyList);
@@ -183,9 +190,10 @@ public class HistoryFragment extends Fragment {
             }
         });
 
-        ((MaterialNavigationDrawer)this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
+        ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
+
 
             }
 
@@ -193,6 +201,7 @@ public class HistoryFragment extends Fragment {
             public void onDrawerOpened(View drawerView) {
                 if (mAdapter != null && mActionMode != null)
                     mActionMode.finish();
+
             }
 
             @Override
@@ -240,7 +249,6 @@ public class HistoryFragment extends Fragment {
 
             }
         });
-
 
 
         listHistory.setOnTouchListener(new View.OnTouchListener() {
@@ -335,5 +343,47 @@ public class HistoryFragment extends Fragment {
                 filterEt.getWindowToken(), 0);
 
         filterEt.setText("");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+        items.clear();
+        items.addAll(db.getAllItems());
+        db.close();
+        mAdapter.notifyDataSetChanged();
+        reInitViews(items.size());
+        setUpColorScheme();
+    }
+
+
+    private void setUpNightMode() {
+        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        noRecordsTv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+        filterEt.setHintTextColor(getActivity().getResources().getColor(R.color.nightBackgroundFontLight));
+        filterEt.setBaseColor(getActivity().getResources().getColor(R.color.nightBackgroundFontLight));
+        filterEt.setTextColor(getActivity().getResources().getColor(R.color.nightBackgroundFontLight));
+        filterEt.setBackgroundColor(getActivity().getResources().getColor(R.color.ColorPrimaryDark));
+    }
+
+    private void setUpNormalMode() {
+        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        noRecordsTv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+        filterEt.setHintTextColor(getActivity().getResources().getColor(R.color.font_color));
+        filterEt.setBaseColor(getActivity().getResources().getColor(R.color.font_color));
+        filterEt.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+        filterEt.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+    }
+
+    private void setUpColorScheme() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if (nightMode)
+            setUpNightMode();
+        else
+            setUpNormalMode();
     }
 }

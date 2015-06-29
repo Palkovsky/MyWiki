@@ -1,9 +1,11 @@
 package andrzej.example.com.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,8 @@ import java.util.Set;
 
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 
 /**
  * Created by andrzej on 02.06.15.
@@ -37,6 +41,7 @@ public class HistoryListAdapter extends BaseAdapter {
     LayoutInflater inflater;
     Context context;
     private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+    private SharedPreferences prefs;
 
     private List<ArticleHistoryItem> selectedItems = new ArrayList<ArticleHistoryItem>();
 
@@ -45,6 +50,7 @@ public class HistoryListAdapter extends BaseAdapter {
         this.myList = myList;
         this.context = context;
         inflater = LayoutInflater.from(this.context);        // only context can also be used
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.context);
     }
 
     @Override
@@ -86,6 +92,17 @@ public class HistoryListAdapter extends BaseAdapter {
 
         ArticleHistoryItem item = myList.get(position);
         if(item!=null){
+
+
+            boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+            if(nightMode) {
+                mViewHolder.tvTitle.setTextColor(context.getResources().getColor(R.color.nightFontColor));
+                mViewHolder.groupTv.setTextColor(context.getResources().getColor(R.color.nightFontColor));
+            } else {
+                mViewHolder.tvTitle.setTextColor(context.getResources().getColor(R.color.font_color));
+                mViewHolder.groupTv.setTextColor(context.getResources().getColor(R.color.font_color));
+            }
 
             mViewHolder.tvTitle.setText(item.getLabel());
             mViewHolder.groupTv.setText(item.getDateInString());

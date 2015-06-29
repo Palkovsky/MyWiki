@@ -1,11 +1,15 @@
 package andrzej.example.com.fragments;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -16,9 +20,16 @@ import java.util.List;
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 
 
 public class MainFragment extends Fragment {
+
+
+    //UI Elements
+    TextView tv;
+    FrameLayout rootView;
 
     //Articles ids
     List<Integer> article_ids = new ArrayList<>();
@@ -46,59 +57,12 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
+        rootView = (FrameLayout) v.findViewById(R.id.main_rootView);
+        tv = (TextView) v.findViewById(R.id.main_textView);
+
 
         return v;
     }
-
-
-    /* Last edited
-    private void fetchIds(){
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getLastEdited(BaseConfig.lastEditedLimit), (String) null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray items = response.getJSONArray("items");
-                            for(int i = 0; i<items.length(); i++){
-                                JSONObject item = items.getJSONObject(i);
-                                article_ids.add(item.getInt("article"));
-                            }
-
-                            if(article_ids.size()>0)
-                                fetchArticles(convertIntegers(article_ids));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(request);
-    }
-
-    private void fetchArticles(int[] ids){
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemDetalis(ids), (String) null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.e(null, response.toString());
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(request);
-    }
-
-*/
 
 
     public static int[] convertIntegers(List<Integer> integers) {
@@ -109,4 +73,29 @@ public class MainFragment extends Fragment {
         return ret;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUpColorScheme();
+    }
+
+    private void setUpColorScheme(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if(nightMode)
+            setUpNightMode();
+        else
+            setUpNormalMode();
+    }
+
+    private void setUpNightMode(){
+        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+    }
+
+    private void setUpNormalMode(){
+        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+    }
 }

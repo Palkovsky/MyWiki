@@ -3,10 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:id="@+id/main_rootView"
     tools:context="andrzej.example.com.fragments.MainFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/main_textView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"

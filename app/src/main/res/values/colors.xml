@@ -23,5 +23,6 @@
 
 
     <color name="nightBackground">#212121</color>
+    <color name="nightBackgroundFontLight">#e0e0e0</color>
     <color name="nightFontColor">#fafafa</color>
 </resources>
