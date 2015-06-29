@@ -28,9 +28,11 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -93,6 +95,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     public static DrawerLayout mDrawerLayout;
     TextView errorMessage;
     ListView mDrawerListView;
+    ProgressBar contentProgressBar;
 
     private int article_id;
     String article_title;
@@ -177,6 +180,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
         errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
         parallaxPart = (LinearLayout) v.findViewById(R.id.rootOfRootsArticle);
+        contentProgressBar = (ProgressBar) v.findViewById(R.id.content_progressBar);
 
         imgs.clear();
         sections.clear();
@@ -337,15 +341,22 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void fetchArticleContent(int id) {
+
+        setContentLoadingLayout();
+
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemContent(id), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+
+
                             if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setInternetPresentLayout();
                             else
                                 setNoInternetLayout();
+
+
                             JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
 
                             for (int i = 0; i < sections.length(); i++) {
@@ -435,6 +446,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             }
         });
 
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
@@ -486,10 +501,13 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                         MainActivity.addToSessionArticleHistory(article_id, article_title);
 
                         try {
+
+
                             if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setInternetPresentLayout();
                             else
                                 setNoInternetLayout();
+
                             JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
                             String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
 
@@ -569,20 +587,25 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             }
         });
 
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
     private void fetchRandomArticle() {
-        final int listSize = 10;
+        final int listSize = 100;
         final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRandom(listSize), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setInternetPresentLayout();
-                            else
+
+
+                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setNoInternetLayout();
+
 
                             JSONArray items = response.getJSONArray(Article.KEY_ITEMS);
                             Random r = new Random();
@@ -607,7 +630,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                             titleTv.setText(article_title);
                             //setImageViewBackground(parallaxIv, getResources().getDrawable(R.drawable.logo));
 
-                            fetchArticleInfo(article_id);
+                            if (article_id > 0 && article_title != null && article_title.trim().length() > 0)
+                                fetchArticleInfo(article_id);
+                            else
+                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.random_article_fetching_error), Toast.LENGTH_SHORT).show();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -691,11 +717,16 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             }
         });
 
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
 
     private void setErrorMessage() {
+        setUpColorScheme();
         if (NetworkUtils.isNetworkAvailable(getActivity()))
             errorMessage.setText(getActivity().getResources().getString(R.string.loading_error));
         else
@@ -707,14 +738,25 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
         loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(false);
     }
+
+    private void setContentLoadingLayout() {
+        parallaxSv.setVisibility(View.GONE);
+        noInternetLl.setVisibility(View.GONE);
+        loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout.setEnabled(false);
+    }
+
 
     private void setInternetPresentLayout() {
         setErrorMessage();
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(true);
     }
 
@@ -722,6 +764,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.VISIBLE);
+        contentProgressBar.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(false);
     }
 
@@ -743,6 +786,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+
+        setLoadingLayout();
 
         boolean fetchNew = prefs.getBoolean(SharedPrefsKeys.RANDOM_ARTICLE_FETCHING_PREF, false);
 
@@ -798,10 +843,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 SharedPreferences.Editor editor = prefs.edit();
 
 
-                if(nightMode){
+                if (nightMode) {
                     setUpNormalMode();
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
-                }else {
+                } else {
                     setUpNightMode();
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
                 }
@@ -879,10 +924,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         setUpColorScheme();
     }
 
-    private void setUpColorScheme(){
+    private void setUpColorScheme() {
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
-        if(nightMode)
+        if (nightMode)
             setUpNightMode();
         else
             setUpNormalMode();

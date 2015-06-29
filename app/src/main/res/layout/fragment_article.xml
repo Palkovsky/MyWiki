@@ -68,6 +68,15 @@
                         android:background="@color/background"
                         android:orientation="vertical">
 
+                        <ProgressBar
+                            style="?android:attr/progressBarStyleLarge"
+                            android:id="@+id/content_progressBar"
+                            android:visibility="gone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center" />
+
                         <LinearLayout
                             android:id="@+id/rootArticle"
                             android:layout_width="match_parent"

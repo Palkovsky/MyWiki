@@ -31,9 +31,11 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -95,6 +97,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public static DrawerLayout mDrawerLayout;
     TextView errorMessage;
     ListView mDrawerListView;
+    ProgressBar contentProgressBar;
     ActionBarDrawerToggle drawerToggle;
 
     private int article_id;
@@ -185,6 +188,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
         errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
         parallaxPart = (LinearLayout) v.findViewById(R.id.rootOfRootsArticle);
+        contentProgressBar = (ProgressBar) v.findViewById(R.id.content_progressBar);
 
         viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
@@ -359,6 +363,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 
     private void fetchArticleContent(int id) {
+        setContentLoadingLayout();
+
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlItemContent(id), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -464,6 +470,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     setNoInternetLayout();
             }
         });
+
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
     }
@@ -617,6 +627,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
@@ -681,6 +695,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
@@ -711,6 +729,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void setErrorMessage() {
+        setUpColorScheme();
         if (NetworkUtils.isNetworkAvailable(getActivity()))
             errorMessage.setText(getActivity().getResources().getString(R.string.loading_error));
         else
@@ -722,6 +741,15 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
         loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setEnabled(false);
+    }
+
+    private void setContentLoadingLayout(){
+        parallaxSv.setVisibility(View.GONE);
+        noInternetLl.setVisibility(View.GONE);
+        loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.VISIBLE);
         mSwipeRefreshLayout.setEnabled(false);
     }
 
@@ -730,6 +758,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxSv.setVisibility(View.VISIBLE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);
+        contentProgressBar.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(true);
     }
 
@@ -737,6 +766,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.VISIBLE);
+        contentProgressBar.setVisibility(View.GONE);
         mSwipeRefreshLayout.setEnabled(false);
     }
 
@@ -761,6 +791,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
+        setLoadingLayout();
         rootArticleLl.removeAllViews();
         imgs.clear();
         recommendations.clear();
