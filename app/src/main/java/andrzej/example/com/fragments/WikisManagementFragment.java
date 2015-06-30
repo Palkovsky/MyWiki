@@ -2,8 +2,10 @@ package andrzej.example.com.fragments;
 
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
@@ -24,11 +26,15 @@ import java.util.ArrayList;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
+import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
+import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.StringOperations;
 import andrzej.example.com.views.MaterialEditText;
 import andrzej.example.com.views.SlidingTabLayout;
@@ -41,6 +47,7 @@ public class WikisManagementFragment extends Fragment {
     TabsAdapter mAdapter;
     ViewPager mPager;
     SlidingTabLayout mTabs;
+    SharedPreferences prefs;
 
     public WikisManagementFragment() {
         // Required empty public constructor
@@ -81,6 +88,8 @@ public class WikisManagementFragment extends Fragment {
         // Setting the ViewPager For the SlidingTabsLayout
         mTabs.setViewPager(mPager);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         return v;
     }
 
@@ -98,6 +107,10 @@ public class WikisManagementFragment extends Fragment {
         menu.clear();
         // Inflate menu to add items to action bar if it is present.
         inflater.inflate(R.menu.management_menu, menu);
+
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+        MenuItem item = menu.findItem(R.id.menu_nightMode);
+        item.setChecked(nightMode);
     }
 
     @Override
@@ -149,6 +162,27 @@ public class WikisManagementFragment extends Fragment {
 
                 dialog.show();
 
+                break;
+
+            case R.id.menu_nightMode:
+                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+                SharedPreferences.Editor editor = prefs.edit();
+
+
+                if (nightMode) {
+                    PreviouslyUsedWikisFragment.setUpNormalMode();
+                    SuggestedWikisFragment.setUpNormalMode();
+                    item.setChecked(false);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                } else {
+                    PreviouslyUsedWikisFragment.setUpNightMode();
+                    SuggestedWikisFragment.setUpNightMode();
+                    item.setChecked(true);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
+                }
+
+                editor.commit();
                 break;
         }
 

@@ -58,6 +58,9 @@ public class HistoryFragment extends Fragment {
     //List
     List<ArticleHistoryItem> items;
 
+    //Prefs
+    SharedPreferences prefs;
+
     public HistoryFragment() {
         // Required empty public constructor
     }
@@ -72,6 +75,7 @@ public class HistoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_history, container, false);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         MainActivity.sessionArticleHistory.clear();
 
         setHasOptionsMenu(true);
@@ -290,6 +294,9 @@ public class HistoryFragment extends Fragment {
         // Inflate menu to add items to action bar if it is present.
         inflater.inflate(R.menu.history_menu, menu);
         // Associate searchable configuration with the SearchView
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+        MenuItem item = menu.findItem(R.id.menu_nightMode);
+        item.setChecked(nightMode);
     }
 
     @Override
@@ -321,6 +328,25 @@ public class HistoryFragment extends Fragment {
 
 
                 break;
+
+            case R.id.menu_nightMode:
+                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+                SharedPreferences.Editor editor = prefs.edit();
+
+
+                if (nightMode) {
+                    setUpNormalMode();
+                    item.setChecked(false);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                } else {
+                    setUpNightMode();
+                    item.setChecked(true);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
+                }
+
+                editor.commit();
+                break;
         }
 
         InputMethodManager imm = (InputMethodManager) MyApplication.getAppContext()
@@ -349,12 +375,6 @@ public class HistoryFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
-        items.clear();
-        items.addAll(db.getAllItems());
-        db.close();
-        mAdapter.notifyDataSetChanged();
-        reInitViews(items.size());
         setUpColorScheme();
     }
 
@@ -366,6 +386,13 @@ public class HistoryFragment extends Fragment {
         filterEt.setBaseColor(getActivity().getResources().getColor(R.color.nightBackgroundFontLight));
         filterEt.setTextColor(getActivity().getResources().getColor(R.color.nightBackgroundFontLight));
         filterEt.setBackgroundColor(getActivity().getResources().getColor(R.color.ColorPrimaryDark));
+
+        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+        items.clear();
+        items.addAll(db.getAllItems());
+        db.close();
+        mAdapter.notifyDataSetChanged();
+        reInitViews(items.size());
     }
 
     private void setUpNormalMode() {
@@ -375,6 +402,13 @@ public class HistoryFragment extends Fragment {
         filterEt.setBaseColor(getActivity().getResources().getColor(R.color.font_color));
         filterEt.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         filterEt.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+
+        ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
+        items.clear();
+        items.addAll(db.getAllItems());
+        db.close();
+        mAdapter.notifyDataSetChanged();
+        reInitViews(items.size());
     }
 
     private void setUpColorScheme() {

@@ -9,6 +9,12 @@
         appcompat:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/menu_nightMode"
+        android:title="@string/menu_nightMode"
+        appcompat:showAsAction="never"
+        android:checkable="true"/>
+
+    <item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_magnify_white_48dp"

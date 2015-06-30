@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -20,8 +21,8 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
  */
 public class PreviouslyUsedWikisFragment extends Fragment {
 
-    RelativeLayout rootView;
-    TextView tv;
+    static RelativeLayout rootView;
+    static TextView tv;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,19 +45,21 @@ public class PreviouslyUsedWikisFragment extends Fragment {
         setUpColorScheme();
     }
 
-    private void setUpNightMode(){
-        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+
+    public static void setUpNightMode(){
+        rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));
+        tv.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
     }
 
-    private void setUpNormalMode(){
-        rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+    public static void setUpNormalMode(){
+        rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.background));
+        tv.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
     }
 
 
-    private void setUpColorScheme(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+    public static void setUpColorScheme(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
         if(nightMode)

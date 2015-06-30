@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto"
-    xmlns:hmkcode="http://schemas.android.com/apk/res-auto">
-
-    <item android:id="@+id/menu_removeAll"
-        android:title="@string/menu_removeAll"
-        android:icon="@drawable/ic_delete_white_48dp"
-        appcompat:showAsAction="ifRoom"/>
-
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_nightMode"
         android:title="@string/menu_nightMode"
@@ -18,5 +11,5 @@
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_magnify_white_48dp"
-        appcompat:showAsAction="always"/>
+        appcompat:showAsAction="ifRoom"/>
 </menu>

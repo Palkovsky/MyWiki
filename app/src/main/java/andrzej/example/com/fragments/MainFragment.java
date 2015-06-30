@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,6 +42,8 @@ public class MainFragment extends Fragment {
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
+    SharedPreferences prefs;
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -56,6 +61,8 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
+        setHasOptionsMenu(true);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         rootView = (FrameLayout) v.findViewById(R.id.main_rootView);
         tv = (TextView) v.findViewById(R.id.main_textView);
@@ -79,22 +86,59 @@ public class MainFragment extends Fragment {
         setUpColorScheme();
     }
 
-    private void setUpColorScheme(){
+    private void setUpColorScheme() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
-        if(nightMode)
+        if (nightMode)
             setUpNightMode();
         else
             setUpNormalMode();
     }
 
-    private void setUpNightMode(){
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+        inflater.inflate(R.menu.main_fragment_menu, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_nightMode);
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+        item.setChecked(nightMode);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menu_nightMode:
+                boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+                SharedPreferences.Editor editor = prefs.edit();
+
+
+                if (nightMode) {
+                    setUpNormalMode();
+                    item.setChecked(false);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                } else {
+                    setUpNightMode();
+                    item.setChecked(true);
+                    editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
+                }
+
+                editor.commit();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
     }
 
-    private void setUpNormalMode(){
+    private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
     }
