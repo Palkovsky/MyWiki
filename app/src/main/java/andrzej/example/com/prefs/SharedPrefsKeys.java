@@ -16,4 +16,6 @@ public class SharedPrefsKeys {
     public static final String LITE_ARTICLE_PREF = "LITE_ARTICLE_PREF";
 
     public static String NIGHT_MODE_ENABLED_PREF = "NIGHT_MODE_ENABLED_PREF";
+    public static final String CURRENT_WIKI_URL = "CURRENT_WIKI_URL_PREF";
+    public static final String CURRENT_WIKI_LABEL = "CURRENT_WIKI_LABEL_PREF";
 }

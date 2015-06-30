@@ -3,9 +3,12 @@ package andrzej.example.com.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -25,9 +29,12 @@ import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SessionArticleHistory;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
+import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.DrawerImages;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.OnBackPressedListener;
 import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
@@ -60,6 +67,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     //public static MainFragment mainFragment = new MainFragment();
     //public static WikisManagementFragment wikisManagementFragment = new WikisManagementFragment();
 
+    SharedPreferences prefs;
 
     public static List<SessionArticleHistory> sessionArticleHistory = new ArrayList();
 
@@ -67,6 +75,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     public void init(Bundle savedInstanceState) {
 
         MainActivity.context = getApplicationContext();
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         allowArrowAnimation();
 
@@ -76,8 +85,12 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         //this.setDrawerHeaderImage(images[random_int]);
 
+        String account_subtitle = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_URL, BaseConfig.DEFAULT_WIKI);
+        String account_title = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
 
-        account = new MaterialAccount(this.getResources(), StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME),APIEndpoints.WIKI_NAME,null, images[random_int]);
+        APIEndpoints.WIKI_NAME = account_subtitle;
+
+        account = new MaterialAccount(this.getResources(), account_title, account_subtitle, null, images[random_int]);
         this.addAccount(account);
 
         section_main = newSection(getResources().getString(R.string.drawer_today), ContextCompat.getDrawable(this, R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());

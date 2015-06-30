@@ -1,16 +1,15 @@
 package andrzej.example.com.fragments.ManagementTabs;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -24,10 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.WikiListItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -49,7 +49,10 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     private BootstrapButton addWikiButton;
 
     //List
-    private static ArrayList<WikiListItem> mWikisList = new ArrayList<>();
+    private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
+
+    //Prefs
+    SharedPreferences prefs;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +62,8 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.tab_previously_used_wikis, container, false);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mAdapter = new PreviouslyUsedListAdapter(getActivity(), mWikisList);
 
@@ -71,8 +76,37 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         //Listeners
         addWikiButton.setOnClickListener(this);
 
+
+        previouslyUsedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                WikiPreviousListItem item = mWikisList.get(position);
+                String url = item.getUrl();
+                String label = item.getTitle();
+
+                if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+
+                    WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                    db.addItem(new WikiPreviousListItem(label, url));
+                    updateRecords();
+
+                    APIEndpoints.WIKI_NAME = url;
+                    setUrlAsPreference(APIEndpoints.WIKI_NAME, label);
+                    APIEndpoints.reInitEndpoints();
+                    MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(url));
+                    MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+                    ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+
+                    updateRecords();
+                } else
+                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         previouslyUsedList.setAdapter(mAdapter);
 
+        updateRecords();
         reInitViews();
 
         return v;
@@ -82,71 +116,61 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     @Override
     public void onResume() {
         super.onResume();
+        updateRecords();
         setUpColorScheme();
     }
 
-    private static void reInitViews(){
-        if(mWikisList==null || mWikisList.size()<=0){
+    private static void reInitViews() {
+        if (mWikisList == null || mWikisList.size() <= 0) {
             previouslyUsedList.setVisibility(View.GONE);
             errorLayout.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             previouslyUsedList.setVisibility(View.VISIBLE);
             errorLayout.setVisibility(View.GONE);
         }
     }
 
+    public static void updateRecords() {
+        WikisHistoryDbHandler db = new WikisHistoryDbHandler(MyApplication.getAppContext());
+        mWikisList.clear();
+        mWikisList.addAll(db.getAllItems());
+        mAdapter.notifyDataSetChanged();
+        reInitViews();
+    }
 
-    public static void setUpNightMode(){
+    public static void setUpNightMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));
         errorMessage.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
 
+        updateRecords();
 
-        List<WikiListItem> temp = new ArrayList<>();
-        temp.addAll(mWikisList);
-        mWikisList.clear();
-        mWikisList.addAll(temp);
-        temp.clear();
-
-        reInitViews();
         mAdapter.notifyDataSetChanged();
     }
 
-    public static void setUpNormalMode(){
+    public static void setUpNormalMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.background));
         errorMessage.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
 
+        updateRecords();
 
-        List<WikiListItem> temp = new ArrayList<>();
-        temp.addAll(mWikisList);
-        mWikisList.clear();
-        mWikisList.addAll(temp);
-        temp.clear();
-
-        reInitViews();
         mAdapter.notifyDataSetChanged();
     }
 
 
-
-    public static void setUpColorScheme(){
+    public static void setUpColorScheme() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
-        if(nightMode)
+        if (nightMode)
             setUpNightMode();
         else
             setUpNormalMode();
     }
 
-    public static void addItemToList(String label, String url){
-        mWikisList.add(new WikiListItem(label, url));
-        mAdapter.notifyDataSetChanged();
-        reInitViews();
-    }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.previuslyUsed_addWikiBtn:
                 boolean wrapInScrollView = true;
 
@@ -170,19 +194,29 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                         String url_input = urlInput.getText().toString().trim();
                         String label_input = labelInput.getText().toString().trim();
 
-                        if(url_input.length()<=0)
+                        if (url_input.length() <= 0)
                             Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
                         else {
-                            if(!APIEndpoints.WIKI_NAME.equals(WikisManagementFragment.cleanInputUrl(url_input))) {
+                            if (!APIEndpoints.WIKI_NAME.equals(WikisManagementFragment.cleanInputUrl(url_input))) {
                                 dialog.dismiss();
-                                Toast.makeText(getActivity(), url_input, Toast.LENGTH_SHORT).show();
-                                PreviouslyUsedWikisFragment.addItemToList(label_input, WikisManagementFragment.cleanInputUrl(url_input));
+                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+
+                                WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                                db.addItem(new WikiPreviousListItem(label_input, WikisManagementFragment.cleanInputUrl(url_input)));
+                                updateRecords();
+
                                 APIEndpoints.WIKI_NAME = WikisManagementFragment.cleanInputUrl(url_input);
+                                setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                 APIEndpoints.reInitEndpoints();
-                                MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+
+                                if (label_input != null && label_input.trim().length() > 0)
+                                    MainActivity.account.setTitle(label_input);
+                                else
+                                    MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+
                                 MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
                                 ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-                            }else
+                            } else
                                 Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -196,5 +230,17 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
                 dialog.show();
         }
+    }
+
+    private void setUrlAsPreference(String url, String label) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SharedPrefsKeys.CURRENT_WIKI_URL, url);
+
+        if (label != null && label.trim().length() > 0)
+            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, label);
+        else
+            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, StringOperations.stripUpWikiUrl(url));
+
+        editor.apply();
     }
 }

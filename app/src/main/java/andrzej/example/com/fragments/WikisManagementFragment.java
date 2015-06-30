@@ -21,11 +21,13 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -134,19 +136,27 @@ public class WikisManagementFragment extends Fragment {
                         String url_input = urlInput.getText().toString().trim();
                         String label_input = labelInput.getText().toString().trim();
 
-                        if(url_input.length()<=0)
+                        if (url_input.length() <= 0)
                             Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
                         else {
-                            if(!APIEndpoints.WIKI_NAME.equals(cleanInputUrl(url_input))) {
+                            if (!APIEndpoints.WIKI_NAME.equals(cleanInputUrl(url_input))) {
                                 dialog.dismiss();
-                                Toast.makeText(getActivity(), url_input, Toast.LENGTH_SHORT).show();
-                                PreviouslyUsedWikisFragment.addItemToList(label_input, WikisManagementFragment.cleanInputUrl(url_input));
+                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+
+                                WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                                db.addItem(new WikiPreviousListItem(label_input, cleanInputUrl(url_input)));
+                                PreviouslyUsedWikisFragment.updateRecords();
+
                                 APIEndpoints.WIKI_NAME = cleanInputUrl(url_input);
+                                setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                 APIEndpoints.reInitEndpoints();
-                                MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+                                if (label_input != null && label_input.trim().length() > 0)
+                                    MainActivity.account.setTitle(label_input);
+                                else
+                                    MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
                                 MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
                                 ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-                            }else
+                            } else
                                 Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -180,44 +190,82 @@ public class WikisManagementFragment extends Fragment {
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
                 }
 
-                editor.commit();
+                editor.apply();
+                break;
+
+            case R.id.menu_deleteHistory:
+
+
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.menu_deleteHistory)
+                        .content(R.string.removeWikisHistory)
+                        .positiveText(R.string.ok)
+                        .negativeText(R.string.no)
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                super.onPositive(dialog);
+
+                                WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                                db.turncateTable();
+                                PreviouslyUsedWikisFragment.updateRecords();
+                            }
+
+                            @Override
+                            public void onNegative(MaterialDialog dialog) {
+                                super.onNegative(dialog);
+
+                            }
+                        })
+                        .show();
                 break;
         }
 
         return true;
     }
 
-    public static String cleanInputUrl(String url){
+    private void setUrlAsPreference(String url, String label) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SharedPrefsKeys.CURRENT_WIKI_URL, url);
+
+        if (label != null && label.trim().length() > 0)
+            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, label);
+        else
+            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, StringOperations.stripUpWikiUrl(url));
+
+        editor.apply();
+    }
+
+    public static String cleanInputUrl(String url) {
 
         url = url.toLowerCase();
 
         //In case of not needed slash at the end
-        if(url.endsWith("/"))
-            url = url.substring(0, url.length()-1);
+        if (url.endsWith("/"))
+            url = url.substring(0, url.length() - 1);
 
         // If someone pasts sth like that
         // http://pl.starwars.wikia.com/wiki/Strona_g%C5%82%C3%B3wna
         // Just throw not needed part of the link out
         String com_suffix = ".com";
-        if(url.contains(com_suffix)){
+        if (url.contains(com_suffix)) {
             int index_end = url.indexOf(com_suffix) + com_suffix.length();
             url = url.substring(0, index_end);
-        }else{
-            if(!url.contains("wikia"+com_suffix)){
-                if(url.endsWith("."))
-                    url += "wikia"+com_suffix;
-               else
-                    url += ".wikia"+com_suffix;
+        } else {
+            if (!url.contains("wikia" + com_suffix)) {
+                if (url.endsWith("."))
+                    url += "wikia" + com_suffix;
+                else
+                    url += ".wikia" + com_suffix;
             }
         }
 
         //HTTP stuff
         String http_suffix = "http://";
-        if(!url.startsWith(http_suffix)){
+        if (!url.startsWith(http_suffix)) {
             url = http_suffix + url;
         }
 
-        Log.e(null, "Pimped up url: " + url);
         return url;
     }
 }

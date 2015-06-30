@@ -15,6 +15,11 @@
         android:checkable="true"/>
 
     <item
+        android:id="@+id/menu_deleteHistory"
+        android:title="@string/menu_deleteHistory"
+        appcompat:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_magnify_white_48dp"

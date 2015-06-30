@@ -2,7 +2,9 @@ package andrzej.example.com.fragments.ManagementTabs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.SearchResult;
-import andrzej.example.com.models.WikiListItem;
+import andrzej.example.com.models.WikiPreviousListItem;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.StringOperations;
 
 /**
  * Created by andrzej on 30.06.15.
  */
 public class PreviouslyUsedListAdapter extends BaseAdapter {
 
-    List<WikiListItem> myList;
+    List<WikiPreviousListItem> myList;
     LayoutInflater inflater;
     Context context;
     SharedPreferences prefs;
@@ -41,7 +44,7 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     }
 
     @Override
-    public WikiListItem getItem(int position) {
+    public WikiPreviousListItem getItem(int position) {
         return myList.get(position);
     }
 
@@ -55,7 +58,7 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
         ResultViewHolder mViewHolder;
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.layout_search_list_item, null);
+            convertView = inflater.inflate(R.layout.previously_used_list_item, null);
             mViewHolder = new ResultViewHolder();
             convertView.setTag(mViewHolder);
         } else {
@@ -64,20 +67,35 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
 
         String label = myList.get(position).getTitle();
 
-        if (label != null && label.length() > 0)
+        if (label != null && label.length() > 0) {
             mViewHolder.tvTitle = title(convertView, R.id.tvTitle, label);
-        else
-            mViewHolder.tvTitle = title(convertView, R.id.tvTitle, myList.get(position).getUrl());
+            mViewHolder.tvUrl = url(convertView, R.id.tvUrl, myList.get(position).getUrl());
+        } else {
+            mViewHolder.tvTitle = title(convertView, R.id.tvTitle, StringOperations.stripUpWikiUrl(myList.get(position).getUrl()));
+            mViewHolder.tvUrl = url(convertView, R.id.tvUrl, myList.get(position).getUrl());
+        }
 
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
         if (nightMode) {
             mViewHolder.tvTitle.setTextColor(context.getResources().getColor(R.color.nightFontColor));
-        } else
+            mViewHolder.tvUrl.setTextColor(context.getResources().getColor(R.color.drawer_option_active));
+        } else {
             mViewHolder.tvTitle.setTextColor(context.getResources().getColor(R.color.font_color));
+            mViewHolder.tvUrl.setTextColor(context.getResources().getColor(R.color.font_color));
+        }
+
+
+        String url = myList.get(position).getUrl().toLowerCase().trim();
+
+        if(url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())){
+            convertView.setClickable(false);
+            convertView.setBackgroundColor(context.getResources().getColor(R.color.header_background));
+        }
 
         return convertView;
     }
+
 
     // or you can try better way
     private TextView title(View v, int resId, String text) {
@@ -86,8 +104,14 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
         return tv;
     }
 
+    private TextView url(View v, int resId, String text) {
+        TextView tv = (TextView) v.findViewById(resId);
+        tv.setText(text);
+        return tv;
+    }
 
     private class ResultViewHolder {
         TextView tvTitle;
+        TextView tvUrl;
     }
 }

@@ -1,7 +1,6 @@
 package andrzej.example.com.fragments.ManagementTabs;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.WikiListItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -36,7 +35,7 @@ public class SuggestedWikisFragment extends Fragment {
     private static TextView errorMessage;
 
     //List
-    private static ArrayList<WikiListItem> mWikisList = new ArrayList<>();
+    private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
 
 
     @Override
@@ -73,7 +72,7 @@ public class SuggestedWikisFragment extends Fragment {
         String[] urls = {"gta", "pl.mlp", "pl.mlpeg"};
 
         for (int i = 0; i < titles.length; i++) {
-            mWikisList.add(new WikiListItem(titles[i], urls[i]));
+            mWikisList.add(new WikiPreviousListItem(titles[i], urls[i]));
         }
     }
 

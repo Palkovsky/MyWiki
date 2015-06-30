@@ -421,11 +421,13 @@ public class SearchActivity extends AppCompatActivity {
     private void setUpNightMode(){
         rootView.setBackgroundColor(getResources().getColor(R.color.nightBackground));
         searchErrorMessage.setTextColor(getResources().getColor(R.color.nightFontColor));
+        noRecordsTv.setTextColor(getResources().getColor(R.color.nightFontColor));
     }
 
     private void setUpNormalMode(){
         rootView.setBackgroundColor(getResources().getColor(R.color.background));
         searchErrorMessage.setTextColor(getResources().getColor(R.color.font_color));
+        noRecordsTv.setTextColor(getResources().getColor(R.color.font_color));
     }
 
     private void setUpColorScheme(){
