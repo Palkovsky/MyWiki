@@ -595,8 +595,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void fetchRandomArticle() {
-        final int listSize = 100;
-        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRandom(listSize), (String) null,
+        int listLimit = 100;
+        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRandom(listLimit), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -608,6 +608,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
 
                             JSONArray items = response.getJSONArray(Article.KEY_ITEMS);
+                            int listSize = items.length();
                             Random r = new Random();
                             int random_int = r.nextInt(listSize);
 
@@ -648,6 +649,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 setNoInternetLayout();
             }
         });
+
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
     }
