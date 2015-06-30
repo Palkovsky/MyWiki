@@ -1,14 +1,12 @@
 package andrzej.example.com.fragments;
 
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,22 +14,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import java.util.ArrayList;
 
 import andrzej.example.com.activities.MainActivity;
-import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -143,13 +137,17 @@ public class WikisManagementFragment extends Fragment {
                         if(url_input.length()<=0)
                             Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
                         else {
-                            dialog.dismiss();
-                            Toast.makeText(getActivity(), url_input, Toast.LENGTH_SHORT).show();
-                            APIEndpoints.WIKI_NAME = cleanInputUrl(url_input);
-                            APIEndpoints.reInitEndpoints();
-                            MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
-                            MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
-                            ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+                            if(!APIEndpoints.WIKI_NAME.equals(cleanInputUrl(url_input))) {
+                                dialog.dismiss();
+                                Toast.makeText(getActivity(), url_input, Toast.LENGTH_SHORT).show();
+                                PreviouslyUsedWikisFragment.addItemToList(label_input, WikisManagementFragment.cleanInputUrl(url_input));
+                                APIEndpoints.WIKI_NAME = cleanInputUrl(url_input);
+                                APIEndpoints.reInitEndpoints();
+                                MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+                                MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+                                ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+                            }else
+                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -189,7 +187,7 @@ public class WikisManagementFragment extends Fragment {
         return true;
     }
 
-    private String cleanInputUrl(String url){
+    public static String cleanInputUrl(String url){
 
         url = url.toLowerCase();
 

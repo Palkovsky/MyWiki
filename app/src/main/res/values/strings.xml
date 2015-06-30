@@ -70,4 +70,8 @@
     <string name="cancel">Anuluj</string>
     <string name="menu_nightMode">Tryb Nocny</string>
     <string name="random_article_fetching_error">Wystąpił problem z wyszukaniem nowego artykułu. Spróbuj ponownie.</string>
+    <string name="previouslyUsed_Empty">Lista jest pusta. Spróbuj dodać nową Wikię!</string>
+    <string name="no_suggested_wikis">Brak sugerowanych Wikii. Spróbuj potem.</string>
+    <string name="add">Dodaj</string>
+    <string name="already_setted">Obecnie masz ustawioną tą Wiki!</string>
 </resources>
