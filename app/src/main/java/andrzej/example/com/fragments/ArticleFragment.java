@@ -673,10 +673,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                             public void onClick(View v) {
 
                                                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
-
                                                     setPage(recommendation.getId(), recommendation.getTitle());
-
-
                                                 } else
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                             }
@@ -704,6 +701,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 
     private void setPage(int id, String title) {
+        setLoadingLayout();
         requestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {
@@ -714,6 +712,11 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxIv.setBackgroundColor(Color.TRANSPARENT);
         parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
         rootArticleLl.removeAllViews();
+        viewsManager.destroyAllViews();
+        textViews.clear();
+        ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
+        if(!ab.isShowing())
+            ab.show();
         imgs.clear();
         recommendations.clear();
         finishActionMode();
@@ -724,7 +727,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
         titleTv.setText(article_title);
         MainActivity.addToSessionArticleHistory(article_id, article_title);
-        setUpColorScheme();
+        //setUpColorScheme();
         fetchArticleInfo(article_id);
     }
 

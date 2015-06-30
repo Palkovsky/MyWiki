@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,12 +53,15 @@ import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 
 
 public class SearchActivity extends AppCompatActivity {
 
     // UI Elements
     private ListView results_listview;
+    private RelativeLayout rootView;
+    private TextView searchErrorMessage;
     private LinearLayout noInternetLl;
     private BootstrapButton noInternetButton;
     private ProgressBar fetchingProgressBar;
@@ -101,12 +106,15 @@ public class SearchActivity extends AppCompatActivity {
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
 
+        rootView = (RelativeLayout) findViewById(R.id.search_rootView);
+        searchErrorMessage = (TextView) findViewById(R.id.search_errorMessage);
         fetchingProgressBar = (ProgressBar) findViewById(R.id.loadingPb);
         results_listview = (ListView) findViewById(R.id.result_listview);
         noInternetLl = (LinearLayout) findViewById(R.id.noInternetLl);
         noInternetButton = (BootstrapButton) findViewById(R.id.noInternetBtn);
         noRecordsTv = (TextView) findViewById(R.id.noRecordsTv);
 
+        setUpColorScheme();
 
         results_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -409,4 +417,24 @@ public class SearchActivity extends AppCompatActivity {
         return false;
     }
 
+
+    private void setUpNightMode(){
+        rootView.setBackgroundColor(getResources().getColor(R.color.nightBackground));
+        searchErrorMessage.setTextColor(getResources().getColor(R.color.nightFontColor));
+    }
+
+    private void setUpNormalMode(){
+        rootView.setBackgroundColor(getResources().getColor(R.color.background));
+        searchErrorMessage.setTextColor(getResources().getColor(R.color.font_color));
+    }
+
+    private void setUpColorScheme(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if(nightMode)
+            setUpNightMode();
+        else
+            setUpNormalMode();
+    }
 }

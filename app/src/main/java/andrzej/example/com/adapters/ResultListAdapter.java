@@ -1,6 +1,8 @@
 package andrzej.example.com.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 
 /**
  * Created by andrzej on 02.06.15.
@@ -20,11 +24,13 @@ public class ResultListAdapter extends BaseAdapter{
     ArrayList<SearchResult> myList;
     LayoutInflater inflater;
     Context context;
+    SharedPreferences prefs;
 
     public ResultListAdapter(Context context, ArrayList myList) {
         this.myList = myList;
         this.context = context;
         inflater = LayoutInflater.from(this.context);        // only context can also be used
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.context);
     }
 
     @Override
@@ -55,6 +61,12 @@ public class ResultListAdapter extends BaseAdapter{
         }
 
         mViewHolder.tvTitle = title(convertView, R.id.tvTitle, myList.get(position).getTitle());
+
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if(nightMode) {
+            mViewHolder.tvTitle.setTextColor(context.getResources().getColor(R.color.nightFontColor));
+        }
 
         return convertView;
     }

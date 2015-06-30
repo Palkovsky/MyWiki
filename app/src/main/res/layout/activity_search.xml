@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/results_fragment"
+    android:id="@+id/search_rootView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background">
@@ -23,9 +23,11 @@
             android:gravity="center"
             android:layout_centerInParent="true"
             android:orientation="vertical"
+            android:background="@android:color/transparent"
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/search_errorMessage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
