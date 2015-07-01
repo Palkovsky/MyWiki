@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -36,7 +34,6 @@ import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.DrawerImages;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.OnBackPressedListener;
-import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -89,6 +86,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         String account_title = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
 
         APIEndpoints.WIKI_NAME = account_subtitle;
+        APIEndpoints.reInitEndpoints();
 
         account = new MaterialAccount(this.getResources(), account_title, account_subtitle, null, images[random_int]);
         this.addAccount(account);

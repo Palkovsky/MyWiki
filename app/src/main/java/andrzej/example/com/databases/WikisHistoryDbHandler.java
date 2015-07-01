@@ -68,6 +68,13 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
+    public void deleteItem(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_HISTORY, KEY_ID + " = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+    }
+
     public void turncateTable() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);

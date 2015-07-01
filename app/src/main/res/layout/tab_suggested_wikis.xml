@@ -5,33 +5,39 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <ListView
-        android:id="@+id/suggested_list"
+    <RelativeLayout
+        android:id="@+id/suggested_contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="3dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:choiceMode="multipleChoice"
-        android:listSelector="@drawable/selectable_item_background"
-        android:scrollbars="vertical"></ListView>
+        android:background="@android:color/transparent"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/suggested_testMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Suggested Wikis Tab"/>
+    </RelativeLayout>
 
 
     <LinearLayout
         android:id="@+id/suggested_errorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_centerInParent="true"
-        android:visibility="gone"
-        android:background="@android:color/transparent">
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/suggested_errorMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"/>
+            android:gravity="center" />
 
     </LinearLayout>
 

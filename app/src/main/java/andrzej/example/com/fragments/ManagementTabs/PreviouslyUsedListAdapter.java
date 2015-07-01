@@ -12,9 +12,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -30,6 +33,9 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     LayoutInflater inflater;
     Context context;
     SharedPreferences prefs;
+    private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+
+    private List<WikiPreviousListItem> selectedItems = new ArrayList<WikiPreviousListItem>();
 
     public PreviouslyUsedListAdapter(Context context, ArrayList myList) {
         this.myList = myList;
@@ -46,6 +52,10 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     @Override
     public WikiPreviousListItem getItem(int position) {
         return myList.get(position);
+    }
+
+    public List<WikiPreviousListItem> getSelectedItems() {
+        return selectedItems;
     }
 
     @Override
@@ -85,11 +95,21 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
             mViewHolder.tvUrl.setTextColor(context.getResources().getColor(R.color.font_color));
         }
 
+        if (mSelection.get(position) != null) {
+            convertView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\
+        }else
+            convertView.setBackgroundColor(Color.TRANSPARENT);
 
         String url = myList.get(position).getUrl().toLowerCase().trim();
 
         if(url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())){
             convertView.setClickable(false);
+            convertView.setFocusable(false);
+            convertView.setActivated(false);
+            convertView.setEnabled(false);
+            convertView.setSelected(false);
+            convertView.setPressed(false);
+            convertView.setFocusableInTouchMode(false);
             convertView.setBackgroundColor(context.getResources().getColor(R.color.header_background));
         }
 
@@ -113,5 +133,32 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     private class ResultViewHolder {
         TextView tvTitle;
         TextView tvUrl;
+    }
+
+    public void setNewSelection(int position, boolean value) {
+        mSelection.put(position, value);
+        selectedItems.add(myList.get(position));
+        notifyDataSetChanged();
+    }
+
+    public boolean isPositionChecked(int position) {
+        Boolean result = mSelection.get(position);
+        return result == null ? false : result;
+    }
+
+    public Set<Integer> getCurrentCheckedPosition() {
+        return mSelection.keySet();
+    }
+
+    public void removeSelection(int position) {
+        mSelection.remove(position);
+        selectedItems.remove(myList.get(position));
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        mSelection = new HashMap<Integer, Boolean>();
+        selectedItems = new ArrayList<WikiPreviousListItem>();
+        notifyDataSetChanged();
     }
 }

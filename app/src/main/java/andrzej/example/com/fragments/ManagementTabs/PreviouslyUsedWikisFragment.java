@@ -6,9 +6,14 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -23,10 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -47,6 +54,9 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     private static LinearLayout errorLayout;
     private static TextView errorMessage;
     private BootstrapButton addWikiButton;
+
+    public static ActionMode mActionMode;
+
 
     //List
     private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
@@ -84,7 +94,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                 String url = item.getUrl();
                 String label = item.getTitle();
 
-                if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                if (!APIEndpoints.WIKI_NAME.equals(url) && parent.isClickable()) {
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
                     WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
@@ -99,10 +109,81 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                     ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
 
                     updateRecords();
-                } else
-                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+
+        previouslyUsedList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                if (mWikisList != null && position < mWikisList.size() && !mWikisList.get(position).getUrl().equals(APIEndpoints.WIKI_NAME))
+                    previouslyUsedList.setItemChecked(position, !mAdapter.isPositionChecked(position));
+                return false;
+            }
+        });
+
+        previouslyUsedList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            private int nr = 0;
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                if (mWikisList != null && position < mWikisList.size() && !mWikisList.get(position).getUrl().equals(APIEndpoints.WIKI_NAME)) {
+                    if (checked) {
+                        nr++;
+                        mAdapter.setNewSelection(position, checked);
+                    } else {
+                        nr--;
+                        mAdapter.removeSelection(position);
+                    }
+                    mode.setTitle("Zaznaczone: " + nr);
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                nr = 0;
+                mActionMode = mode;
+                MenuInflater inflater = getActivity().getMenuInflater();
+                inflater.inflate(R.menu.delete_history_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+
+                    case R.id.item_delete:
+                        WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                        List<WikiPreviousListItem> mSelected = mAdapter.getSelectedItems();
+                        for (WikiPreviousListItem wikiItem : mSelected) {
+                            db.deleteItem(wikiItem.getId());
+                        }
+                        db.close();
+                        mWikisList.removeAll(mSelected);
+                        nr = 0;
+                        mAdapter.clearSelection();
+                        mode.finish();
+                        updateRecords();
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mAdapter.clearSelection();
+                mActionMode = null;
+            }
+        });
+
+        previouslyUsedList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 
         previouslyUsedList.setAdapter(mAdapter);
 

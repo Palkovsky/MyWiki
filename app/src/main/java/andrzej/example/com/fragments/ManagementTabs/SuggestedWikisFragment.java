@@ -13,6 +13,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -29,13 +31,11 @@ public class SuggestedWikisFragment extends Fragment {
 
     //UI Elements
     private static RelativeLayout rootView;
-    private static ListView suggestedWikisList;
-    private static PreviouslyUsedListAdapter mAdapter;
+    private RelativeLayout contentView;
     private static LinearLayout errorLayout;
     private static TextView errorMessage;
+    private static TextView tvTest;
 
-    //List
-    private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
 
 
     @Override
@@ -53,28 +53,17 @@ public class SuggestedWikisFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.tab_suggested_wikis, container, false);
 
-        populateList();
-        mAdapter = new PreviouslyUsedListAdapter(getActivity(), mWikisList);
 
         rootView = (RelativeLayout) v.findViewById(R.id.suggested_rootView);
+        contentView = (RelativeLayout) v.findViewById(R.id.suggested_contentView);
         errorLayout = (LinearLayout) v.findViewById(R.id.suggested_errorLayout);
         errorMessage = (TextView) v.findViewById(R.id.suggested_errorMsg);
-        suggestedWikisList = (ListView) v.findViewById(R.id.suggested_list);
-
-        suggestedWikisList.setAdapter(mAdapter);
+        tvTest = (TextView) v.findViewById(R.id.suggested_testMsg);
 
         return v;
     }
 
 
-    private static void populateList() {
-        String[] titles = {"GTA Wikia", "MLP Wikia", "Equestria Girls Wikia"};
-        String[] urls = {"gta", "pl.mlp", "pl.mlpeg"};
-
-        for (int i = 0; i < titles.length; i++) {
-            mWikisList.add(new WikiPreviousListItem(titles[i], urls[i]));
-        }
-    }
 
     @Override
     public void onResume() {
@@ -83,35 +72,17 @@ public class SuggestedWikisFragment extends Fragment {
     }
 
 
-    private static void reInitViews() {
-        if (mWikisList == null || mWikisList.size() <= 0) {
-            suggestedWikisList.setVisibility(View.GONE);
-            setErrorMessage();
-            errorLayout.setVisibility(View.VISIBLE);
-        } else {
-            suggestedWikisList.setVisibility(View.VISIBLE);
-            errorLayout.setVisibility(View.GONE);
-        }
-    }
 
     public static void setUpNightMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));
         errorMessage.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
-
-        mWikisList.clear();
-        populateList();
-        reInitViews();
-        mAdapter.notifyDataSetChanged();
+        tvTest.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
     }
 
     public static void setUpNormalMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.background));
         errorMessage.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
-
-        mWikisList.clear();
-        populateList();
-        reInitViews();
-        mAdapter.notifyDataSetChanged();
+        tvTest.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
     }
 
     private static void setErrorMessage() {

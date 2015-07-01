@@ -904,6 +904,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void setRandomPage() {
+        setLoadingLayout();
         requestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {
