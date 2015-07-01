@@ -2,6 +2,7 @@ package andrzej.example.com.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.andraskindler.quickscroll.QuickScroll;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,7 @@ public class HistoryFragment extends Fragment {
     TextView noRecordsTv;
     MaterialEditText filterEt;
     ListView listHistory;
+    QuickScroll quickScroll;
     FrameLayout rootView;
 
     //ADapter
@@ -60,6 +63,11 @@ public class HistoryFragment extends Fragment {
 
     //Prefs
     SharedPreferences prefs;
+
+    //Colors
+    private static final int CORAL = Color.parseColor("#f0f76541");
+    private static final int CORAL_DARK = Color.parseColor("#e0e55b3c");
+    private static final int CORAL_HANDLE = Color.parseColor("#80f76541");
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -91,6 +99,7 @@ public class HistoryFragment extends Fragment {
         noRecordsTv = (TextView) v.findViewById(R.id.noRecordsTv);
         filterEt = (MaterialEditText) v.findViewById(R.id.historyEditText);
         listHistory = (ListView) v.findViewById(R.id.historyList);
+        quickScroll = (QuickScroll) v.findViewById(R.id.history_quickscroll);
 
         if (items.size() <= 0) {
             noRecordsTv.setVisibility(View.VISIBLE);
@@ -99,6 +108,9 @@ public class HistoryFragment extends Fragment {
         }
 
         mAdapter = new HistoryListAdapter(getActivity(), items);
+        quickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, listHistory, mAdapter, QuickScroll.STYLE_HOLO);
+        quickScroll.setIndicatorColor(CORAL, CORAL_DARK, Color.WHITE);
+        quickScroll.setHandlebarColor(CORAL, CORAL, CORAL_HANDLE);
 
         listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -286,6 +298,12 @@ public class HistoryFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (rootView.getChildCount() > 0)
+            rootView.removeAllViews();
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
 
+import com.andraskindler.quickscroll.Scrollable;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -35,7 +36,7 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 /**
  * Created by andrzej on 02.06.15.
  */
-public class HistoryListAdapter extends BaseAdapter {
+public class HistoryListAdapter extends BaseAdapter implements Scrollable{
 
     List<ArticleHistoryItem> myList;
     LayoutInflater inflater;
@@ -194,6 +195,16 @@ public class HistoryListAdapter extends BaseAdapter {
         TextView tv = (TextView) v.findViewById(resId);
         tv.setText(text);
         return tv;
+    }
+
+    @Override
+    public String getIndicatorForPosition(int childposition, int groupposition) {
+        return myList.get(childposition).getDateInString();
+    }
+
+    @Override
+    public int getScrollPosition(int childposition, int groupposition) {
+        return childposition;
     }
 
 
