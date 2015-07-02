@@ -12,14 +12,16 @@
         android:background="@android:color/transparent"
         android:layout_centerInParent="true">
 
-        <TextView
-            android:id="@+id/favs_testMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Favourites Wikis Tab"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/favs_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:scrollbars="vertical"
+            android:layout_margin="3dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"></android.support.v7.widget.RecyclerView>
+
     </RelativeLayout>
 
 

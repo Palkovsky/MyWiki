@@ -1,0 +1,91 @@
+package andrzej.example.com.fragments.ManagementTabs.adapters;
+
+
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import java.util.List;
+
+import andrzej.example.com.mlpwiki.MyApplication;
+import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
+
+/**
+ * Created by andrzej on 03.07.15.
+ */
+public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.ViewHolder>{
+
+    private List<WikiFavItem> mDataset;
+
+    public FavoritesAdapter(List<WikiFavItem> mDataset) {
+        this.mDataset = mDataset;
+    }
+
+
+    @Override
+    public FavoritesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        // create a new view
+        View itemLayoutView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_favs_list, null);
+
+        // create ViewHolder
+
+        ViewHolder viewHolder = new ViewHolder(itemLayoutView);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(FavoritesAdapter.ViewHolder holder, int position) {
+
+        WikiFavItem item = mDataset.get(position);
+
+
+        holder.rootView.setClickable(true);
+        holder.rootView.setFocusable(true);
+        holder.rootView.setFocusableInTouchMode(true);
+
+        holder.tvTitle.setText(item.getTitle());
+        holder.tvUrl.setText(item.getUrl());
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if(nightMode){
+            holder.tvTitle.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
+            holder.tvUrl.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
+        }else{
+            holder.tvTitle.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
+            holder.tvUrl.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mDataset.size();
+    }
+
+    // inner class to hold a reference to each item of RecyclerView
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView tvTitle;
+        public TextView tvUrl;
+        public RelativeLayout rootView;
+
+        public ViewHolder(View itemLayoutView) {
+            super(itemLayoutView);
+            rootView = (RelativeLayout) itemLayoutView.findViewById(R.id.llRoot);
+            tvTitle = (TextView) itemLayoutView.findViewById(R.id.tvTitle);
+            tvUrl = (TextView) itemLayoutView.findViewById(R.id.tvUrl);
+        }
+    }
+}

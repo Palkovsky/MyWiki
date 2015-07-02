@@ -1,8 +1,12 @@
-package andrzej.example.com.fragments.ManagementTabs;
+package andrzej.example.com.fragments.ManagementTabs.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+
+import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
+import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
+import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 
 /**
  * Created by andrzej on 24.06.15.

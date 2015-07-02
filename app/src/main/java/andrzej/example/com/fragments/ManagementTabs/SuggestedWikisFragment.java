@@ -23,6 +23,7 @@ import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.WikiManagementHelper;
 
 /**
  * Created by andrzej on 24.06.15.
@@ -36,11 +37,14 @@ public class SuggestedWikisFragment extends Fragment {
     private static TextView errorMessage;
     private static TextView tvTest;
 
-
+    //Utils
+    private WikiManagementHelper mHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHelper = new WikiManagementHelper(getActivity());
     }
 
 
@@ -71,7 +75,11 @@ public class SuggestedWikisFragment extends Fragment {
         setUpColorScheme();
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHelper.closeDbs();
+    }
 
     public static void setUpNightMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));

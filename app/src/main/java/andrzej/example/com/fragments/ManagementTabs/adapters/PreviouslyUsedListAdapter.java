@@ -1,4 +1,4 @@
-package andrzej.example.com.fragments.ManagementTabs;
+package andrzej.example.com.fragments.ManagementTabs.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -136,9 +136,9 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     }
 
     public void setNewSelection(int position, boolean value) {
-        mSelection.put(position, value);
-        selectedItems.add(myList.get(position));
-        notifyDataSetChanged();
+            mSelection.put(position, value);
+            selectedItems.add(myList.get(position));
+            notifyDataSetChanged();
     }
 
     public boolean isPositionChecked(int position) {
@@ -154,6 +154,10 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
         mSelection.remove(position);
         selectedItems.remove(myList.get(position));
         notifyDataSetChanged();
+    }
+
+    public int getSelectionSize(){
+        return selectedItems.size();
     }
 
     public void clearSelection() {

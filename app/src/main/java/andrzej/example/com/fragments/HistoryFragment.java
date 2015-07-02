@@ -90,8 +90,6 @@ public class HistoryFragment extends Fragment {
 
         ArticleHistoryDbHandler db = new ArticleHistoryDbHandler(getActivity());
 
-        //db.addItem(new ArticleHistoryItem(3730, System.currentTimeMillis()+3600000*5, "Diamond Tiara", "http://vignette4.wikia.nocookie.net/mlp/images/6/64/647px-Hay_yeah_by_fyre_flye-d4axgxd.jpg/revision/latest/scale-to-width/150?cb=20120815152559&path-prefix=pl"));
-
         items = db.getAllItems();
         db.close();
 
@@ -111,6 +109,7 @@ public class HistoryFragment extends Fragment {
         quickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, listHistory, mAdapter, QuickScroll.STYLE_HOLO);
         quickScroll.setIndicatorColor(CORAL, CORAL_DARK, Color.WHITE);
         quickScroll.setHandlebarColor(CORAL, CORAL, CORAL_HANDLE);
+        quickScroll.setTextPadding(4, 4, 4, 4);
 
         listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,17 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
-import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
-import andrzej.example.com.fragments.WikisManagementFragment;
+import andrzej.example.com.fragments.ManagementTabs.adapters.PreviouslyUsedListAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
-import andrzej.example.com.utils.StringOperations;
+import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.MaterialEditText;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -58,6 +55,9 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     public static ActionMode mActionMode;
 
 
+    //Utils
+    private WikiManagementHelper mHelper;
+
     //List
     private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
 
@@ -67,6 +67,8 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHelper = new WikiManagementHelper(getActivity());
     }
 
     @Override
@@ -104,7 +106,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                     APIEndpoints.WIKI_NAME = url;
                     setUrlAsPreference(APIEndpoints.WIKI_NAME, label);
                     APIEndpoints.reInitEndpoints();
-                    MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(url));
+                    MainActivity.account.setTitle(mHelper.stripUpWikiUrl(url));
                     MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
                     ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
 
@@ -118,9 +120,12 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                if (mWikisList != null && position < mWikisList.size() && !mWikisList.get(position).getUrl().equals(APIEndpoints.WIKI_NAME))
+                String url = mWikisList.get(position).getUrl().toLowerCase().trim();
+
+                if (position < mWikisList.size() && !url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim()))
                     previouslyUsedList.setItemChecked(position, !mAdapter.isPositionChecked(position));
-                return false;
+
+                return true;
             }
         });
 
@@ -130,15 +135,21 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                if (mWikisList != null && position < mWikisList.size() && !mWikisList.get(position).getUrl().equals(APIEndpoints.WIKI_NAME)) {
+                String url = mWikisList.get(position).getUrl().toLowerCase().trim();
+                if (mWikisList != null && position < mWikisList.size() && !url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())) {
                     if (checked) {
                         nr++;
                         mAdapter.setNewSelection(position, checked);
                     } else {
                         nr--;
                         mAdapter.removeSelection(position);
+                        if (mAdapter.getSelectionSize() <= 0)
+                            mode.finish();
                     }
                     mode.setTitle("Zaznaczone: " + nr);
+                } else {
+                    if (mAdapter.getSelectionSize() <= 0)
+                        mode.finish();
                 }
             }
 
@@ -199,6 +210,12 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         super.onResume();
         updateRecords();
         setUpColorScheme();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHelper.closeDbs();
     }
 
     private static void reInitViews() {
@@ -278,22 +295,21 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                         if (url_input.length() <= 0)
                             Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
                         else {
-                            if (!APIEndpoints.WIKI_NAME.equals(WikisManagementFragment.cleanInputUrl(url_input))) {
+                            if (!APIEndpoints.WIKI_NAME.equals(mHelper.cleanInputUrl(url_input))) {
                                 dialog.dismiss();
                                 Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
-                                WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
-                                db.addItem(new WikiPreviousListItem(label_input, WikisManagementFragment.cleanInputUrl(url_input)));
+                                mHelper.addWikiToPreviouslyUsed(label_input, url_input);
                                 updateRecords();
 
-                                APIEndpoints.WIKI_NAME = WikisManagementFragment.cleanInputUrl(url_input);
+                                APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
                                 setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                 APIEndpoints.reInitEndpoints();
 
                                 if (label_input != null && label_input.trim().length() > 0)
                                     MainActivity.account.setTitle(label_input);
                                 else
-                                    MainActivity.account.setTitle(StringOperations.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+                                    MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
 
                                 MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
                                 ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
@@ -320,7 +336,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         if (label != null && label.trim().length() > 0)
             editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, label);
         else
-            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, StringOperations.stripUpWikiUrl(url));
+            editor.putString(SharedPrefsKeys.CURRENT_WIKI_LABEL, mHelper.stripUpWikiUrl(url));
 
         editor.apply();
     }
