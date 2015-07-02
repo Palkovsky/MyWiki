@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
+import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.TabsAdapter;
@@ -37,7 +39,7 @@ import andrzej.example.com.views.SlidingTabLayout;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class WikisManagementFragment extends Fragment {
+public class WikisManagementFragment extends Fragment implements ViewPager.OnPageChangeListener, DrawerLayout.DrawerListener {
 
     LinearLayout rootView;
     TabsAdapter mAdapter;
@@ -67,6 +69,7 @@ public class WikisManagementFragment extends Fragment {
         rootView = (LinearLayout) v.findViewById(R.id.managementRootView);
 
         mPager = (ViewPager) v.findViewById(R.id.managementPager);
+        mPager.setOffscreenPageLimit(TabsPrefs.mTabsNum);
         mPager.setAdapter(mAdapter);
 
         // Assiging the Sliding Tab Layout View
@@ -80,6 +83,11 @@ public class WikisManagementFragment extends Fragment {
                 return Color.WHITE;
             }
         });
+
+
+        mTabs.setOnPageChangeListener(this);
+
+        ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(this);
 
         // Setting the ViewPager For the SlidingTabsLayout
         mTabs.setViewPager(mPager);
@@ -181,11 +189,13 @@ public class WikisManagementFragment extends Fragment {
                 if (nightMode) {
                     PreviouslyUsedWikisFragment.setUpNormalMode();
                     SuggestedWikisFragment.setUpNormalMode();
+                    FavouriteWikisFragment.setUpNormalMode();
                     item.setChecked(false);
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
                 } else {
                     PreviouslyUsedWikisFragment.setUpNightMode();
                     SuggestedWikisFragment.setUpNightMode();
+                    FavouriteWikisFragment.setUpNightMode();
                     item.setChecked(true);
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
                 }
@@ -267,5 +277,42 @@ public class WikisManagementFragment extends Fragment {
         }
 
         return url;
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if(PreviouslyUsedWikisFragment.mActionMode!=null)
+            PreviouslyUsedWikisFragment.mActionMode.finish();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+        if(PreviouslyUsedWikisFragment.mActionMode!=null)
+            PreviouslyUsedWikisFragment.mActionMode.finish();
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
+
     }
 }

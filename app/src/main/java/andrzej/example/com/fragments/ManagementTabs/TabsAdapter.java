@@ -24,17 +24,20 @@ public class TabsAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
-        if(position == 0) // if the position is 0 we are returning the First tab
-        {
-            PreviouslyUsedWikisFragment previouslyUsedWikisFragment = new PreviouslyUsedWikisFragment();
-            return previouslyUsedWikisFragment;
-        }
-        else             // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
-        {
-            SuggestedWikisFragment suggestedWikisFragment = new SuggestedWikisFragment();
-            return suggestedWikisFragment;
-        }
 
+        switch (position){
+            case 0:
+                PreviouslyUsedWikisFragment previouslyUsedWikisFragment = new PreviouslyUsedWikisFragment();
+                return previouslyUsedWikisFragment;
+
+            case 1:
+                FavouriteWikisFragment favouriteWikisFragment = new FavouriteWikisFragment();
+                return  favouriteWikisFragment;
+
+            default:
+                SuggestedWikisFragment suggestedWikisFragment = new SuggestedWikisFragment();
+                return suggestedWikisFragment;
+        }
 
     }
 

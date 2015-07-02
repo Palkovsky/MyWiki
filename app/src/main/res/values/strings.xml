@@ -77,4 +77,5 @@
     <string name="wiki_succesfully_changed">Zmieniłeś swoją Wikię!</string>
     <string name="menu_deleteHistory">Usuń historę</string>
     <string name="removeWikisHistory">Usunąć ostatnio dodane Wikie?</string>
+    <string name="no_favs">Brak ulubionch Wikii.</string>
 </resources>
