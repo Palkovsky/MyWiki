@@ -350,12 +350,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                     public void onResponse(JSONObject response) {
                         try {
 
-
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setInternetPresentLayout();
-                            else
+                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setNoInternetLayout();
-
 
                             JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
 
@@ -429,7 +425,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                             fetchSimilarArticles();
 
-                            setInternetPresentLayout();
+                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                                setInternetPresentLayout();
+                            else
+                                setNoInternetLayout();
 
 
                         } catch (JSONException e) {
@@ -502,10 +501,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                         try {
 
-
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setInternetPresentLayout();
-                            else
+                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setNoInternetLayout();
 
                             JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
@@ -675,6 +671,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                             if (items.length() > 0) {
                                 TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
+                                textViews.add(tv);
                                 headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));
                                 mStructureAdapter.notifyDataSetChanged();
                                 for (int i = 0; i < items.length(); i++) {
@@ -904,7 +901,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void setRandomPage() {
-        setLoadingLayout();
+        //setLoadingLayout();
         requestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {

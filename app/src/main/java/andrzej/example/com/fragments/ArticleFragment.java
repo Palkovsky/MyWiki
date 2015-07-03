@@ -370,10 +370,9 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setInternetPresentLayout();
-                            else
+                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setNoInternetLayout();
+
                             JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
 
 
@@ -539,9 +538,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setInternetPresentLayout();
-                            else
+                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 setNoInternetLayout();
 
                             JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
@@ -652,6 +649,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                             if (items.length() > 0) {
                                 TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
+                                textViews.add(tv);
                                 headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));
                                 mStructureAdapter.notifyDataSetChanged();
                                 for (int i = 0; i < items.length(); i++) {
