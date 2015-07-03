@@ -54,6 +54,8 @@ public class QuickScroll extends View {
     protected View handleBar;
     // indicator variables
     protected RelativeLayout scrollIndicator;
+    //Scrollbar
+    View scrollbar;
 
     // default constructors
     public QuickScroll(Context context) {
@@ -66,6 +68,24 @@ public class QuickScroll extends View {
 
     public QuickScroll(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public void hideScroll() {
+        handleBar.setVisibility(View.GONE);
+        //scrollIndicator.setVisibility(View.GONE);
+        listView.setVisibility(View.GONE);
+        scrollIndicatorTextView.setVisibility(View.GONE);
+        scrollbar.setVisibility(View.GONE);
+
+    }
+
+    public void showScroll() {
+        handleBar.setVisibility(View.VISIBLE);
+        //scrollIndicator.setVisibility(View.VISIBLE);
+        listView.setVisibility(View.VISIBLE);
+        scrollIndicatorTextView.setVisibility(View.VISIBLE);
+        scrollbar.setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -150,7 +170,7 @@ public class QuickScroll extends View {
             params.addRule(RelativeLayout.ALIGN_BOTTOM, getId());
             layout.setLayoutParams(params);
 
-            final View scrollbar = new View(getContext());
+            scrollbar = new View(getContext());
             scrollbar.setBackgroundColor(GREY_SCROLLBAR);
             final RelativeLayout.LayoutParams scrollBarParams = new RelativeLayout.LayoutParams(1, LayoutParams.MATCH_PARENT);
             scrollBarParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -216,7 +236,8 @@ public class QuickScroll extends View {
                     scrollIndicator.startAnimation(fadeInAnimation);
                     scrollIndicator.setPadding(0, 0, getWidth(), 0);
                 } else
-                    scrollIndicatorTextView.startAnimation(fadeInAnimation); scroll(event.getY());
+                    scrollIndicatorTextView.startAnimation(fadeInAnimation);
+                scroll(event.getY());
                 isScrolling = true;
                 return true;
             case MotionEvent.ACTION_MOVE:

@@ -53,7 +53,13 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
 
     public void addItem(WikiFavItem item) {
 
-        if(!itemExsists(item.getUrl(), item.getTitle())) {
+        if (itemExsists(item.getUrl(), item.getTitle())) {
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            deleteItemsWithUrl(item.getUrl());
+
+            db.close(); // Closing database connection
+        } else {
             SQLiteDatabase db = this.getWritableDatabase();
 
             ContentValues values = new ContentValues();
@@ -66,9 +72,18 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         }
     }
 
+
+    public void deleteItemsWithUrl(String url) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_HISTORY, KEY_URL + " =?",
+                new String[]{url});
+        db.close();
+
+    }
+
     public void deleteItem(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_HISTORY, KEY_ID + " = ?",
+        db.delete(TABLE_HISTORY, KEY_ID + " =?",
                 new String[]{String.valueOf(id)});
         db.close();
     }

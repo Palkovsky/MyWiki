@@ -96,6 +96,9 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+
+
+
         return v;
     }
 
@@ -212,8 +215,6 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                 break;
 
             case R.id.menu_deleteHistory:
-
-
                 new MaterialDialog.Builder(getActivity())
                         .title(R.string.menu_deleteHistory)
                         .content(R.string.removeWikisHistory)

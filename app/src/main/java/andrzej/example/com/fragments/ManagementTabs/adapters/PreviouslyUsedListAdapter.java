@@ -10,14 +10,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import andrzej.example.com.databases.WikisFavsDbHandler;
+import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
+import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -64,8 +70,8 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ResultViewHolder mViewHolder;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ResultViewHolder mViewHolder;
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.previously_used_list_item, null);
@@ -75,15 +81,48 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
             mViewHolder = (ResultViewHolder) convertView.getTag();
         }
 
-        String label = myList.get(position).getTitle();
 
-        if (label != null && label.length() > 0) {
-            mViewHolder.tvTitle = title(convertView, R.id.tvTitle, label);
+        if (myList.get(position).getTitle() != null && myList.get(position).getTitle().length() > 0) {
+            mViewHolder.tvTitle = title(convertView, R.id.tvTitle, myList.get(position).getTitle());
             mViewHolder.tvUrl = url(convertView, R.id.tvUrl, myList.get(position).getUrl());
         } else {
             mViewHolder.tvTitle = title(convertView, R.id.tvTitle, StringOperations.stripUpWikiUrl(myList.get(position).getUrl()));
             mViewHolder.tvUrl = url(convertView, R.id.tvUrl, myList.get(position).getUrl());
         }
+
+        mViewHolder.btnFav = btnFav(convertView, R.id.btnFav);
+
+
+        final WikisFavsDbHandler db = new WikisFavsDbHandler(context);
+
+        if (db.itemExsists(myList.get(position).getUrl(), myList.get(position).getTitle())) {
+            mViewHolder.btnFav.setRightIcon("fa-remove");
+        } else {
+            mViewHolder.btnFav.setRightIcon("fa-heart");
+        }
+
+        mViewHolder.btnFav.setClickable(true);
+        //mViewHolder.btnFav.setEnabled(true);
+
+        mViewHolder.btnFav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                db.addItem(new WikiFavItem(myList.get(position).getTitle(), myList.get(position).getUrl()));
+
+
+                if (db.itemExsists(myList.get(position).getUrl(), myList.get(position).getTitle())) {
+                    mViewHolder.btnFav.setRightIcon("fa-remove");
+                } else {
+                    mViewHolder.btnFav.setRightIcon("fa-heart");
+                }
+
+                FavouriteWikisFragment.updateDataset();
+
+            }
+        });
+
 
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
@@ -95,14 +134,13 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
             mViewHolder.tvUrl.setTextColor(context.getResources().getColor(R.color.font_color));
         }
 
-        if (mSelection.get(position) != null) {
+        if (mSelection.get(position) != null)
             convertView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\
-        }else
+        else
             convertView.setBackgroundColor(Color.TRANSPARENT);
 
-        String url = myList.get(position).getUrl().toLowerCase().trim();
 
-        if(url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())){
+        if (myList.get(position).getUrl().toLowerCase().trim().equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())) {
             convertView.setClickable(false);
             convertView.setFocusable(false);
             convertView.setActivated(false);
@@ -130,15 +168,21 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
         return tv;
     }
 
+    private BootstrapButton btnFav(View v, int resId) {
+        BootstrapButton btnFav = (BootstrapButton) v.findViewById(resId);
+        return btnFav;
+    }
+
     private class ResultViewHolder {
         TextView tvTitle;
         TextView tvUrl;
+        BootstrapButton btnFav;
     }
 
     public void setNewSelection(int position, boolean value) {
-            mSelection.put(position, value);
-            selectedItems.add(myList.get(position));
-            notifyDataSetChanged();
+        mSelection.put(position, value);
+        selectedItems.add(myList.get(position));
+        notifyDataSetChanged();
     }
 
     public boolean isPositionChecked(int position) {
@@ -156,7 +200,7 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public int getSelectionSize(){
+    public int getSelectionSize() {
         return selectedItems.size();
     }
 

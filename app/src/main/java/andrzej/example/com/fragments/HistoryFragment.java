@@ -99,17 +99,14 @@ public class HistoryFragment extends Fragment {
         listHistory = (ListView) v.findViewById(R.id.historyList);
         quickScroll = (QuickScroll) v.findViewById(R.id.history_quickscroll);
 
-        if (items.size() <= 0) {
-            noRecordsTv.setVisibility(View.VISIBLE);
-            listHistory.setVisibility(View.GONE);
-            filterEt.setVisibility(View.GONE);
-        }
 
         mAdapter = new HistoryListAdapter(getActivity(), items);
         quickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, listHistory, mAdapter, QuickScroll.STYLE_HOLO);
         quickScroll.setIndicatorColor(CORAL, CORAL_DARK, Color.WHITE);
         quickScroll.setHandlebarColor(CORAL, CORAL, CORAL_HANDLE);
         quickScroll.setTextPadding(4, 4, 4, 4);
+
+
 
         listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -194,6 +191,8 @@ public class HistoryFragment extends Fragment {
                         nr = 0;
                         mAdapter.clearSelection();
                         mode.finish();
+
+                        reInitViews(items.size());
                 }
                 return false;
             }
@@ -282,6 +281,15 @@ public class HistoryFragment extends Fragment {
 
         listHistory.setAdapter(mAdapter);
 
+
+
+        if (items.size() <= 0) {
+            noRecordsTv.setVisibility(View.VISIBLE);
+            listHistory.setVisibility(View.GONE);
+            filterEt.setVisibility(View.GONE);
+            quickScroll.hideScroll();
+        }
+
         return v;
     }
 
@@ -290,10 +298,11 @@ public class HistoryFragment extends Fragment {
         if (size <= 0) { // nie ma
             noRecordsTv.setVisibility(View.VISIBLE);
             listHistory.setVisibility(View.GONE);
-
+            quickScroll.hideScroll();
         } else { // som
             noRecordsTv.setVisibility(View.GONE);
             listHistory.setVisibility(View.VISIBLE);
+            quickScroll.showScroll();
         }
     }
 
@@ -337,6 +346,9 @@ public class HistoryFragment extends Fragment {
 
                         noRecordsTv.setVisibility(View.VISIBLE);
                         listHistory.setVisibility(View.GONE);
+
+                        reInitViews(items.size());
+
                     }
 
                 }).content(getActivity().getResources().getString(R.string.removeAllQuestion))

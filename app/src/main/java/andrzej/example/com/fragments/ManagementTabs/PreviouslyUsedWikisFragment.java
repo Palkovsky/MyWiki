@@ -236,6 +236,10 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         reInitViews();
     }
 
+    public static void refreshList(){
+        mAdapter.notifyDataSetChanged();
+    }
+
     public static void setUpNightMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));
         errorMessage.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.nightFontColor));
@@ -340,4 +344,5 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
         editor.apply();
     }
+
 }

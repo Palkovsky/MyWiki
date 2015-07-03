@@ -7,9 +7,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import java.util.List;
 
@@ -18,6 +21,7 @@ import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.OnItemClickListener;
 
 /**
  * Created by andrzej on 03.07.15.
@@ -25,6 +29,7 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.ViewHolder>{
 
     private List<WikiFavItem> mDataset;
+    OnItemClickListener mItemClickListener;
 
     public FavoritesAdapter(List<WikiFavItem> mDataset) {
         this.mDataset = mDataset;
@@ -67,6 +72,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
             holder.tvTitle.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
             holder.tvUrl.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.font_color));
         }
+
+
     }
 
     @Override
@@ -75,17 +82,32 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     }
 
     // inner class to hold a reference to each item of RecyclerView
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView tvTitle;
         public TextView tvUrl;
+        public BootstrapButton btnRemove;
         public RelativeLayout rootView;
 
         public ViewHolder(View itemLayoutView) {
             super(itemLayoutView);
-            rootView = (RelativeLayout) itemLayoutView.findViewById(R.id.llRoot);
+            rootView = (RelativeLayout) itemLayoutView.findViewById(R.id.rlRootView);
+            btnRemove = (BootstrapButton) itemLayoutView.findViewById(R.id.btnRemove);
             tvTitle = (TextView) itemLayoutView.findViewById(R.id.tvTitle);
             tvUrl = (TextView) itemLayoutView.findViewById(R.id.tvUrl);
+
+            btnRemove.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            mItemClickListener.onItemClick(v, getPosition());
+        }
+
+
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
+        this.mItemClickListener = mItemClickListener;
     }
 }

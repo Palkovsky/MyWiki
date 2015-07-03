@@ -25,6 +25,7 @@ import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.OnItemClickListener;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.DividerItemDecoration;
 
@@ -35,19 +36,19 @@ public class FavouriteWikisFragment extends Fragment {
 
     //UI Elements
     private static RelativeLayout rootView;
-    private RelativeLayout contentView;
+    private static RelativeLayout contentView;
     private static LinearLayout errorLayout;
     private RecyclerView recyclerView;
     private static TextView errorMessage;
 
     //Utils
-    private WikiManagementHelper mHelper;
+    private static WikiManagementHelper mHelper;
 
     //List
-    private List<WikiFavItem> mFavs = new ArrayList<>();
+    private static List<WikiFavItem> mFavs = new ArrayList<>();
 
     //Adapter
-    static FavoritesAdapter mAdapter;
+    public static FavoritesAdapter mAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,20 +82,41 @@ public class FavouriteWikisFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        populateDataset();
+        //Listeners
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                mHelper.removeFav(mFavs.get(position).getId());
+                mFavs.remove(position);
+                mAdapter.notifyItemRemoved(position);
+                reInitViews();
+                PreviouslyUsedWikisFragment.refreshList();
+            }
+        });
+
+        updateDataset();
 
         return v;
     }
 
-    private void populateDataset(){
-        String[] labels = {"GTA Wikia PL", "FF Wikia PL", "OGame Wikia"};
-        String[] urls = {"pl.gta", "pl.finalfantasy", "ogame"};
 
-        for(int i=0; i<labels.length; i++){
-            mFavs.add(new WikiFavItem(labels[i], mHelper.cleanInputUrl(urls[i])));
-            mAdapter.notifyItemInserted(mFavs.size()-1);
+    public static void updateDataset(){
+        mFavs.clear();
+        mFavs.addAll(mHelper.getAllFavs());
+        mAdapter.notifyDataSetChanged();
+        reInitViews();
+    }
+
+    private static void reInitViews(){
+        if(mFavs.size()<=0){
+            errorLayout.setVisibility(View.VISIBLE);
+            errorMessage.setVisibility(View.VISIBLE);
+            contentView.setVisibility(View.GONE);
+        }else{
+            errorLayout.setVisibility(View.GONE);
+            errorMessage.setVisibility(View.GONE);
+            contentView.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override

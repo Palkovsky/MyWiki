@@ -2,6 +2,8 @@ package andrzej.example.com.utils;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 import andrzej.example.com.databases.WikisFavsDbHandler;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.models.WikiFavItem;
@@ -36,6 +38,13 @@ public class WikiManagementHelper {
         favs_db.close();
     }
 
+    public ArrayList<WikiFavItem> getAllFavs(){
+        return favs_db.getAllFavs();
+    }
+
+    public void removeFav(int id){
+        favs_db.deleteItem(id);
+    }
 
     public String cleanInputUrl(String url) {
         url = url.toLowerCase();
