@@ -44,6 +44,8 @@
                 android:choiceMode="multipleChoice"
                 android:drawSelectorOnTop="false"
                 android:listSelector="@drawable/selectable_item_background"
+                android:divider="@color/divider"
+                android:dividerHeight="@dimen/divider"
                 android:overScrollMode="never"
                 android:scrollbars="none"></ListView>
         </RelativeLayout>

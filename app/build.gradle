@@ -22,7 +22,7 @@ android {
 
 repositories{
     mavenCentral()
-
+    jcenter()
 }
 
 dependencies {
@@ -40,4 +40,5 @@ dependencies {
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
     compile 'com.jpardogo.materialtabstrip:library:1.0.6'
     compile 'com.android.support:recyclerview-v7:+'
+    compile 'com.yqritc:recyclerview-flexibledivider:1.2.5'
 }

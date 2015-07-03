@@ -3,6 +3,7 @@ package andrzej.example.com.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -98,7 +99,6 @@ public class HistoryFragment extends Fragment {
 
 
         mAdapter = new HistoryListAdapter(getActivity(), items);
-
 
 
         listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {

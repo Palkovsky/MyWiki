@@ -39,4 +39,5 @@
         bootstrap:bb_icon_right="fa-remove"
         bootstrap:bb_roundedCorners="true"
         bootstrap:bb_type="warning" />
+
 </RelativeLayout>

@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +79,11 @@ public class FavouriteWikisFragment extends Fragment {
 
         //Set up recycler view
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
+                .color(getActivity().getResources().getColor(R.color.divider))
+                .sizeResId(R.dimen.divider)
+                .showLastDivider()
+                .build());
         mAdapter = new FavoritesAdapter(mFavs);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

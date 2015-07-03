@@ -38,4 +38,5 @@
         bootstrap:bb_icon_right="fa-heart"
         bootstrap:bb_roundedCorners="true"
         bootstrap:bb_type="danger" />
+
 </RelativeLayout>

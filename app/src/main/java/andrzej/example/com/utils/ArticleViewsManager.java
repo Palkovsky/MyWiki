@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -71,13 +72,13 @@ public class ArticleViewsManager {
     //Adding Views
     public TextView addTextViewToLayout(String data, int level) {
 
+
         textSize = prefs.getInt(SharedPrefsKeys.KEY_TEXT_SIZE_PREF, textSize);
         nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
         lineSpacing = prefs.getInt(SharedPrefsKeys.KEY_LINE_SPACING_PREF, lineSpacing);
         paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
         paragraphLeftMarginCons = prefs.getInt(SharedPrefsKeys.KEY_PAR_MARGIN_LEFT_CON, paragraphLeftMarginCons);
         boolean liteArtice = prefs.getBoolean(SharedPrefsKeys.LITE_ARTICLE_PREF, false);
-
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
 
@@ -105,7 +106,7 @@ public class ArticleViewsManager {
         else
             itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
-        if(!liteArtice) {
+        if (!liteArtice) {
             itemTv.setTextSize(textSize);
             itemTv.setLineSpacing(lineSpacing, 1);
 
@@ -117,7 +118,7 @@ public class ArticleViewsManager {
             itemTv.setLayoutParams(params);
         }
 
-            ll.addView(itemTv);
+        ll.addView(itemTv);
 
 
         return itemTv;
@@ -308,7 +309,7 @@ public class ArticleViewsManager {
 
             itemTv.setLayoutParams(params_tv);
 
-            if(ArticleFragment.textViews!=null)
+            if (ArticleFragment.textViews != null)
                 ArticleFragment.textViews.add(itemTv);
             if (RandomArticleFragment.textViews != null)
                 RandomArticleFragment.textViews.add(itemTv);

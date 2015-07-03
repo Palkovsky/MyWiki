@@ -18,7 +18,7 @@
 
 
     <color name="fabPrimary">#d32f2f</color>
-    <color name="fabPrimaryPressed">#c62828</color>
+    <color name="fabPrimaryPressedi">#c62828</color>
     <color name="fabRipple">#e53935</color>
 
 
@@ -28,4 +28,6 @@
 
 
     <color name="lightSearchTextColor">#bdbdbd</color>
+
+    <color name="divider">#78909c</color>
 </resources>
