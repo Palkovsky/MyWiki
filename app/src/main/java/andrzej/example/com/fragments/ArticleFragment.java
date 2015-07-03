@@ -900,7 +900,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void setUpNightMode() {
-        errorMessage.setBackgroundColor(getActivity().getResources().getColor(R.color.nightFontColor));
+        errorMessage.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
         parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
@@ -911,7 +911,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void setUpNormalMode() {
-        errorMessage.setBackgroundColor(getActivity().getResources().getColor(R.color.font_color));
+        errorMessage.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         parallaxPart.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
