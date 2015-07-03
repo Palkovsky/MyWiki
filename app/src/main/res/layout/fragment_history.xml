@@ -41,27 +41,11 @@
                 android:id="@+id/historyList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_toLeftOf="@+id/history_quickscroll"
-                android:layout_toStartOf="@+id/history_quickscroll"
                 android:choiceMode="multipleChoice"
                 android:drawSelectorOnTop="false"
                 android:listSelector="@drawable/selectable_item_background"
                 android:overScrollMode="never"
                 android:scrollbars="none"></ListView>
-
-            <TextView
-                android:id="@id/android:empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="" />
-
-            <com.andraskindler.quickscroll.QuickScroll
-                android:id="@+id/history_quickscroll"
-                android:layout_width="30dp"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true" />
         </RelativeLayout>
 
 

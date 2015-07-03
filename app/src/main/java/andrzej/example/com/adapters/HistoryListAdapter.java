@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHistoryItem;
 
-import com.andraskindler.quickscroll.Scrollable;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -28,15 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 
 /**
  * Created by andrzej on 02.06.15.
  */
-public class HistoryListAdapter extends BaseAdapter implements Scrollable{
+public class HistoryListAdapter extends BaseAdapter{
 
     List<ArticleHistoryItem> myList;
     LayoutInflater inflater;
@@ -195,16 +191,6 @@ public class HistoryListAdapter extends BaseAdapter implements Scrollable{
         TextView tv = (TextView) v.findViewById(resId);
         tv.setText(text);
         return tv;
-    }
-
-    @Override
-    public String getIndicatorForPosition(int childposition, int groupposition) {
-        return myList.get(childposition).getDateInString();
-    }
-
-    @Override
-    public int getScrollPosition(int childposition, int groupposition) {
-        return childposition;
     }
 
 

@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.andraskindler.quickscroll.QuickScroll;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,6 @@ public class HistoryFragment extends Fragment {
     TextView noRecordsTv;
     MaterialEditText filterEt;
     ListView listHistory;
-    QuickScroll quickScroll;
     FrameLayout rootView;
 
     //ADapter
@@ -97,14 +95,9 @@ public class HistoryFragment extends Fragment {
         noRecordsTv = (TextView) v.findViewById(R.id.noRecordsTv);
         filterEt = (MaterialEditText) v.findViewById(R.id.historyEditText);
         listHistory = (ListView) v.findViewById(R.id.historyList);
-        quickScroll = (QuickScroll) v.findViewById(R.id.history_quickscroll);
 
 
         mAdapter = new HistoryListAdapter(getActivity(), items);
-        quickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, listHistory, mAdapter, QuickScroll.STYLE_HOLO);
-        quickScroll.setIndicatorColor(CORAL, CORAL_DARK, Color.WHITE);
-        quickScroll.setHandlebarColor(CORAL, CORAL, CORAL_HANDLE);
-        quickScroll.setTextPadding(4, 4, 4, 4);
 
 
 
@@ -287,7 +280,6 @@ public class HistoryFragment extends Fragment {
             noRecordsTv.setVisibility(View.VISIBLE);
             listHistory.setVisibility(View.GONE);
             filterEt.setVisibility(View.GONE);
-            quickScroll.hideScroll();
         }
 
         return v;
@@ -298,11 +290,9 @@ public class HistoryFragment extends Fragment {
         if (size <= 0) { // nie ma
             noRecordsTv.setVisibility(View.VISIBLE);
             listHistory.setVisibility(View.GONE);
-            quickScroll.hideScroll();
         } else { // som
             noRecordsTv.setVisibility(View.GONE);
             listHistory.setVisibility(View.VISIBLE);
-            quickScroll.showScroll();
         }
     }
 
