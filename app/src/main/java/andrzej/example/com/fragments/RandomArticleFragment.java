@@ -466,7 +466,12 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                 JSONObject element = elements.getJSONObject(i);
                 String text = element.getString(Article.KEY_TEXT);
-                textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level));
+
+                if (i == 0) //First list item, no padding
+                    textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, true));
+                else
+                    textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, false));
+                
                 JSONArray nested_elements = element.getJSONArray(Article.KEY_ELEMENTS);
 
                 if (nested_elements != null && nested_elements.length() > 0) {

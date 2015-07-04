@@ -125,13 +125,18 @@ public class ArticleViewsManager {
     }
 
 
-    public TextView addListItemToLayout(String label, int level, int layout_level) {
+    public TextView addListItemToLayout(String label, int level, int layout_level, boolean first) {
 
         nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+        paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
-        itemTv.setText(Html.fromHtml("<br/> &#8226;" + label));
+        if (first && level<=1) {
+            itemTv.setText(Html.fromHtml("&#8226;" + label));
+        } else {
+            itemTv.setText(Html.fromHtml("<br/> &#8226;" + label));
+        }
         itemTv.setTextIsSelectable(true);
         itemTv.setTextSize(textSize);
         itemTv.setLineSpacing(lineSpacing, 1);
@@ -157,9 +162,12 @@ public class ArticleViewsManager {
         else
             itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
+
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
+
+
         params.setMargins(paragraphLeftMarginCons * level * layout_level, 0, 0, 0);
 
         itemTv.setLayoutParams(params);

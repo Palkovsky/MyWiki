@@ -491,7 +491,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                 JSONObject element = elements.getJSONObject(i);
                 String text = element.getString(Article.KEY_TEXT);
-                textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level));
+
+                if (i == 0) //First list item, no padding
+                    textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, true));
+                else
+                    textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, false));
+
                 JSONArray nested_elements = element.getJSONArray(Article.KEY_ELEMENTS);
 
                 if (nested_elements != null && nested_elements.length() > 0) {
@@ -713,7 +718,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         viewsManager.destroyAllViews();
         textViews.clear();
         ActionBar ab = ((MaterialNavigationDrawer) getActivity()).getSupportActionBar();
-        if(!ab.isShowing())
+        if (!ab.isShowing())
             ab.show();
         imgs.clear();
         recommendations.clear();
@@ -746,7 +751,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout.setEnabled(false);
     }
 
-    private void setContentLoadingLayout(){
+    private void setContentLoadingLayout() {
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);
