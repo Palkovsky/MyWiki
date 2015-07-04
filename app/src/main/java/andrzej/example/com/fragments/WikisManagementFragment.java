@@ -27,6 +27,7 @@ import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.adapters.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
+import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -97,8 +98,6 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 
-
-
         return v;
     }
 
@@ -155,10 +154,26 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                         String url_input = urlInput.getText().toString().trim();
                         String label_input = labelInput.getText().toString().trim();
 
+
+                        String label = label_input;
+                        if (label == null || label.trim().length() <= 0)
+                            label = mHelper.stripUpWikiUrl(url_input);
+
                         if (url_input.length() <= 0)
                             Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
-                        else {
-                            if (!APIEndpoints.WIKI_NAME.equals(mHelper.cleanInputUrl(url_input))) {
+                        else if (mHelper.doesItemFavExsists(label, url_input)) {
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_fav_exsists), Toast.LENGTH_SHORT).show();
+                        } else {
+
+
+                            if (!mHelper.itemPrevExsists(label, url_input)) {
+
+                                if (mHelper.doesFavItemExsistsUrl(url_input)) {
+                                    WikiFavItem item = mHelper.getItemByLabel(url_input);
+                                    if (item != null)
+                                        label_input = item.getTitle();
+                                }
+
                                 dialog.dismiss();
                                 Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
@@ -175,8 +190,10 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                                     MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
                                 MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
                                 ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-                            } else
-                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
+
+
+                                FavouriteWikisFragment.updateDataset();
+                            }
                         }
                     }
 
@@ -238,6 +255,29 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                         })
                         .show();
                 break;
+
+            case R.id.menu_deleteFavs:
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.menu_deleteFavs)
+                        .content(R.string.removeWikisFavs)
+                        .positiveText(R.string.ok)
+                        .negativeText(R.string.no)
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                super.onPositive(dialog);
+
+                                mHelper.clearFavs();
+                                FavouriteWikisFragment.updateDataset();
+                            }
+
+                            @Override
+                            public void onNegative(MaterialDialog dialog) {
+                                super.onNegative(dialog);
+                            }
+                        })
+                        .show();
+                break;
         }
 
         return true;
@@ -263,7 +303,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
 
     @Override
     public void onPageSelected(int position) {
-        if(PreviouslyUsedWikisFragment.mActionMode!=null)
+        if (PreviouslyUsedWikisFragment.mActionMode != null)
             PreviouslyUsedWikisFragment.mActionMode.finish();
     }
 
@@ -274,7 +314,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
 
     @Override
     public void onDrawerSlide(View drawerView, float slideOffset) {
-        if(PreviouslyUsedWikisFragment.mActionMode!=null)
+        if (PreviouslyUsedWikisFragment.mActionMode != null)
             PreviouslyUsedWikisFragment.mActionMode.finish();
     }
 

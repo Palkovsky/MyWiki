@@ -120,6 +120,58 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         return contactList;
     }
 
+    public WikiFavItem getWikiFavItemByUrl(String url){
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " WHERE "+ KEY_URL + "='" + url + "' LIMIT 1";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount()>0) {
+            int id = Integer.parseInt(cursor.getString(0));
+            String title = cursor.getString(1);
+            String URI = cursor.getString(2);
+
+            return new WikiFavItem(id, title, URI);
+        }
+
+        return null;
+    }
+
+    public boolean itemExsists(String url) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{
+                        KEY_URL}, KEY_URL + "=?",
+                new String[]{url}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0) {
+            return true;
+        } else
+            return false;
+    }
+
+    public boolean itemExsistsLabel(String label) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{
+                        KEY_NAME}, KEY_NAME + "=?",
+                new String[]{label}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0) {
+            return true;
+        } else
+            return false;
+    }
+
     public boolean itemExsists(String url, String name) {
         SQLiteDatabase db = this.getReadableDatabase();
 

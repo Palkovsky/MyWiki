@@ -14,22 +14,28 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.adapters.FavoritesAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.OnItemClickListener;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.DividerItemDecoration;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 /**
  * Created by andrzej on 02.07.15.
@@ -84,7 +90,7 @@ public class FavouriteWikisFragment extends Fragment {
                 .sizeResId(R.dimen.divider)
                 .showLastDivider()
                 .build());
-        mAdapter = new FavoritesAdapter(mFavs);
+        mAdapter = new FavoritesAdapter(getActivity(), mFavs);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
@@ -92,11 +98,30 @@ public class FavouriteWikisFragment extends Fragment {
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                mHelper.removeFav(mFavs.get(position).getId());
-                mFavs.remove(position);
-                mAdapter.notifyItemRemoved(position);
-                reInitViews();
-                PreviouslyUsedWikisFragment.refreshList();
+
+
+                switch (view.getId()) {
+
+                    case R.id.rlRootView:
+                        String url = mFavs.get(position).getUrl();
+                        String label = mFavs.get(position).getTitle();
+
+                        if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+                        }
+
+                        mHelper.setCurrentWiki(label, url);
+
+                        break;
+
+                    case R.id.btnRemove:
+                        mHelper.removeFav(mFavs.get(position).getId());
+                        mFavs.remove(position);
+                        mAdapter.notifyItemRemoved(position);
+                        reInitViews();
+                        PreviouslyUsedWikisFragment.refreshList();
+                        break;
+                }
             }
         });
 
@@ -106,19 +131,19 @@ public class FavouriteWikisFragment extends Fragment {
     }
 
 
-    public static void updateDataset(){
+    public static void updateDataset() {
         mFavs.clear();
         mFavs.addAll(mHelper.getAllFavs());
         mAdapter.notifyDataSetChanged();
         reInitViews();
     }
 
-    private static void reInitViews(){
-        if(mFavs.size()<=0){
+    private static void reInitViews() {
+        if (mFavs.size() <= 0) {
             errorLayout.setVisibility(View.VISIBLE);
             errorMessage.setVisibility(View.VISIBLE);
             contentView.setVisibility(View.GONE);
-        }else{
+        } else {
             errorLayout.setVisibility(View.GONE);
             errorMessage.setVisibility(View.GONE);
             contentView.setVisibility(View.VISIBLE);

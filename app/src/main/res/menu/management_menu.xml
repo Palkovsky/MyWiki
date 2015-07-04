@@ -20,6 +20,12 @@
         appcompat:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_deleteFavs"
+        android:title="@string/menu_deleteFavs"
+        appcompat:showAsAction="never"
+        />
+
+    <item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_magnify_white_48dp"

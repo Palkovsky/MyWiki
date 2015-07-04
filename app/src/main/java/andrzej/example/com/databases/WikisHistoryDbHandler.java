@@ -125,6 +125,22 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
             return false;
     }
 
+    public boolean itemExsistsLabel(String label) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{
+                        KEY_NAME}, KEY_NAME + "=?",
+                new String[]{label}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0) {
+            return true;
+        } else
+            return false;
+    }
+
     private void deleteItemsWithUrl(String url) {
         if (itemExsists(url)) {
             SQLiteDatabase db = this.getWritableDatabase();

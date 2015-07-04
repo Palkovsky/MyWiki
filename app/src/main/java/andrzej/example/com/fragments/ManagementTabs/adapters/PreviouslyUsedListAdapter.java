@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,11 +135,6 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
             mViewHolder.tvUrl.setTextColor(context.getResources().getColor(R.color.font_color));
         }
 
-        if (mSelection.get(position) != null)
-            convertView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\
-        else
-            convertView.setBackgroundColor(Color.TRANSPARENT);
-
 
         if (myList.get(position).getUrl().toLowerCase().trim().equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())) {
             convertView.setClickable(false);
@@ -148,8 +144,18 @@ public class PreviouslyUsedListAdapter extends BaseAdapter {
             convertView.setSelected(false);
             convertView.setPressed(false);
             convertView.setFocusableInTouchMode(false);
-            convertView.setBackgroundColor(context.getResources().getColor(R.color.header_background));
+            convertView.setBackground(ContextCompat.getDrawable(context, R.drawable.selectable_item_background_dark));
         }
+
+        if (mSelection.get(position) != null)
+            convertView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));// this is a selected position so make it red\
+        else {
+            if(myList.get(position).getUrl().toLowerCase().trim().equals(APIEndpoints.WIKI_NAME.toLowerCase().trim()))
+                convertView.setBackground(ContextCompat.getDrawable(context, R.drawable.selectable_item_background_dark));
+            else
+                convertView.setBackground(ContextCompat.getDrawable(context, R.drawable.selectable_item_background));
+        }
+
 
         return convertView;
     }

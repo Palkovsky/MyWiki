@@ -78,4 +78,9 @@
     <string name="menu_deleteHistory">Usuń historę</string>
     <string name="removeWikisHistory">Usunąć ostatnio dodane Wikie?</string>
     <string name="no_favs">Brak ulubionch Wikii.</string>
+    <string name="menu_deleteFavs">Usuń ulubione</string>
+    <string name="removeWikisFavs"><![CDATA[Czy na pewno chcesz wyczyściś listę swoich ulubionych Wikii?]]></string>
+    <string name="label_exsists">Wikia z taką nazwą już istnieje na Twojej liście.</string>
+    <string name="url_exsists">Wikia z takim URL już istnieje na Twojej liście.</string>
+    <string name="already_fav_exsists">Wikia z podanymi danymi już istnieje w ulubionych.</string>
 </resources>

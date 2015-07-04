@@ -31,6 +31,7 @@ import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.adapters.PreviouslyUsedListAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -59,7 +60,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     private WikiManagementHelper mHelper;
 
     //List
-    private static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
+    public static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
 
     //Prefs
     SharedPreferences prefs;
@@ -96,22 +97,11 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                 String url = item.getUrl();
                 String label = item.getTitle();
 
-                if (!APIEndpoints.WIKI_NAME.equals(url) && parent.isClickable()) {
+                if (!APIEndpoints.WIKI_NAME.equals(url)) {
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
-
-                    WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
-                    db.addItem(new WikiPreviousListItem(label, url));
-                    updateRecords();
-
-                    APIEndpoints.WIKI_NAME = url;
-                    setUrlAsPreference(APIEndpoints.WIKI_NAME, label);
-                    APIEndpoints.reInitEndpoints();
-                    MainActivity.account.setTitle(mHelper.stripUpWikiUrl(url));
-                    MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
-                    ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-
-                    updateRecords();
                 }
+
+                mHelper.setCurrentWiki(label, url);
             }
         });
 
@@ -122,7 +112,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
                 String url = mWikisList.get(position).getUrl().toLowerCase().trim();
 
-                if (position < mWikisList.size() && !url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim()))
+                if (position < mWikisList.size())
                     previouslyUsedList.setItemChecked(position, !mAdapter.isPositionChecked(position));
 
                 return true;
@@ -136,20 +126,15 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
                 String url = mWikisList.get(position).getUrl().toLowerCase().trim();
-                if (mWikisList != null && position < mWikisList.size() && !url.equals(APIEndpoints.WIKI_NAME.toLowerCase().trim())) {
+                if (mWikisList != null && position < mWikisList.size()) {
                     if (checked) {
                         nr++;
                         mAdapter.setNewSelection(position, checked);
                     } else {
                         nr--;
                         mAdapter.removeSelection(position);
-                        if (mAdapter.getSelectionSize() <= 0)
-                            mode.finish();
                     }
                     mode.setTitle("Zaznaczone: " + nr);
-                } else {
-                    if (mAdapter.getSelectionSize() <= 0)
-                        mode.finish();
                 }
             }
 
@@ -236,7 +221,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         reInitViews();
     }
 
-    public static void refreshList(){
+    public static void refreshList() {
         mAdapter.notifyDataSetChanged();
     }
 
@@ -289,45 +274,64 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                 final MaterialEditText urlInput = (MaterialEditText) view.findViewById(R.id.mangementInputUrlET);
 
                 dialog.getBuilder().callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        super.onPositive(dialog);
+                                                 @Override
+                                                 public void onPositive(MaterialDialog dialog) {
+                                                     super.onPositive(dialog);
 
-                        String url_input = urlInput.getText().toString().trim();
-                        String label_input = labelInput.getText().toString().trim();
+                                                     String url_input = urlInput.getText().toString().trim();
+                                                     String label_input = labelInput.getText().toString().trim();
 
-                        if (url_input.length() <= 0)
-                            Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
-                        else {
-                            if (!APIEndpoints.WIKI_NAME.equals(mHelper.cleanInputUrl(url_input))) {
-                                dialog.dismiss();
-                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+                                                     String label = label_input;
+                                                     if (label == null || label.trim().length() <= 0)
+                                                         label = mHelper.stripUpWikiUrl(url_input);
 
-                                mHelper.addWikiToPreviouslyUsed(label_input, url_input);
-                                updateRecords();
+                                                     if (url_input.length() <= 0)
+                                                         Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
+                                                     else if(mHelper.doesItemFavExsists(label, url_input)) {
+                                                        Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_fav_exsists), Toast.LENGTH_SHORT).show();
+                                                     }else {
 
-                                APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
-                                setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
-                                APIEndpoints.reInitEndpoints();
+                                                         if (!mHelper.itemPrevExsists(label, url_input)) {
 
-                                if (label_input != null && label_input.trim().length() > 0)
-                                    MainActivity.account.setTitle(label_input);
-                                else
-                                    MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+                                                             if (mHelper.doesFavItemExsistsUrl(url_input)) {
+                                                                 WikiFavItem item = mHelper.getItemByLabel(url_input);
+                                                                 if (item != null)
+                                                                     label_input = item.getTitle();
+                                                             }
 
-                                MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
-                                ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-                            } else
-                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                                                             dialog.dismiss();
+                                                             Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
-                    @Override
-                    public void onNegative(MaterialDialog dialog) {
-                        super.onNegative(dialog);
-                        dialog.dismiss();
-                    }
-                });
+                                                             mHelper.addWikiToPreviouslyUsed(label_input, url_input);
+                                                             updateRecords();
+
+                                                             APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
+                                                             setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
+                                                             APIEndpoints.reInitEndpoints();
+
+                                                             if (label_input != null && label_input.trim().length() > 0)
+                                                                 MainActivity.account.setTitle(label_input);
+                                                             else
+                                                                 MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+
+                                                             MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+                                                             ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+
+                                                             FavouriteWikisFragment.updateDataset();
+
+                                                         }
+
+                                                     }
+                                                 }
+
+                                                 @Override
+                                                 public void onNegative(MaterialDialog dialog) {
+                                                     super.onNegative(dialog);
+                                                     dialog.dismiss();
+                                                 }
+                                             }
+
+                );
 
                 dialog.show();
         }
