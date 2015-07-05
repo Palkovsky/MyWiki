@@ -21,6 +21,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.WikisFavsDbHandler;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
@@ -245,6 +246,12 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                                 WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
                                 db.turncateTable();
                                 PreviouslyUsedWikisFragment.updateRecords();
+                                db.close();
+
+                                WikisFavsDbHandler favs_db = new WikisFavsDbHandler(getActivity());
+                                favs_db.turncateTable();
+                                FavouriteWikisFragment.updateDataset();
+                                favs_db.close();
                             }
 
                             @Override
@@ -269,6 +276,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
 
                                 mHelper.clearFavs();
                                 FavouriteWikisFragment.updateDataset();
+                                PreviouslyUsedWikisFragment.updateRecords();
                             }
 
                             @Override

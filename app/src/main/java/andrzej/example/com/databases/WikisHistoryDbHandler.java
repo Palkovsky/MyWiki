@@ -71,16 +71,18 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
     }
 
     public void addItem(WikiPreviousListItem item) {
-        deleteItemsWithUrl(item.getUrl());
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, item.getTitle());
-        values.put(KEY_URL, item.getUrl());
+        if(!itemExsists(item.getUrl())) {
+            SQLiteDatabase db = this.getWritableDatabase();
 
-        // Inserting Row
-        db.insert(TABLE_HISTORY, null, values);
-        db.close(); // Closing database connection
+            ContentValues values = new ContentValues();
+            values.put(KEY_NAME, item.getTitle());
+            values.put(KEY_URL, item.getUrl());
+
+            // Inserting Row
+            db.insert(TABLE_HISTORY, null, values);
+            db.close(); // Closing database connection
+        }
     }
 
     public void deleteItem(int id) {

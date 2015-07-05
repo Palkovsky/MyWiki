@@ -89,8 +89,21 @@ public class WikiManagementHelper {
         return favs_db.getAllFavs();
     }
 
+    public ArrayList<WikiPreviousListItem> getAllWikis(){
+        return previous_db.getAllItems();
+    }
+
     public void removeFav(int id) {
         favs_db.deleteItem(id);
+    }
+
+    public void removeWikiFromAll(int id){
+        previous_db.deleteItem(id);
+    }
+
+    public void removeWiki(int id){
+        favs_db.deleteItem(id);
+        previous_db.deleteItem(id);
     }
 
     public void clearFavs() {
@@ -127,6 +140,9 @@ public class WikiManagementHelper {
         editor.apply();
     }
 
+    public void removeFavByUrl(String url){
+        favs_db.deleteItemsWithUrl(url);
+    }
 
     private boolean doesItemExsistsLabel(String label) {
         if (previous_db.itemExsistsLabel(label)) {

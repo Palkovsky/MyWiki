@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,13 +25,16 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.adapters.OnLongItemClickListener;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
-import andrzej.example.com.fragments.ManagementTabs.adapters.PreviouslyUsedListAdapter;
+import andrzej.example.com.fragments.ManagementTabs.adapters.FavoritesAdapter;
+import andrzej.example.com.fragments.ManagementTabs.adapters.WikiHistoryAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.WikiFavItem;
@@ -36,6 +42,7 @@ import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.OnItemClickListener;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.MaterialEditText;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
@@ -47,17 +54,17 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
     //UI Elements
     private static RelativeLayout rootView;
-    private static ListView previouslyUsedList;
-    private static PreviouslyUsedListAdapter mAdapter;
     private static LinearLayout errorLayout;
     private static TextView errorMessage;
+    private static RecyclerView mRecyclerView;
     private BootstrapButton addWikiButton;
-
     public static ActionMode mActionMode;
 
+    //Adapters
+    private static WikiHistoryAdapter mAdapter;
 
     //Utils
-    private WikiManagementHelper mHelper;
+    private static WikiManagementHelper mHelper;
 
     //List
     public static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
@@ -77,111 +84,182 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         View v = inflater.inflate(R.layout.tab_previously_used_wikis, container, false);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        mAdapter = new PreviouslyUsedListAdapter(getActivity(), mWikisList);
-
+        mAdapter = new WikiHistoryAdapter(getActivity(), mWikisList);
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.previuslyUsed_recyclerView);
         rootView = (RelativeLayout) v.findViewById(R.id.previuslyUsed_rootView);
         errorLayout = (LinearLayout) v.findViewById(R.id.previuslyUsed_errorLayout);
         errorMessage = (TextView) v.findViewById(R.id.previuslyUsed_errorMsg);
-        previouslyUsedList = (ListView) v.findViewById(R.id.previuslyUsed_list);
+
         addWikiButton = (BootstrapButton) v.findViewById(R.id.previuslyUsed_addWikiBtn);
 
         //Listeners
         addWikiButton.setOnClickListener(this);
 
+        //SetUpRecycler
+        //Set up recycler view
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
+                .color(getActivity().getResources().getColor(R.color.divider))
+                .sizeResId(R.dimen.divider)
+                .showLastDivider()
+                .build());
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        previouslyUsedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(View view, int position) {
+
                 WikiPreviousListItem item = mWikisList.get(position);
-                String url = item.getUrl();
-                String label = item.getTitle();
 
-                if (!APIEndpoints.WIKI_NAME.equals(url)) {
-                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
-                }
+                String itemLabel = item.getTitle();
+                String itemUrl = mHelper.cleanInputUrl(item.getUrl());
 
-                mHelper.setCurrentWiki(label, url);
-            }
-        });
+                switch (view.getId()) {
+                    case R.id.btnFav:
 
+                        if (mHelper.doesFavItemExsistsUrl(itemUrl))
+                            mHelper.removeFavByUrl(itemUrl);
+                        else
+                            mHelper.addWikiToFavs(itemLabel, itemUrl);
 
-        previouslyUsedList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                        FavouriteWikisFragment.updateDataset();
+                        mAdapter.notifyItemChanged(position);
+                        break;
 
-                String url = mWikisList.get(position).getUrl().toLowerCase().trim();
+                    case R.id.rlRootView:
 
-                if (position < mWikisList.size())
-                    previouslyUsedList.setItemChecked(position, !mAdapter.isPositionChecked(position));
+                        if (!APIEndpoints.WIKI_NAME.equals(itemUrl)) {
+                            APIEndpoints.WIKI_NAME = itemUrl;
+                            setUrlAsPreference(APIEndpoints.WIKI_NAME, itemLabel);
+                            APIEndpoints.reInitEndpoints();
 
-                return true;
-            }
-        });
+                            if (itemLabel != null && itemLabel.trim().length() > 0)
+                                MainActivity.account.setTitle(itemLabel);
+                            else
+                                MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
 
-        previouslyUsedList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+                            MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+                            ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
 
-            private int nr = 0;
-
-            @Override
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                String url = mWikisList.get(position).getUrl().toLowerCase().trim();
-                if (mWikisList != null && position < mWikisList.size()) {
-                    if (checked) {
-                        nr++;
-                        mAdapter.setNewSelection(position, checked);
-                    } else {
-                        nr--;
-                        mAdapter.removeSelection(position);
-                    }
-                    mode.setTitle("Zaznaczone: " + nr);
-                }
-            }
-
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                nr = 0;
-                mActionMode = mode;
-                MenuInflater inflater = getActivity().getMenuInflater();
-                inflater.inflate(R.menu.delete_history_menu, menu);
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-
-                    case R.id.item_delete:
-                        WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
-                        List<WikiPreviousListItem> mSelected = mAdapter.getSelectedItems();
-                        for (WikiPreviousListItem wikiItem : mSelected) {
-                            db.deleteItem(wikiItem.getId());
+                            updateRecords();
+                            FavouriteWikisFragment.updateDataset();
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
                         }
-                        db.close();
-                        mWikisList.removeAll(mSelected);
-                        nr = 0;
-                        mAdapter.clearSelection();
-                        mode.finish();
-                        updateRecords();
-                }
-                return false;
-            }
 
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                mAdapter.clearSelection();
-                mActionMode = null;
+                        break;
+                }
             }
         });
 
-        previouslyUsedList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mAdapter.setOnLongItemClickListener(new OnLongItemClickListener() {
+            @Override
+            public void onLongItemClick(View view, final int position) {
+                MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.edit_wiki)
+                        .items(R.array.fav_dialog_items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                switch (which) {
+                                    case 0: //Edycja
 
-        previouslyUsedList.setAdapter(mAdapter);
+                                        boolean wrapInScrollView = true;
+                                        boolean currentWikiEdited = false;
+
+                                        final MaterialDialog materialDialog = new MaterialDialog.Builder(getActivity())
+                                                .title(R.string.edit_wiki)
+                                                .customView(R.layout.dialog_edit_wiki, wrapInScrollView)
+                                                .autoDismiss(false)
+                                                .negativeText(getActivity().getResources().getString(R.string.back))
+                                                .positiveText(getActivity().getResources().getString(R.string.ok))
+                                                .build();
+
+                                        View layoutView = materialDialog.getCustomView();
+
+                                        final MaterialEditText labelInput = (MaterialEditText) layoutView.findViewById(R.id.mangementInputLabelET);
+                                        final MaterialEditText urlInput = (MaterialEditText) layoutView.findViewById(R.id.mangementInputUrlET);
+
+                                        final String oldUrl = mWikisList.get(position).getUrl();
+                                        labelInput.setText(mWikisList.get(position).getTitle());
+                                        urlInput.setText(oldUrl);
+
+                                        if (mWikisList.get(position).getUrl().equals(APIEndpoints.WIKI_NAME))
+                                            currentWikiEdited = true;
+                                        else
+                                            currentWikiEdited = false;
+
+                                        final boolean finalCurrentWikiEdited = currentWikiEdited;
+
+                                        materialDialog.getBuilder().callback(new MaterialDialog.ButtonCallback() {
+                                            @Override
+                                            public void onPositive(MaterialDialog dialog) {
+                                                super.onPositive(dialog);
+
+                                                String url_input = mHelper.cleanInputUrl(urlInput.getText().toString().trim());
+                                                String label_input = labelInput.getText().toString().trim();
+
+                                                if (url_input == null || url_input.trim().length() <= 0) {
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    mHelper.editPrevAndFavItem(mWikisList.get(position).getId(), label_input, url_input, oldUrl);
+
+                                                    if (finalCurrentWikiEdited) {
+                                                        APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
+                                                        //setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
+                                                        APIEndpoints.reInitEndpoints();
+
+                                                        if (label_input == null || label_input.trim().length() <= 0)
+                                                            label_input = mHelper.stripUpWikiUrl(url_input);
+
+                                                        MainActivity.account.setTitle(label_input);
+                                                        MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+
+                                                        mHelper.setUrlAsPreference(url_input, label_input);
+
+                                                        ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+                                                    }
+
+                                                    PreviouslyUsedWikisFragment.updateRecords();
+                                                    FavouriteWikisFragment.updateDataset();
+
+                                                    materialDialog.dismiss();
+
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onNegative(MaterialDialog dialog) {
+                                                super.onNegative(dialog);
+                                                materialDialog.dismiss();
+                                            }
+                                        });
+
+                                        materialDialog.show();
+
+                                        break;
+                                    case 1: //Usuń
+                                        int id = mWikisList.get(position).getId();
+                                        mHelper.removeWikiFromAll(id);
+
+                                        if(mHelper.doesFavItemExsistsUrl(mWikisList.get(position).getUrl()))
+                                            mHelper.removeFavByUrl(mWikisList.get(position).getUrl());
+
+                                        mWikisList.remove(position);
+                                        mAdapter.notifyItemRemoved(position);
+                                        reInitViews();
+                                        FavouriteWikisFragment.updateDataset();
+                                        break;
+                                }
+                            }
+                        })
+                        .negativeText(R.string.back)
+                        .build();
+
+                dialog.show();
+            }
+        });
+
 
         updateRecords();
         reInitViews();
@@ -205,18 +283,17 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
     private static void reInitViews() {
         if (mWikisList == null || mWikisList.size() <= 0) {
-            previouslyUsedList.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.GONE);
             errorLayout.setVisibility(View.VISIBLE);
         } else {
-            previouslyUsedList.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
             errorLayout.setVisibility(View.GONE);
         }
     }
 
     public static void updateRecords() {
-        WikisHistoryDbHandler db = new WikisHistoryDbHandler(MyApplication.getAppContext());
         mWikisList.clear();
-        mWikisList.addAll(db.getAllItems());
+        mWikisList.addAll(mHelper.getAllWikis());
         mAdapter.notifyDataSetChanged();
         reInitViews();
     }
@@ -287,9 +364,9 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
                                                      if (url_input.length() <= 0)
                                                          Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
-                                                     else if(mHelper.doesItemFavExsists(label, url_input)) {
-                                                        Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_fav_exsists), Toast.LENGTH_SHORT).show();
-                                                     }else {
+                                                     else if (mHelper.doesItemFavExsists(label, url_input)) {
+                                                         Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_fav_exsists), Toast.LENGTH_SHORT).show();
+                                                     } else {
 
                                                          if (!mHelper.itemPrevExsists(label, url_input)) {
 

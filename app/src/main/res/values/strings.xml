@@ -75,8 +75,8 @@
     <string name="add">Dodaj</string>
     <string name="already_setted">Obecnie masz ustawioną tą Wiki!</string>
     <string name="wiki_succesfully_changed">Zmieniłeś swoją Wikię!</string>
-    <string name="menu_deleteHistory">Usuń historę</string>
-    <string name="removeWikisHistory">Usunąć ostatnio dodane Wikie?</string>
+    <string name="menu_deleteHistory">Usuń wszystkie</string>
+    <string name="removeWikisHistory">Usunąć wszystkie Wikie? Ulubione też.</string>
     <string name="no_favs">Brak ulubionch Wikii.</string>
     <string name="menu_deleteFavs">Usuń ulubione</string>
     <string name="removeWikisFavs"><![CDATA[Czy na pewno chcesz wyczyściś listę swoich ulubionych Wikii?]]></string>
