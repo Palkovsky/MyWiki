@@ -2,6 +2,7 @@ package andrzej.example.com.databases;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.models.SearchResult;
+import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -53,6 +55,19 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
         // Create tables again
         onCreate(db);
+    }
+
+    public void editItem(int id, WikiPreviousListItem item) {
+        String url = item.getUrl();
+        String label = item.getTitle();
+
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_NAME, label);
+        cv.put(KEY_URL, url);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.update(TABLE_HISTORY, cv, "id=" + id, null);
+        db.close();
     }
 
     public void addItem(WikiPreviousListItem item) {
@@ -108,7 +123,6 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
     }
 
 
-
     public boolean itemExsists(String url) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -148,6 +162,22 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
                     new String[]{url});
             db.close();
         }
+    }
+
+    public WikiPreviousListItem getItemByUrl(String url) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID, KEY_NAME,
+                        KEY_URL}, KEY_URL + "=?",
+                new String[]{url}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0)
+            return new WikiPreviousListItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2));
+        else
+            return null;
     }
 
 }

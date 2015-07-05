@@ -120,8 +120,8 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         return contactList;
     }
 
-    public WikiFavItem getWikiFavItemByUrl(String url){
-        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " WHERE "+ KEY_URL + "='" + url + "' LIMIT 1";
+    public WikiFavItem getWikiFavItemByUrl(String url) {
+        String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " WHERE " + KEY_URL + "='" + url + "' LIMIT 1";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -129,7 +129,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         if (cursor != null)
             cursor.moveToFirst();
 
-        if(cursor.getCount()>0) {
+        if (cursor.getCount() > 0) {
             int id = Integer.parseInt(cursor.getString(0));
             String title = cursor.getString(1);
             String URI = cursor.getString(2);
@@ -139,6 +139,20 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
 
         return null;
     }
+
+    public void editItem(int id, WikiFavItem item) {
+        String url = item.getUrl();
+        String label = item.getTitle();
+
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_NAME, label);
+        cv.put(KEY_URL, url);
+
+        SQLiteDatabase db= this.getReadableDatabase();
+        db.update(TABLE_HISTORY, cv, "id="+id, null);
+        db.close();
+    }
+
 
     public boolean itemExsists(String url) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -187,4 +201,5 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         } else
             return false;
     }
+
 }

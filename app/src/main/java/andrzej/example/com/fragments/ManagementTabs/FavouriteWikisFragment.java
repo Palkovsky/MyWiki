@@ -16,12 +16,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.adapters.OnLongItemClickListener;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.adapters.FavoritesAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -35,6 +37,7 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.OnItemClickListener;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.DividerItemDecoration;
+import andrzej.example.com.views.MaterialEditText;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 /**
@@ -57,6 +60,9 @@ public class FavouriteWikisFragment extends Fragment {
 
     //Adapter
     public static FavoritesAdapter mAdapter;
+
+    //Material Dialog list
+    String[] materialDialogItems = {"Edycja", "Usuń"};
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,6 +128,109 @@ public class FavouriteWikisFragment extends Fragment {
                         PreviouslyUsedWikisFragment.refreshList();
                         break;
                 }
+            }
+        });
+
+        mAdapter.setOnLongItemClickListener(new OnLongItemClickListener() {
+            @Override
+            public void onLongItemClick(View view, final int position) {
+                MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.edit_wiki)
+                        .items(R.array.fav_dialog_items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                switch (which) {
+                                    case 0: //Edycja
+                                        boolean wrapInScrollView = true;
+                                        boolean currentWikiEdited = false;
+
+                                        final MaterialDialog materialDialog = new MaterialDialog.Builder(getActivity())
+                                                .title(getActivity().getResources().getString(R.string.wiki_man_input_title))
+                                                .customView(R.layout.dialog_edit_wiki, wrapInScrollView)
+                                                .autoDismiss(false)
+                                                .negativeText(getActivity().getResources().getString(R.string.back))
+                                                .positiveText(getActivity().getResources().getString(R.string.ok)).build();
+
+                                        View layoutView = materialDialog.getCustomView();
+
+                                        final MaterialEditText labelInput = (MaterialEditText) layoutView.findViewById(R.id.mangementInputLabelET);
+                                        final MaterialEditText urlInput = (MaterialEditText) layoutView.findViewById(R.id.mangementInputUrlET);
+
+                                        final String oldUrl = mFavs.get(position).getUrl();
+                                        labelInput.setText(mFavs.get(position).getTitle());
+                                        urlInput.setText(oldUrl);
+
+                                        if (mFavs.get(position).getUrl().equals(APIEndpoints.WIKI_NAME))
+                                            currentWikiEdited = true;
+                                        else
+                                            currentWikiEdited = false;
+
+                                        final boolean finalCurrentWikiEdited = currentWikiEdited;
+                                        materialDialog.getBuilder().callback(new MaterialDialog.ButtonCallback() {
+                                            @Override
+                                            public void onPositive(MaterialDialog dialog) {
+                                                super.onPositive(dialog);
+
+                                                String url_input = mHelper.cleanInputUrl(urlInput.getText().toString().trim());
+                                                String label_input = labelInput.getText().toString().trim();
+
+                                                if (url_input == null || url_input.trim().length() <= 0) {
+                                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
+                                                } else {
+
+                                                    mHelper.editPrevAndFavItem(mFavs.get(position).getId(), label_input, url_input, oldUrl);
+
+                                                    if (finalCurrentWikiEdited) {
+                                                        APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
+                                                        //setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
+                                                        APIEndpoints.reInitEndpoints();
+
+                                                        if (label_input == null || label_input.trim().length() <= 0)
+                                                            label_input = mHelper.stripUpWikiUrl(url_input);
+
+                                                        MainActivity.account.setTitle(label_input);
+                                                        MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+
+                                                        mHelper.setUrlAsPreference(url_input, label_input);
+
+                                                        ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+                                                    }
+
+                                                    PreviouslyUsedWikisFragment.updateRecords();
+                                                    FavouriteWikisFragment.updateDataset();
+
+                                                    materialDialog.dismiss();
+
+                                                }
+
+                                            }
+
+                                            @Override
+                                            public void onNegative(MaterialDialog dialog) {
+                                                super.onNegative(dialog);
+                                                materialDialog.dismiss();
+                                            }
+                                        });
+
+                                        materialDialog.show();
+
+                                        break;
+
+                                    case 1: //Usuń
+                                        mHelper.removeFav(mFavs.get(position).getId());
+                                        mFavs.remove(position);
+                                        mAdapter.notifyItemRemoved(position);
+                                        reInitViews();
+                                        PreviouslyUsedWikisFragment.refreshList();
+                                        break;
+                                }
+                            }
+                        })
+                        .negativeText(R.string.back)
+                        .build();
+
+                dialog.show();
             }
         });
 

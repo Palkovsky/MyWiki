@@ -357,6 +357,8 @@ public class ArticleViewsManager {
         }
     }
 
+
+
     private TextView getTextView(int size, String text, int level) {
 
         nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);

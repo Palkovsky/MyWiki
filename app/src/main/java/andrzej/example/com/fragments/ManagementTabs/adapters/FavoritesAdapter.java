@@ -18,6 +18,7 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import java.util.List;
 
+import andrzej.example.com.adapters.OnLongItemClickListener;
 import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
@@ -35,6 +36,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
     private List<WikiFavItem> mDataset;
     OnItemClickListener mItemClickListener;
+    OnLongItemClickListener mLongItemClickListener;
     Context context;
 
     public FavoritesAdapter(Context context, List<WikiFavItem> mDataset) {
@@ -89,7 +91,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     }
 
     // inner class to hold a reference to each item of RecyclerView
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public TextView tvTitle;
         public TextView tvUrl;
@@ -103,16 +105,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
             tvTitle = (TextView) itemLayoutView.findViewById(R.id.tvTitle);
             tvUrl = (TextView) itemLayoutView.findViewById(R.id.tvUrl);
 
-            /*
-                                FavouriteWikisFragment.mHelper.removeFav(FavouriteWikisFragment.mFavs.get(getPosition()).getId());
-                    FavouriteWikisFragment.mFavs.remove(getPosition());
-                    FavouriteWikisFragment.mAdapter.notifyItemRemoved(getPosition());
-                    FavouriteWikisFragment.reInitViews();
-                    PreviouslyUsedWikisFragment.refreshList();
-             */
-
+            //Click listener
             rootView.setOnClickListener(this);
             btnRemove.setOnClickListener(this);
+
+            //Long click listener
+            rootView.setOnLongClickListener(this);
         }
 
         @Override
@@ -121,10 +119,19 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         }
 
 
+        @Override
+        public boolean onLongClick(View v) {
+            mLongItemClickListener.onLongItemClick(v, getPosition());
+            return true;
+        }
     }
 
     public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
+    }
+
+    public void setOnLongItemClickListener(final OnLongItemClickListener mLongItemClickListener){
+        this.mLongItemClickListener = mLongItemClickListener;
     }
 
     public Context getContext() {

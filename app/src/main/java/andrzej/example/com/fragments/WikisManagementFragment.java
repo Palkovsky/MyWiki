@@ -160,7 +160,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                             label = mHelper.stripUpWikiUrl(url_input);
 
                         if (url_input.length() <= 0)
-                            Toast.makeText(getActivity(), "Musisz podać URL", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
                         else if (mHelper.doesItemFavExsists(label, url_input)) {
                             Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_fav_exsists), Toast.LENGTH_SHORT).show();
                         } else {

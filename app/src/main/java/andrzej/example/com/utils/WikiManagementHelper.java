@@ -59,6 +59,32 @@ public class WikiManagementHelper {
         favs_db.close();
     }
 
+    public void editFavItem(int id, WikiFavItem item){
+        favs_db.editItem(id, item);
+    }
+
+    public void editPrevItem(int id, WikiPreviousListItem item){
+        previous_db.editItem(id, item);
+    }
+
+    public void editPrevAndFavItem(int id, String label, String url, String oldUrl){
+
+        if(label==null || label.trim().length()<=0)
+            label = stripUpWikiUrl(url);
+
+        if(doesFavItemExsistsUrl(oldUrl)) {
+            WikiFavItem favItem = new WikiFavItem(label, url);
+            editFavItem(id, favItem);
+        }
+
+        if (previous_db.itemExsists(oldUrl)) {
+            WikiPreviousListItem previousListItem = previous_db.getItemByUrl(oldUrl);
+            previousListItem.setTitle(label);
+            previousListItem.setUrl(url);
+            editPrevItem(previousListItem.getId(), previousListItem);
+        }
+    }
+
     public ArrayList<WikiFavItem> getAllFavs() {
         return favs_db.getAllFavs();
     }
@@ -89,7 +115,7 @@ public class WikiManagementHelper {
         FavouriteWikisFragment.updateDataset();
     }
 
-    private void setUrlAsPreference(String url, String label) {
+    public void setUrlAsPreference(String url, String label) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(SharedPrefsKeys.CURRENT_WIKI_URL, url);
 
@@ -100,6 +126,7 @@ public class WikiManagementHelper {
 
         editor.apply();
     }
+
 
     private boolean doesItemExsistsLabel(String label) {
         if (previous_db.itemExsistsLabel(label)) {
