@@ -202,4 +202,20 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
             return false;
     }
 
+    public WikiFavItem getItemByUrl(String url) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID, KEY_NAME,
+                        KEY_URL}, KEY_URL + "=?",
+                new String[]{url}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0)
+            return new WikiFavItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2));
+        else
+            return null;
+    }
+
 }

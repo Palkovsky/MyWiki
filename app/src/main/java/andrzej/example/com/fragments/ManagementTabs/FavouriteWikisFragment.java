@@ -1,6 +1,8 @@
 package andrzej.example.com.fragments.ManagementTabs;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -294,4 +296,7 @@ public class FavouriteWikisFragment extends Fragment {
         else
             setUpNormalMode();
     }
+
+
+
 }

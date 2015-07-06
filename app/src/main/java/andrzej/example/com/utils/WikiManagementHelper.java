@@ -85,6 +85,24 @@ public class WikiManagementHelper {
         }
     }
 
+    public void editFavAndPrevItem(int id, String label, String url, String oldUrl){
+
+        if(label==null || label.trim().length()<=0)
+            label = stripUpWikiUrl(url);
+
+        if(doesItemExsistsUrl(oldUrl)) {
+            WikiPreviousListItem favItem = new WikiPreviousListItem(label, url);
+            editPrevItem(id, favItem);
+        }
+
+        if (favs_db.itemExsists(oldUrl)) {
+            WikiFavItem wikiFavItem = favs_db.getItemByUrl(oldUrl);
+            wikiFavItem.setTitle(label);
+            wikiFavItem.setUrl(url);
+            editFavItem(wikiFavItem.getId(), wikiFavItem);
+        }
+    }
+
     public ArrayList<WikiFavItem> getAllFavs() {
         return favs_db.getAllFavs();
     }

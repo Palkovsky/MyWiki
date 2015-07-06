@@ -202,7 +202,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                 if (url_input == null || url_input.trim().length() <= 0) {
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
                                                 } else {
-                                                    mHelper.editPrevAndFavItem(mWikisList.get(position).getId(), label_input, url_input, oldUrl);
+                                                    mHelper.editFavAndPrevItem(mWikisList.get(position).getId(), label_input, url_input, oldUrl);
 
                                                     if (finalCurrentWikiEdited) {
                                                         APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
