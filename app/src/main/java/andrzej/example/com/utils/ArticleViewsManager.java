@@ -48,6 +48,7 @@ public class ArticleViewsManager {
     private static int header_vertical_margin = 20;
     private static int paragraphLeftMarginCons = 10;
     private static final int imageView_margin = 25;
+    private static int listMarginTop = 50;
 
     private static int recommendationsImageSize = 360;
 
@@ -129,13 +130,21 @@ public class ArticleViewsManager {
 
         nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
         paragraph_vertical_margin = prefs.getInt(SharedPrefsKeys.KEY_PARAGRAPH_MARGIN, paragraph_vertical_margin);
+        listMarginTop = prefs.getInt(SharedPrefsKeys.ARTICLE_LIST_MARGIN_PREF, lineSpacing);
+
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
 
         final TextView itemTv = new TextView(MyApplication.getAppContext());
         itemTv.setTypeface(null, Typeface.NORMAL);
+        itemTv.setText(Html.fromHtml("&#8226;" + label));
+
         if (first && level<=1) {
-            itemTv.setText(Html.fromHtml("&#8226;" + label));
+            params.setMargins(paragraphLeftMarginCons * level * layout_level, Math.round(listMarginTop/2), 0, 0);
         } else {
-            itemTv.setText(Html.fromHtml("<br/> &#8226;" + label));
+            params.setMargins(paragraphLeftMarginCons * level * layout_level, listMarginTop, 0, 0);
         }
         itemTv.setTextIsSelectable(true);
         itemTv.setTextSize(textSize);
@@ -163,12 +172,6 @@ public class ArticleViewsManager {
             itemTv.setTextColor(c.getResources().getColor(R.color.nightFontColor));
 
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-
-        params.setMargins(paragraphLeftMarginCons * level * layout_level, 0, 0, 0);
 
         itemTv.setLayoutParams(params);
         ll.addView(itemTv);

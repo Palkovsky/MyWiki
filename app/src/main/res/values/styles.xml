@@ -21,9 +21,20 @@
         <item name="singleAccount">true</item>
         <item name="drawerType">@integer/DRAWERTYPE_ACCOUNTS</item>
         <item name="learningPattern">false</item>
-
+        <item name="sectionStyle">@style/MySectionTheme</item>
         <item name="windowActionModeOverlay">true</item>
 
+    </style>
+
+
+    <style name="MySectionTheme" >
+        <item name="sectionColorIcon">#fafafa</item>
+        <item name="sectionColorText">#fafafa</item>
+        <item name="sectionColorNotification">#fafafa</item>
+
+        <item name="sectionBackgroundColorPressed">#bdbdbd</item>
+        <item name="sectionBackgroundColorSelected">#D9546e7a</item>
+        <item name="sectionBackgroundColor">#000000FF</item>
     </style>
 
     <style name="GalaxyZooThemeToolbarDarkOverflow" parent="Theme.AppCompat.NoActionBar">

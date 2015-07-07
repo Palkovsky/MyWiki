@@ -14,7 +14,7 @@
         android:layout_marginRight="8dp"
         android:hint="@string/man_label_hint"
         android:inputType="textNoSuggestions"
-        app:met_baseColor="@android:color/black"
+        app:met_baseColor="@color/background"
         app:met_clearButton="true"
         app:met_errorColor="#ddaa00"
         app:met_primaryColor="@color/list_item_highlight" />
@@ -29,7 +29,7 @@
         android:layout_marginRight="8dp"
         android:hint="@string/man_url_hint"
         android:inputType="textNoSuggestions"
-        app:met_baseColor="@android:color/black"
+        app:met_baseColor="@color/background"
         app:met_clearButton="true"
         app:met_errorColor="#ddaa00"
         app:met_primaryColor="@color/list_item_highlight" />

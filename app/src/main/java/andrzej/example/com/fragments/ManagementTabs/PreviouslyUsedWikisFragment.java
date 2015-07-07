@@ -124,7 +124,8 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                             mHelper.addWikiToFavs(itemLabel, itemUrl);
 
                         FavouriteWikisFragment.updateDataset();
-                        mAdapter.notifyItemChanged(position);
+
+                        mAdapter.notifyDataSetChanged();
                         break;
 
                     case R.id.rlRootView:
