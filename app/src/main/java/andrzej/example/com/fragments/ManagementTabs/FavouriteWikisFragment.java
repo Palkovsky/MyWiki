@@ -122,7 +122,7 @@ public class FavouriteWikisFragment extends Fragment {
 
                         break;
 
-                    case R.id.btnRemove:
+                    case R.id.btnFav:
                         mHelper.removeFav(mFavs.get(position).getId());
                         mFavs.remove(position);
                         mAdapter.notifyItemRemoved(position);
@@ -179,6 +179,8 @@ public class FavouriteWikisFragment extends Fragment {
 
                                                 if (url_input == null || url_input.trim().length() <= 0) {
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
+                                                }else if (mHelper.universalItemExsistsEdit(label_input, url_input, mFavs.get(position).getUrl())) {
+
                                                 } else {
 
                                                     mHelper.editPrevAndFavItem(mFavs.get(position).getId(), label_input, url_input, oldUrl);

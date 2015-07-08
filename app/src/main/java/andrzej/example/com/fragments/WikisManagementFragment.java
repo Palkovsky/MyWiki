@@ -29,6 +29,8 @@ import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.adapters.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
 import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.researchapi.RequestHandler;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -48,6 +50,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
     SharedPreferences prefs;
 
     private WikiManagementHelper mHelper;
+    private RequestHandler mRequestHandler;
 
     public WikisManagementFragment() {
         // Required empty public constructor
@@ -58,6 +61,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
         super.onCreate(savedInstanceState);
 
         mHelper = new WikiManagementHelper(getActivity());
+        mRequestHandler = new RequestHandler(getActivity());
     }
 
     @Override
@@ -185,13 +189,13 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                                 APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);
                                 setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                 APIEndpoints.reInitEndpoints();
-                                if (label_input != null && label_input.trim().length() > 0)
-                                    MainActivity.account.setTitle(label_input);
-                                else
-                                    MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
-                                MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+
+                                MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
+                                MainActivity.account.setSubTitle(label);
                                 ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
 
+                                if (NetworkUtils.isNetworkAvailable(getActivity()))
+                                    mRequestHandler.sendWikiInfo(label, APIEndpoints.WIKI_NAME);
 
                                 FavouriteWikisFragment.updateDataset();
                             }

@@ -163,7 +163,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
 
-
         db = new ArticleHistoryDbHandler(getActivity());
 
     }

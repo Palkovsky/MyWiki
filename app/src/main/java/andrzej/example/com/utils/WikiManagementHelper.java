@@ -90,7 +90,7 @@ public class WikiManagementHelper {
         if(label==null || label.trim().length()<=0)
             label = stripUpWikiUrl(url);
 
-        if(doesItemExsistsUrl(oldUrl)) {
+        if(previous_db.itemExsists(oldUrl)) {
             WikiPreviousListItem favItem = new WikiPreviousListItem(label, url);
             editPrevItem(id, favItem);
         }
@@ -136,10 +136,10 @@ public class WikiManagementHelper {
         setUrlAsPreference(APIEndpoints.WIKI_NAME, label);
         APIEndpoints.reInitEndpoints();
         if (label == null)
-            MainActivity.account.setTitle(stripUpWikiUrl(url));
+            MainActivity.account.setSubTitle(stripUpWikiUrl(url));
         else
-            MainActivity.account.setTitle(label);
-        MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+            MainActivity.account.setSubTitle(label);
+        MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
         ((MaterialNavigationDrawer) getContext()).notifyAccountDataChanged();
 
         PreviouslyUsedWikisFragment.updateRecords();
@@ -162,7 +162,7 @@ public class WikiManagementHelper {
         favs_db.deleteItemsWithUrl(url);
     }
 
-    private boolean doesItemExsistsLabel(String label) {
+    public boolean doesItemExsistsLabel(String label) {
         if (previous_db.itemExsistsLabel(label)) {
             Toast.makeText(getContext(), getContext().getResources().getString(R.string.label_exsists), Toast.LENGTH_SHORT).show();
             return true;
@@ -170,7 +170,7 @@ public class WikiManagementHelper {
         return false;
     }
 
-    private boolean doesItemExsistsUrl(String url) {
+    public boolean doesItemExsistsUrl(String url) {
         if (previous_db.itemExsists(url)) {
             Toast.makeText(getContext(), getContext().getResources().getString(R.string.url_exsists), Toast.LENGTH_SHORT).show();
             return true;
@@ -186,7 +186,7 @@ public class WikiManagementHelper {
     }
 
 
-    private boolean doesFavItemExsistsLabel(String label) {
+    public boolean doesFavItemExsistsLabel(String label) {
         if (favs_db.itemExsistsLabel(label))
             return true;
         return false;
@@ -206,6 +206,22 @@ public class WikiManagementHelper {
         return false;
     }
 
+    public boolean universalItemExsistsEdit(String label, String url, String currentUrl){
+        currentUrl = cleanInputUrl(currentUrl);
+        url = cleanInputUrl(url);
+        if(label==null || label.trim().length()<=0)
+            label = stripUpWikiUrl(url);
+
+        if(!currentUrl.equals(url)) {
+            if (previous_db.itemExsists(url) || doesFavItemExsistsUrl(url)) {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.url_exsists), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        }else{
+            return false;
+        }
+        return false;
+    }
 
     public String cleanInputUrl(String url) {
         url = url.toLowerCase();

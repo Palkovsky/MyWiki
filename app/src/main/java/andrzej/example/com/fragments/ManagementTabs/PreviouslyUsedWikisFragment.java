@@ -39,9 +39,11 @@ import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.researchapi.RequestHandler;
 import andrzej.example.com.utils.OnItemClickListener;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.MaterialEditText;
@@ -65,6 +67,8 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
     //Utils
     private static WikiManagementHelper mHelper;
+    RequestHandler mRequestHandler;
+
 
     //List
     public static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
@@ -77,6 +81,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
         super.onCreate(savedInstanceState);
 
         mHelper = new WikiManagementHelper(getActivity());
+        mRequestHandler = new RequestHandler(getActivity());
     }
 
     @Override
@@ -131,20 +136,14 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                     case R.id.rlRootView:
 
                         if (!APIEndpoints.WIKI_NAME.equals(itemUrl)) {
-                            APIEndpoints.WIKI_NAME = itemUrl;
-                            setUrlAsPreference(APIEndpoints.WIKI_NAME, itemLabel);
-                            APIEndpoints.reInitEndpoints();
+                            String url = mWikisList.get(position).getUrl();
+                            String label = mWikisList.get(position).getTitle();
 
-                            if (itemLabel != null && itemLabel.trim().length() > 0)
-                                MainActivity.account.setTitle(itemLabel);
-                            else
-                                MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
+                            if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                                Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+                            }
 
-                            MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
-                            ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
-
-                            updateRecords();
-                            FavouriteWikisFragment.updateDataset();
+                            mHelper.setCurrentWiki(label, url);
                             Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
                         }
 
@@ -200,8 +199,13 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                 String url_input = mHelper.cleanInputUrl(urlInput.getText().toString().trim());
                                                 String label_input = labelInput.getText().toString().trim();
 
+                                                if (label_input == null || label_input.trim().length() <= 0)
+                                                    label_input = mHelper.stripUpWikiUrl(url_input);
+
                                                 if (url_input == null || url_input.trim().length() <= 0) {
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.url_required), Toast.LENGTH_SHORT).show();
+                                                } else if (mHelper.universalItemExsistsEdit(label_input, url_input, mWikisList.get(position).getUrl())) {
+
                                                 } else {
                                                     mHelper.editFavAndPrevItem(mWikisList.get(position).getId(), label_input, url_input, oldUrl);
 
@@ -210,8 +214,6 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                         //setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                                         APIEndpoints.reInitEndpoints();
 
-                                                        if (label_input == null || label_input.trim().length() <= 0)
-                                                            label_input = mHelper.stripUpWikiUrl(url_input);
 
                                                         MainActivity.account.setTitle(label_input);
                                                         MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
@@ -243,7 +245,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                         int id = mWikisList.get(position).getId();
                                         mHelper.removeWikiFromAll(id);
 
-                                        if(mHelper.doesFavItemExsistsUrl(mWikisList.get(position).getUrl()))
+                                        if (mHelper.doesFavItemExsistsUrl(mWikisList.get(position).getUrl()))
                                             mHelper.removeFavByUrl(mWikisList.get(position).getUrl());
 
                                         mWikisList.remove(position);
@@ -387,13 +389,13 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                              setUrlAsPreference(APIEndpoints.WIKI_NAME, label_input);
                                                              APIEndpoints.reInitEndpoints();
 
-                                                             if (label_input != null && label_input.trim().length() > 0)
-                                                                 MainActivity.account.setTitle(label_input);
-                                                             else
-                                                                 MainActivity.account.setTitle(mHelper.stripUpWikiUrl(APIEndpoints.WIKI_NAME));
 
-                                                             MainActivity.account.setSubTitle(APIEndpoints.WIKI_NAME);
+                                                             MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
+                                                             MainActivity.account.setSubTitle(label);
                                                              ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+
+                                                             if (NetworkUtils.isNetworkAvailable(getActivity()))
+                                                                 mRequestHandler.sendWikiInfo(label, APIEndpoints.WIKI_NAME);
 
                                                              FavouriteWikisFragment.updateDataset();
 

@@ -50,7 +50,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
         // create a new view
         View itemLayoutView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_favs_list, null);
+                .inflate(R.layout.previously_used_list_item, null);
 
         // create ViewHolder
 
@@ -70,6 +70,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
         holder.tvTitle.setText(item.getTitle());
         holder.tvUrl.setText(item.getUrl());
+        holder.btnRemove.setRightIcon("fa-remove");
+        holder.btnRemove.setBootstrapType("warning");
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
@@ -101,7 +103,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         public ViewHolder(View itemLayoutView) {
             super(itemLayoutView);
             rootView = (RelativeLayout) itemLayoutView.findViewById(R.id.rlRootView);
-            btnRemove = (BootstrapButton) itemLayoutView.findViewById(R.id.btnRemove);
+            btnRemove = (BootstrapButton) itemLayoutView.findViewById(R.id.btnFav);
             tvTitle = (TextView) itemLayoutView.findViewById(R.id.tvTitle);
             tvUrl = (TextView) itemLayoutView.findViewById(R.id.tvUrl);
 

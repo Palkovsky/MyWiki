@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,7 +28,6 @@ import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SessionArticleHistory;
-import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
@@ -80,15 +80,13 @@ public class MainActivity extends MaterialNavigationDrawer {
         Random r = new Random();
         int random_int = r.nextInt(images.length);
 
-        //this.setDrawerHeaderImage(images[random_int]);
-
         String account_subtitle = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_URL, BaseConfig.DEFAULT_WIKI);
         String account_title = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
 
         APIEndpoints.WIKI_NAME = account_subtitle;
         APIEndpoints.reInitEndpoints();
 
-        account = new MaterialAccount(this.getResources(), account_title, account_subtitle, null, images[random_int]);
+        account = new MaterialAccount(this.getResources(), account_subtitle, account_title, null, images[random_int]);
         this.addAccount(account);
 
         section_main = newSection(getResources().getString(R.string.drawer_today), ContextCompat.getDrawable(this, R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
