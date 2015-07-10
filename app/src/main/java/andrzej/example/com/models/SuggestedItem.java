@@ -5,12 +5,18 @@ package andrzej.example.com.models;
  * Created by andrzej on 10.07.15.
  */
 public class SuggestedItem{
+
+    public static final String ID_FIELD = "id";
+    public static final String TITLE_FIELD = "title";
+    public static final String URL_FIELD = "url";
+    public static final String DESCRIPTION_FIELD = "description";
+    public static final String IMAGE_FIELD = "logo_url";
+
     private int id;
     private String url;
     private String title;
     private String description;
     private String imageUrl;
-
 
 
     public SuggestedItem(int id, String url, String title, String description, String imageUrl) {

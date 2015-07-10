@@ -107,16 +107,6 @@ public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter
     }
 
 
-    private void setIvBackground(ImageView iv, Drawable drawable) {
-        int currentVersion = Build.VERSION.SDK_INT;
-
-        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
-            iv.setBackground(drawable);
-        } else {
-            iv.setBackgroundDrawable(drawable);
-        }
-    }
-
     @Override
     public void appendItems(List<SuggestedItem> newItems) {
         myList.addAll(newItems);

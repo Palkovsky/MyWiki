@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,23 +17,42 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import andrzej.example.com.fragments.ManagementTabs.adapters.SuggestedListViewAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SuggestedItem;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.researchapi.APIStatisticalEndpoints;
+import andrzej.example.com.researchapi.RequestHandler;
 import andrzej.example.com.utils.WikiManagementHelper;
 import andrzej.example.com.views.StaggeredGridView;
 
 /**
  * Created by andrzej on 24.06.15.
  */
-public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener {
 
     //UI Elements
     private static RelativeLayout rootView;
@@ -40,6 +60,9 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     private static LinearLayout errorLayout;
     private static TextView errorMessage;
     private static StaggeredGridView mStaggeredGridView;
+
+
+    private int page = 1;
 
     //List
     private static List<SuggestedItem> mSuggestedItems = new ArrayList<>();
@@ -49,12 +72,16 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
     //Utils
     private WikiManagementHelper mHelper;
+    private VolleySingleton volleySingleton;
+    private RequestQueue requestQueue;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mHelper = new WikiManagementHelper(getActivity());
+        volleySingleton = VolleySingleton.getsInstance();
+        requestQueue = volleySingleton.getRequestQueue();
     }
 
 
@@ -88,11 +115,50 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
         mStaggeredGridView.setOnItemClickListener(this);
 
-        updateViews();
 
         return v;
     }
 
+/*
+    public void getPopularArticlesList(){
+
+        JsonArrayRequest request = new JsonArrayRequest(APIStatisticalEndpoints.listGetEndpoint(page, APIStatisticalEndpoints.POPULARITY_FILTER), new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try {
+                    if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject item = response.getJSONObject(i);
+                            int id = item.getInt(SuggestedItem.ID_FIELD);
+                            String url = item.getString(SuggestedItem.URL_FIELD);
+                            String title = item.getString(SuggestedItem.TITLE_FIELD);
+                            String description = item.getString(SuggestedItem.DESCRIPTION_FIELD);
+                            String logoUrl = item.getString(SuggestedItem.IMAGE_FIELD);
+
+                            mSuggestedItems.add(new SuggestedItem(id, url, title, description, logoUrl));
+                            updateViews();
+                        }
+                    }else
+                        reInitViews();
+                }catch (JSONException e){
+                    Log.e(null, e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                setErrorLayout();
+            }
+        });
+
+
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        requestQueue.add(request);
+    }
+*/
 
     private void populateDataset() {
         String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegend", "nonsensopedia", "godofwar"};
@@ -139,6 +205,16 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         }
     }
 
+    private static void setErrorLayout(){
+        contentView.setVisibility(View.GONE);
+        setErrorMessage();
+        errorLayout.setVisibility(View.VISIBLE);
+    }
+
+    private static void setNormalLayout(){
+        contentView.setVisibility(View.VISIBLE);
+        errorLayout.setVisibility(View.GONE);
+    }
 
     public static void setUpNightMode() {
         rootView.setBackgroundColor(MyApplication.getAppContext().getResources().getColor(R.color.nightBackground));
@@ -175,10 +251,6 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         Toast.makeText(getActivity(), "Click POS: " + position, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onRefresh() {
-        populateDataset();
-        updateViews();
-    }
+
 
 }

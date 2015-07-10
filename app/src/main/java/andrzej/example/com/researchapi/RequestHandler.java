@@ -3,8 +3,13 @@ package andrzej.example.com.researchapi;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,12 +21,20 @@ import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.Article;
+import andrzej.example.com.models.ArticleHeader;
+import andrzej.example.com.models.Recommendation;
+import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.prefs.APIEndpoints;
 
 /**
  * Created by andrzej on 08.07.15.
@@ -37,6 +50,8 @@ public class RequestHandler {
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
     }
+
+
 
     public void sendWikiInfo(final String label, final String url) {
 

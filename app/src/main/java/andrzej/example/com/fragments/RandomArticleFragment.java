@@ -471,7 +471,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                     textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, true));
                 else
                     textViews.add(viewsManager.addListItemToLayout(text, tree_level, layout_level, false));
-                
+
                 JSONArray nested_elements = element.getJSONArray(Article.KEY_ELEMENTS);
 
                 if (nested_elements != null && nested_elements.length() > 0) {
@@ -626,6 +626,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                                     random_int = r.nextInt(listSize);
                                 }
                             }
+
+
 
                             article_id = item.getInt(Article.KEY_ID);
                             article_title = item.getString(Article.KEY_TITLE);

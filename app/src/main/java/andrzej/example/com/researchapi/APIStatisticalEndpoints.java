@@ -36,8 +36,11 @@ public class APIStatisticalEndpoints {
     public static final String JSON_LABEL_SCOPE = "title";
 
     //Filters
-    private static final String RANDOM_FILTER = "rand";
+    public static final String RANDOM_FILTER = "rand";
+    public static final String POPULARITY_FILTER = "popularity";
 
+    //Settings
+    private static final int MAX_FETCH_VALUE = 20;
 
 
     public static JSONObject prepareWikiJSONobject(String label, String url){
@@ -66,7 +69,7 @@ public class APIStatisticalEndpoints {
         return listEndpoint;
     }
 
-    public static String listGetEndpoint(int page, int limit, String filter){
+    public static String listGetEndpoint(int page, String filter){
 
         if(filter==null)
             filter = "";
@@ -75,7 +78,7 @@ public class APIStatisticalEndpoints {
                 URL_CHAR_QUESTION +
                 URL_PAGE + page +
                 URL_CHAR_AMEPERSAND +
-                URL_LIMIT + limit +
+                URL_LIMIT + MAX_FETCH_VALUE +
                 URL_CHAR_AMEPERSAND +
                 URL_FILTER + filter;
     }
