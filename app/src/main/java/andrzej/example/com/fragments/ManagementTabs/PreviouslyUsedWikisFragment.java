@@ -144,7 +144,6 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                             }
 
                             mHelper.setCurrentWiki(label, url);
-                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
                         }
 
                         break;
