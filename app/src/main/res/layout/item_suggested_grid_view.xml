@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
+    android:background="@color/suggestedItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_marginTop="4dp"
+        android:id="@+id/wikiThumbnailIv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true" />
+
+    <TextView
+        android:id="@+id/wikiTitleTv"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="1dp"
+        android:layout_below="@+id/wikiThumbnailIv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#80e0e0e0"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        android:textColor="#424242"
+        android:textStyle="bold" />
+
+</RelativeLayout>

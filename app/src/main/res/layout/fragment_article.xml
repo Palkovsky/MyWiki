@@ -55,7 +55,6 @@
                         android:shadowDx="5"
                         android:shadowDy="5"
                         android:shadowRadius="15"
-                        android:text="Pinkie Pie"
                         android:textAppearance="@android:style/TextAppearance.Large"
                         android:textColor="@android:color/white"
                         android:textStyle="bold" />
