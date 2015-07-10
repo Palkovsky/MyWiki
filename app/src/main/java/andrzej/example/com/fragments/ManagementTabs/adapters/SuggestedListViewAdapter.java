@@ -33,13 +33,12 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 /**
  * Created by andrzej on 10.07.15.
  */
-public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter{
+public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter {
 
     List<SuggestedItem> myList;
     LayoutInflater inflater;
     Context context;
     private SharedPreferences prefs;
-
 
 
     public SuggestedListViewAdapter(Context context, List<SuggestedItem> myList) {
@@ -69,7 +68,7 @@ public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter
     public View getView(int position, View convertView, ViewGroup parent) {
         final ResultViewHolder mViewHolder;
 
-        if(convertView == null) {
+        if (convertView == null) {
             convertView = inflater.inflate(R.layout.item_suggested_grid_view, null);
             mViewHolder = new ResultViewHolder();
 
@@ -85,10 +84,13 @@ public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
         SuggestedItem item = myList.get(position);
 
-        Drawable placeholder = ContextCompat.getDrawable(context, R.drawable.ic_action_picture);
+        final Drawable placeholder = ContextCompat.getDrawable(context, R.drawable.ic_action_picture);
 
 
         mViewHolder.tvTitle.setText(item.getTitle());
+
+        mViewHolder.thumbnailIv.setAdjustViewBounds(false);
+
         Picasso.with(context).load(item.getImageUrl()).placeholder(placeholder).error(placeholder).into(mViewHolder.thumbnailIv, new Callback() {
             @Override
             public void onSuccess() {
