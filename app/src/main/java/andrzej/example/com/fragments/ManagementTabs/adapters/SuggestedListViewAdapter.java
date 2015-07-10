@@ -89,7 +89,17 @@ public class SuggestedListViewAdapter extends BaseAdapter implements DemoAdapter
 
 
         mViewHolder.tvTitle.setText(item.getTitle());
-        Picasso.with(context).load(item.getImageUrl()).placeholder(placeholder).error(placeholder).into(mViewHolder.thumbnailIv);
+        Picasso.with(context).load(item.getImageUrl()).placeholder(placeholder).error(placeholder).into(mViewHolder.thumbnailIv, new Callback() {
+            @Override
+            public void onSuccess() {
+                mViewHolder.thumbnailIv.setAdjustViewBounds(true);
+            }
+
+            @Override
+            public void onError() {
+                mViewHolder.thumbnailIv.setAdjustViewBounds(false);
+            }
+        });
 
         return convertView;
     }
