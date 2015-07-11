@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:staggered="http://schemas.android.com/apk/res-auto"
+    xmlns:bootstrap="http://schemas.android.com/tools"
     android:id="@+id/suggested_rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,6 +42,32 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center" />
+
+        <com.beardedhen.androidbootstrap.BootstrapButton
+            android:id="@+id/suggested_retryBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/retry"
+            android:layout_gravity="center"
+            android:gravity="center"
+            bootstrap:bb_type="default" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:id="@+id/suggested_loadingLayout">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 

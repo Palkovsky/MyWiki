@@ -192,7 +192,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         viewsManager.setLayout(rootArticleLl);
 
         display = getActivity().getWindowManager().getDefaultDisplay();
-        display.getSize(size);
 
         setLoadingLayout();
         setUpColorScheme();

@@ -12,6 +12,8 @@ import andrzej.example.com.mlpwiki.MyApplication;
  * Created by andrzej on 08.07.15.
  */
 public class APIStatisticalEndpoints {
+
+    //Development API KEY
     private static final String API_KEY = "f2a31be10d7a3d4e722fdb9d96990c4f";
 
     //Symbols

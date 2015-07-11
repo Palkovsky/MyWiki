@@ -193,7 +193,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         viewsManager.setLayout(rootArticleLl);
 
         display = getActivity().getWindowManager().getDefaultDisplay();
-        display.getSize(size);
         textViews.add(errorMessage);
 
         setLoadingLayout();

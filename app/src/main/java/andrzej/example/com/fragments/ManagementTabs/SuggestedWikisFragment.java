@@ -25,6 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,7 +53,7 @@ import andrzej.example.com.views.StaggeredGridView;
 /**
  * Created by andrzej on 24.06.15.
  */
-public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener {
+public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener, View.OnClickListener {
 
     //UI Elements
     private static RelativeLayout rootView;
@@ -60,7 +61,8 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     private static LinearLayout errorLayout;
     private static TextView errorMessage;
     private static StaggeredGridView mStaggeredGridView;
-
+    private static BootstrapButton mRetryBtn;
+    private static LinearLayout mLoadingLayout;
 
     private int page = 1;
 
@@ -100,11 +102,16 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         errorLayout = (LinearLayout) v.findViewById(R.id.suggested_errorLayout);
         errorMessage = (TextView) v.findViewById(R.id.suggested_errorMsg);
         mStaggeredGridView = (StaggeredGridView) v.findViewById(R.id.staggeredGridView);
+        mRetryBtn = (BootstrapButton) v.findViewById(R.id.suggested_retryBtn);
+        mLoadingLayout = (LinearLayout) v.findViewById(R.id.suggested_loadingLayout);
 
-        populateDataset();
+
 
         //Adapters
         mAdapter = new SuggestedListViewAdapter(getActivity(), mSuggestedItems);
+
+        //Listeners
+        mRetryBtn.setOnClickListener(this);
 
         //Grid View Config
         int margin = getResources().getDimensionPixelSize(R.dimen.margin);
@@ -115,67 +122,34 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
         mStaggeredGridView.setOnItemClickListener(this);
 
+        setLoadingLayout();
+
+
+        /*
+        //Try this when running server
+        restartArticles();
+        fetchArticles();
+        */
+
+        //Else try it(Hardcoded wiki set.).
+        populateDataset();
+        setNormalLayout();
+        updateViews();
+
 
         return v;
     }
 
-/*
-    public void getPopularArticlesList(){
 
-        JsonArrayRequest request = new JsonArrayRequest(APIStatisticalEndpoints.listGetEndpoint(page, APIStatisticalEndpoints.POPULARITY_FILTER), new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                try {
-                    if(NetworkUtils.isNetworkAvailable(getActivity())) {
-                        for (int i = 0; i < response.length(); i++) {
-                            JSONObject item = response.getJSONObject(i);
-                            int id = item.getInt(SuggestedItem.ID_FIELD);
-                            String url = item.getString(SuggestedItem.URL_FIELD);
-                            String title = item.getString(SuggestedItem.TITLE_FIELD);
-                            String description = item.getString(SuggestedItem.DESCRIPTION_FIELD);
-                            String logoUrl = item.getString(SuggestedItem.IMAGE_FIELD);
-
-                            mSuggestedItems.add(new SuggestedItem(id, url, title, description, logoUrl));
-                            updateViews();
-                        }
-                    }else
-                        reInitViews();
-                }catch (JSONException e){
-                    Log.e(null, e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                setErrorLayout();
-            }
-        });
-
-
-        request.setRetryPolicy(new DefaultRetryPolicy(5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(request);
-    }
-*/
-
-    private void populateDataset() {
-        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegend", "nonsensopedia", "godofwar"};
-        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki"};
-        String[] descriptions = {"The Harry Potter Wiki reveals plot details about the series. Read at your own risk!",
-                "Polska encyklopedia o świecie Magii.", "", "", ""};
-        String[] imageUrls = {null,
-                "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
-                "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png",
-                "http://vignette1.wikia.nocookie.net/nonsensopedia/images/b/bc/Wiki.png/revision/latest?cb=20150101225319",
-                "http://img2.wikia.nocookie.net/__cb15/godofwar/images/8/89/Wiki-wordmark.png"};
-
-        for (int i = 0; i < urls.length; i++) {
-            mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i]));
-        }
+    private void fetchArticles(){
+        getPopularArticlesList();
     }
 
+
+    private void restartArticles(){
+        mSuggestedItems.clear();
+        updateViews();
+    }
 
     @Override
     public void onResume() {
@@ -207,13 +181,21 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
     private static void setErrorLayout(){
         contentView.setVisibility(View.GONE);
+        mLoadingLayout.setVisibility(View.GONE);
         setErrorMessage();
         errorLayout.setVisibility(View.VISIBLE);
     }
 
     private static void setNormalLayout(){
         contentView.setVisibility(View.VISIBLE);
+        mLoadingLayout.setVisibility(View.GONE);
         errorLayout.setVisibility(View.GONE);
+    }
+
+    private static void setLoadingLayout(){
+        errorLayout.setVisibility(View.GONE);
+        contentView.setVisibility(View.GONE);
+        mLoadingLayout.setVisibility(View.VISIBLE);
     }
 
     public static void setUpNightMode() {
@@ -252,5 +234,81 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.suggested_retryBtn:
+                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                    setLoadingLayout();
+                    fetchArticles();
+                }
+                else
+                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
 
+    public void getPopularArticlesList(){
+
+        JsonArrayRequest request = new JsonArrayRequest(APIStatisticalEndpoints.listGetEndpoint(page, APIStatisticalEndpoints.POPULARITY_FILTER), new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try {
+                    if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject item = response.getJSONObject(i);
+                            int id = item.getInt(SuggestedItem.ID_FIELD);
+                            String url = item.getString(SuggestedItem.URL_FIELD);
+                            String title = item.getString(SuggestedItem.TITLE_FIELD);
+                            String description = item.getString(SuggestedItem.DESCRIPTION_FIELD);
+                            String logoUrl = item.getString(SuggestedItem.IMAGE_FIELD);
+
+                            mSuggestedItems.add(new SuggestedItem(id, url, title, description, logoUrl));
+                            updateViews();
+                            setNormalLayout();
+                        }
+                    }else
+                        reInitViews();
+                }catch (JSONException e){
+                    Log.e(null, e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                setErrorLayout();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", "Token token=" + APIStatisticalEndpoints.getAPIkey());
+                return headers;
+            }
+        };
+
+
+        request.setRetryPolicy(new DefaultRetryPolicy(5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        requestQueue.add(request);
+    }
+
+
+    private void populateDataset() {
+        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegend", "nonsensopedia", "godofwar"};
+        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki"};
+        String[] descriptions = {"The Harry Potter Wiki reveals plot details about the series. Read at your own risk!",
+                "Polska encyklopedia o świecie Magii.", "", "", ""};
+        String[] imageUrls = {null,
+                "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
+                "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png",
+                "http://vignette1.wikia.nocookie.net/nonsensopedia/images/b/bc/Wiki.png/revision/latest?cb=20150101225319",
+                "http://img2.wikia.nocookie.net/__cb15/godofwar/images/8/89/Wiki-wordmark.png"};
+
+        for (int i = 0; i < urls.length; i++) {
+            mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i]));
+        }
+    }
 }
