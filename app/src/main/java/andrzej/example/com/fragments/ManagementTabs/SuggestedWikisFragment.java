@@ -41,10 +41,14 @@ import java.util.Map;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.activities.WikiInfoActivity;
+import andrzej.example.com.databases.WikisFavsDbHandler;
+import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.adapters.SuggestedListViewAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SuggestedItem;
+import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -83,6 +87,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     private WikiManagementHelper mHelper;
     private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
+    private RequestHandler mRequestHandler;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +96,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         mHelper = new WikiManagementHelper(getActivity());
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
+        mRequestHandler = new RequestHandler(getActivity());
     }
 
 
@@ -248,8 +254,8 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     @Override
     public boolean onItemLongClick(StaggeredGridView parent, View view, int position, long id) {
         SuggestedItem item = mSuggestedItems.get(position);
-        String title = item.getTitle();
-        String url = item.getUrl();
+        final String title = item.getTitle();
+        final String url = item.getUrl();
 
         MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .title(title)
@@ -257,11 +263,68 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                 .itemsCallback(new MaterialDialog.ListCallback() {
                     @Override
                     public void onSelection(MaterialDialog materialDialog, View view, int which, CharSequence charSequence) {
-                        switch (which){
+                        switch (which) {
                             case 0: //Ustaw
+                                if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                                    WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                                    if (db.itemExsists(url)) {
+                                        WikiPreviousListItem item1 = db.getItemByUrl(url);
+                                        mHelper.removeWiki(item1.getId());
+                                    }
+                                    db.close();
+
+                                    WikisFavsDbHandler favs_db = new WikisFavsDbHandler(getActivity());
+                                    if (favs_db.itemExsists(url)) {
+                                        int id = favs_db.getItemByUrl(url).getId();
+                                        favs_db.editItem(id, new WikiFavItem(id, title, url));
+                                    }
+                                    favs_db.close();
+
+                                    mHelper.addWikiToPreviouslyUsed(title, url);
+
+                                    APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url);
+                                    mHelper.setUrlAsPreference(APIEndpoints.WIKI_NAME, title);
+                                    APIEndpoints.reInitEndpoints();
+
+                                    MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
+                                    MainActivity.account.setSubTitle(title);
+                                    ((MaterialNavigationDrawer) getActivity()).notifyAccountDataChanged();
+
+
+                                    FavouriteWikisFragment.updateDataset();
+                                    PreviouslyUsedWikisFragment.updateRecords();
+
+                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+                                } else
+                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
                                 break;
 
                             case 1: //Dodaj do ulubionych
+
+                                WikisHistoryDbHandler db = new WikisHistoryDbHandler(getActivity());
+                                WikisFavsDbHandler favs_db = new WikisFavsDbHandler(getActivity());
+                                if (favs_db.itemExsists(url)) {
+                                    int fav_id = favs_db.getItemByUrl(url).getId();
+                                    favs_db.editItem(fav_id, new WikiFavItem(fav_id, title, url));
+                                    int id = db.getItemByUrl(url).getId();
+                                    db.editItem(id, new WikiPreviousListItem(id, title, url));
+
+                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.alredy_existed_but_update), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    if (db.itemExsists(url)) {
+                                        int id = db.getItemByUrl(url).getId();
+                                        db.editItem(id, new WikiPreviousListItem(id, title, url));
+                                    } else
+                                        mHelper.addWikiToPreviouslyUsed(title, url);
+                                    mHelper.addWikiToFavs(title, url);
+                                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfull_added_to_favs), Toast.LENGTH_SHORT).show();
+                                }
+
+                                db.close();
+                                favs_db.close();
+
+                                FavouriteWikisFragment.updateDataset();
+                                PreviouslyUsedWikisFragment.updateRecords();
                                 break;
                         }
                     }
@@ -334,7 +397,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
 
     private void populateDataset() {
-        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegend", "nonsensopedia", "godofwar"};
+        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends", "nonsensopedia", "godofwar"};
         String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki"};
         String[] descriptions = {"The Harry Potter Wiki reveals plot details about the series. Read at your own risk!",
                 "Polska encyklopedia o świecie Magii.", "", "", ""};

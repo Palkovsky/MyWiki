@@ -94,4 +94,7 @@
 
     <string name="add_to_fav">Dodaj do ulubionych</string>
     <string name="set">Ustaw</string>
+    <string name="succesfully_added">Dodano do ulubionych</string>
+    <string name="alredy_existed_but_update">Wikia już istniała na twoje liście, ale została zaktualizowana.</string>
+    <string name="wiki_succesfull_added_to_favs">Pomyślnie dodano Wikię do ulubionych</string>
 </resources>
