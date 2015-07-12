@@ -11,8 +11,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/MyNavigationDrawerTheme"
-        android:largeHeap="true">
+        android:largeHeap="true"
+        android:theme="@style/MyNavigationDrawerTheme" >
         <activity
             android:name="andrzej.example.com.activities.MainActivity"
             android:label="@string/app_name"
@@ -36,7 +36,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />
         </activity>
-
         <activity
             android:name="andrzej.example.com.activities.GalleryActivity"
             android:label="@string/app_name"
@@ -45,11 +44,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />
         </activity>
-
         <activity
             android:name="andrzej.example.com.activities.SharedPreferenceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Base" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="andrzej.example.com.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="andrzej.example.com.activities.WikiInfoActivity"
+            android:label="@string/title_activity_wiki_info"
+            android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />

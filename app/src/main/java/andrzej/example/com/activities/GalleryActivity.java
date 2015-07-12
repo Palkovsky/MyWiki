@@ -34,6 +34,8 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.network.NetworkUtils;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.BasicUtils;
 import andrzej.example.com.utils.StringOperations;
 import andrzej.example.com.views.FixedViewPager;
@@ -97,10 +99,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
+
 
     public static Context getAppContext() {
         return GalleryActivity.context;

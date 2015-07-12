@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wikiInfoRootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="andrzej.example.com.activities.WikiInfoActivity">
+
+    <FrameLayout
+        android:id="@+id/wikiInfoToolbarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/wikiInfoHeader_logo"
+            android:adjustViewBounds="true"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/header_height"
+            android:background="@drawable/picture1" />
+
+        <include
+            android:id="@+id/wikiInfoToolbar"
+            layout="@layout/toolbar" />
+
+    </FrameLayout>
+
+
+
+    <LinearLayout
+        android:layout_below="@+id/wikiInfoToolbarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin">
+
+        <TextView
+            android:id="@+id/wikiInfoTestMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_world" />
+
+
+        <ListView
+            android:id="@+id/wikiInfoListview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />
+    </LinearLayout>
+
+</RelativeLayout>
+

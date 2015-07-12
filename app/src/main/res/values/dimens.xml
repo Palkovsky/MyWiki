@@ -12,4 +12,5 @@
     <dimen name="fab_press_translation_z">6dp</dimen>
     <dimen name="divider">1px</dimen>
     <dimen name="margin">5dp</dimen>
+    <dimen name="header_height">250dp</dimen>
 </resources>

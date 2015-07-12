@@ -1,5 +1,6 @@
 package andrzej.example.com.fragments.ManagementTabs;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -37,23 +39,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.activities.WikiInfoActivity;
 import andrzej.example.com.fragments.ManagementTabs.adapters.SuggestedListViewAdapter;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SuggestedItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.researchapi.APIStatisticalEndpoints;
 import andrzej.example.com.researchapi.RequestHandler;
 import andrzej.example.com.utils.WikiManagementHelper;
+import andrzej.example.com.views.MaterialEditText;
 import andrzej.example.com.views.StaggeredGridView;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 /**
  * Created by andrzej on 24.06.15.
  */
-public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener, View.OnClickListener {
+public class SuggestedWikisFragment extends Fragment implements StaggeredGridView.OnItemClickListener, View.OnClickListener, StaggeredGridView.OnItemLongClickListener {
 
     //UI Elements
     private static RelativeLayout rootView;
@@ -106,12 +113,13 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         mLoadingLayout = (LinearLayout) v.findViewById(R.id.suggested_loadingLayout);
 
 
-
         //Adapters
         mAdapter = new SuggestedListViewAdapter(getActivity(), mSuggestedItems);
 
         //Listeners
         mRetryBtn.setOnClickListener(this);
+        mStaggeredGridView.setOnItemClickListener(this);
+        mStaggeredGridView.setOnItemLongClickListener(this);
 
         //Grid View Config
         int margin = getResources().getDimensionPixelSize(R.dimen.margin);
@@ -120,16 +128,16 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         mStaggeredGridView.setPadding(margin, 0, margin, 0); // have the margin on the sides as well
         mStaggeredGridView.setAdapter(mAdapter);
 
-        mStaggeredGridView.setOnItemClickListener(this);
-
         setLoadingLayout();
+
 
 
         /*
         //Try this when running server
         restartArticles();
         fetchArticles();
-        */
+*/
+
 
         //Else try it(Hardcoded wiki set.).
         populateDataset();
@@ -141,12 +149,12 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
     }
 
 
-    private void fetchArticles(){
+    private void fetchArticles() {
         getPopularArticlesList();
     }
 
 
-    private void restartArticles(){
+    private void restartArticles() {
         mSuggestedItems.clear();
         updateViews();
     }
@@ -179,20 +187,20 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         }
     }
 
-    private static void setErrorLayout(){
+    private static void setErrorLayout() {
         contentView.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.GONE);
         setErrorMessage();
         errorLayout.setVisibility(View.VISIBLE);
     }
 
-    private static void setNormalLayout(){
+    private static void setNormalLayout() {
         contentView.setVisibility(View.VISIBLE);
         mLoadingLayout.setVisibility(View.GONE);
         errorLayout.setVisibility(View.GONE);
     }
 
-    private static void setLoadingLayout(){
+    private static void setLoadingLayout() {
         errorLayout.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.VISIBLE);
@@ -230,31 +238,60 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
     @Override
     public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
-        Toast.makeText(getActivity(), "Click POS: " + position, Toast.LENGTH_SHORT).show();
+        int wikiId = mSuggestedItems.get(position).getId();
+
+        Intent intent = new Intent(getActivity(), WikiInfoActivity.class);
+        intent.putExtra(WikiInfoActivity.WIKI_ID_INTENT_KEY, wikiId);
+        startActivity(intent);
     }
 
+    @Override
+    public boolean onItemLongClick(StaggeredGridView parent, View view, int position, long id) {
+        SuggestedItem item = mSuggestedItems.get(position);
+        String title = item.getTitle();
+        String url = item.getUrl();
+
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .title(title)
+                .items(R.array.sugested_dialog_items)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog materialDialog, View view, int which, CharSequence charSequence) {
+                        switch (which){
+                            case 0: //Ustaw
+                                break;
+
+                            case 1: //Dodaj do ulubionych
+                                break;
+                        }
+                    }
+                }).negativeText(R.string.back)
+                .build();
+
+        dialog.show();
+        return false;
+    }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.suggested_retryBtn:
-                if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                if (NetworkUtils.isNetworkAvailable(getActivity())) {
                     setLoadingLayout();
                     fetchArticles();
-                }
-                else
+                } else
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
-    public void getPopularArticlesList(){
+    public void getPopularArticlesList() {
 
         JsonArrayRequest request = new JsonArrayRequest(APIStatisticalEndpoints.listGetEndpoint(page, APIStatisticalEndpoints.POPULARITY_FILTER), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 try {
-                    if(NetworkUtils.isNetworkAvailable(getActivity())) {
+                    if (NetworkUtils.isNetworkAvailable(getActivity())) {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject item = response.getJSONObject(i);
                             int id = item.getInt(SuggestedItem.ID_FIELD);
@@ -267,9 +304,9 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                             updateViews();
                             setNormalLayout();
                         }
-                    }else
+                    } else
                         reInitViews();
-                }catch (JSONException e){
+                } catch (JSONException e) {
                     Log.e(null, e.getMessage());
                 }
             }
@@ -278,7 +315,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
             public void onErrorResponse(VolleyError error) {
                 setErrorLayout();
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -311,4 +348,5 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
             mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i]));
         }
     }
+
 }

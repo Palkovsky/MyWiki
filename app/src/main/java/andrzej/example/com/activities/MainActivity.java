@@ -230,20 +230,7 @@ public class MainActivity extends MaterialNavigationDrawer {
                     RandomArticleFragment.mDrawerLayout.closeDrawer(Gravity.RIGHT);
                 } else {
                     if (sessionArticleHistory.size() > 1) {
-
                         onBackPressedListener.doBack();
-
-                    /*
-                    Fragment fragment = new ArticleFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("article_id", item.getId());
-                    bundle.putString("article_title", item.getTitle());
-                    fragment.setArguments(bundle);
-
-
-                    ((MaterialNavigationDrawer) MainActivity.this).setFragment(fragment, item.getTitle());
-                    ((MaterialNavigationDrawer) MainActivity.this).setSection(section_article);
-                    */
                     } else {
 
                         ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
