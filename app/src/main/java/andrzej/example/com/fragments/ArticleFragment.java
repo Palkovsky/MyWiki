@@ -651,7 +651,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             //Teoretycznie ten endpoint mógłby zwracać wiele takich, ale my chcemy tylko dla danego artykułu
                             JSONArray items = items_object.getJSONArray(String.valueOf(id));
 
-                            if (items.length() > 0) {
+                            if (items.length() > 0 && viewsManager != null) {
                                 TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
                                 textViews.add(tv);
                                 headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));

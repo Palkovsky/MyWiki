@@ -63,7 +63,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
 
     public void addItem(ArticleHistoryItem item) {
 
-        if (!getDateInString(System.currentTimeMillis()).contains(getLastItem().getDateInString())) {
+        if (!item.getDateInString().equals(getLastItem().getDateInString())) {
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getLabel()); // Contact Name
             values.put(KEY_WIKI_ID, item.getId());
@@ -125,30 +125,6 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteItemsWithName(String name) {
-        if (itemExsists(name)) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            db.delete(TABLE_HISTORY, KEY_NAME + " = ?",
-                    new String[]{name});
-            db.close();
-        }
-    }
-
-    public ArticleHistoryItem getItem(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                        KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE}, KEY_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        ArticleHistoryItem item = new ArticleHistoryItem(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(2)),
-                Integer.parseInt(cursor.getString(4)), cursor.getString(1), cursor.getString(3));
-
-        // return contact
-        return item;
-    }
 
     public List<ArticleHistoryItem> getAllItemsLike(String search) {
         List<ArticleHistoryItem> itemsList = new ArrayList<ArticleHistoryItem>();

@@ -108,7 +108,7 @@ public class HistoryListAdapter extends BaseAdapter{
             if (position == 0)
                 mViewHolder.groupTv.setVisibility(View.VISIBLE);
             else {
-                if (!myList.get(position - 1).getDateInString().contains(item.getDateInString())) {
+                if (!myList.get(position - 1).getDateInString().equals(item.getDateInString())) {
                     mViewHolder.groupTv.setVisibility(View.VISIBLE);
                 }else
                     mViewHolder.groupTv.setVisibility(View.GONE);

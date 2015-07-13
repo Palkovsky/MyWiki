@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -27,6 +28,7 @@ import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -85,6 +87,7 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         APIEndpoints.WIKI_NAME = account_subtitle;
         APIEndpoints.reInitEndpoints();
+
 
         account = new MaterialAccount(this.getResources(), account_subtitle, account_title, null, images[random_int]);
         this.addAccount(account);

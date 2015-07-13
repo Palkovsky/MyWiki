@@ -112,29 +112,29 @@ public class ArticleHistoryItem {
         Context c = MyApplication.getAppContext();
 
         switch (num) {
-            case 1: //Jan
+            case 0: //Jan
                 return c.getResources().getString(R.string.january);
-            case 2: //Feb
+            case 1: //Feb
                 return c.getResources().getString(R.string.feburary);
-            case 3: //March
+            case 2: //March
                 return c.getResources().getString(R.string.march);
-            case 4: //April
+            case 3: //April
                 return c.getResources().getString(R.string.april);
-            case 5: //May
+            case 4: //May
                 return c.getResources().getString(R.string.may);
-            case 6: //June
+            case 5: //June
                 return c.getResources().getString(R.string.june);
-            case 7: //July
+            case 6: //July
                 return c.getResources().getString(R.string.july);
-            case 8: //Aug
+            case 7: //Aug
                 return c.getResources().getString(R.string.august);
-            case 9: //Sep
+            case 8: //Sep
                 return c.getResources().getString(R.string.september);
-            case 10: //Oct
+            case 9: //Oct
                 return c.getResources().getString(R.string.october);
-            case 11: //Nov
+            case 10: //Nov
                 return c.getResources().getString(R.string.november);
-            case 12: //Dec
+            case 11: //Dec
                 return c.getResources().getString(R.string.december);
         }
 
