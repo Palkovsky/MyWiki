@@ -58,7 +58,6 @@ public class StringOperations {
 
             url = url.replaceFirst("/scale-to-width-down/" + currentSize, "/scale-to-width-down/" + size_str);
 
-            Log.e(null, "upgraded url: " + url);
             return url;
         } else if (url.contains("/latest/window-crop/width")) {
 
@@ -82,16 +81,13 @@ public class StringOperations {
             String firstContained = getFirstContainedItem(url, extensionList);
             int indexBeg = url.indexOf(firstContained) + firstContained.length();
 
-            Log.e(null, "URL przed: " + url);
-            Log.e(null, "indexEnd: " + indexEnd);
-            Log.e(null, "indexBeg: " + indexBeg);
+
 
             if(indexBeg<url.length() && indexBeg>0 && indexEnd>0 && indexEnd<=url.length() && indexEnd>indexBeg) {
                 String currentSize = url.substring(indexBeg, indexEnd);
                 url = url.replaceFirst(firstContained + currentSize + pxSuffix, firstContained + size_str + pxSuffix);
             }
 
-            Log.e(null, "URL PO:  " + url);
 
             return url;
 
@@ -125,7 +121,6 @@ public class StringOperations {
         int index_beg = thumbnail_url.indexOf("/window-crop/width/") + chunk_string_beg.length();
         int index_end = thumbnail_url.indexOf(chunk_string_end);
 
-        Log.e(null, "Dad thumbnail URL: " + thumbnail_url);
 
         if(index_beg>0 && index_beg<thumbnail_url.length() && index_end>0 && index_end<thumbnail_url.length() && index_beg<index_end) {
             String width_substring = thumbnail_url.substring(index_beg, index_end);
