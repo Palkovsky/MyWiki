@@ -13,10 +13,10 @@ import java.util.Random;
  */
 public class StringOperations {
 
+    private static String[] extensionList = {".jpg/", ".jpeg/", ".png/", ".bmp/", ".gif/"};
+
     public static String pumpUpSize(String url, int size) {
         String size_str = String.valueOf(size);
-
-        Log.e(null, "URL DO ZMIANY: " + url);
 
         if (url.contains("/scale-to-width/") && !url.contains("/scale-to-width-down/")) {
             String chunk_string_beg = "/scale-to-width/";
@@ -76,7 +76,26 @@ public class StringOperations {
 
             return url;
 
-        } else {
+        } else if(stringContainsItemFromList(url, extensionList) && url.contains("px-")) {
+            String pxSuffix = "px-";
+            int indexEnd = url.indexOf(pxSuffix);
+            String firstContained = getFirstContainedItem(url, extensionList);
+            int indexBeg = url.indexOf(firstContained) + firstContained.length();
+
+            Log.e(null, "URL przed: " + url);
+            Log.e(null, "indexEnd: " + indexEnd);
+            Log.e(null, "indexBeg: " + indexBeg);
+
+            if(indexBeg<url.length() && indexBeg>0 && indexEnd>0 && indexEnd<=url.length() && indexEnd>indexBeg) {
+                String currentSize = url.substring(indexBeg, indexEnd);
+                url = url.replaceFirst(firstContained + currentSize + pxSuffix, firstContained + size_str + pxSuffix);
+            }
+
+            Log.e(null, "URL PO:  " + url);
+
+            return url;
+
+        }else {
             //http://vignette4.wikia.nocookie.net/mlp/images/e/e9/Dreppy_x666.png/revision/latest?cb=20130715174906&path-prefix=pl
             String chunk_string_beg = "/latest";
 
@@ -135,6 +154,15 @@ public class StringOperations {
         return false;
     }
 
+    private static String getFirstContainedItem(String inputString, String[] items) {
+        for (int i = 0; i < items.length; i++) {
+            if (inputString.contains(items[i])) {
+                return items[i];
+            }
+        }
+        return null;
+    }
+
     public static String stripUpWikiUrl(String url){
 
         String httpSuffix = "http://";
@@ -148,4 +176,5 @@ public class StringOperations {
 
         return url;
     }
+
 }
