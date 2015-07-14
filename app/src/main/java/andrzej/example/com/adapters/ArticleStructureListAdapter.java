@@ -3,7 +3,9 @@ package andrzej.example.com.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,8 @@ import java.util.List;
 
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleHeader;
+import andrzej.example.com.prefs.BaseConfig;
+import andrzej.example.com.prefs.SharedPrefsKeys;
 
 // here's our beautiful adapter
 public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
@@ -23,6 +27,7 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
     Context mContext;
     int layoutResourceId;
     List<ArticleHeader> data = null;
+    SharedPreferences prefs;
 
     public ArticleStructureListAdapter(Context mContext, int layoutResourceId, List<ArticleHeader> data) {
         super(mContext, layoutResourceId, data);
@@ -30,6 +35,7 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
         this.layoutResourceId = layoutResourceId;
         this.mContext = mContext;
         this.data = data;
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.mContext);
     }
 
     @Override
@@ -55,7 +61,19 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
         String title = objectItem.getTitle();
 
 
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+
+        if(nightMode){
+            convertView.setBackgroundColor(getContext().getResources().getColor(R.color.nightBackground));
+            textViewItem.setTextColor(getContext().getResources().getColor(R.color.nightFontColor));
+        }else{
+            convertView.setBackgroundColor(getContext().getResources().getColor(R.color.nightFontColor));
+            textViewItem.setTextColor(getContext().getResources().getColor(R.color.nightBackground));
+        }
+
         textViewItem.setText(objectItem.getTitle());
+
+
 
         if (level == 2) {
             textViewItem.setTypeface(null, Typeface.BOLD);
@@ -64,6 +82,7 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
             textViewItem.setTextSize(24);
             textViewItem.setTypeface(null, Typeface.BOLD);
             convertView.setBackgroundColor(mContext.getResources().getColor(R.color.list_item_selected));
+            textViewItem.setTextColor(getContext().getResources().getColor(R.color.font_color));
 
             if(objectItem.getView()==null) {
                 textViewItem.setClickable(false);
@@ -79,5 +98,7 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
         return convertView;
     }
 
-
+    private Context getContex(){
+        return this.mContext;
+    }
 }

@@ -194,8 +194,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         display = getActivity().getWindowManager().getDefaultDisplay();
         display.getSize(size);
 
-        setLoadingLayout();
-        setUpColorScheme();
+
 
         mStructureAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
         mDrawerListView.setAdapter(mStructureAdapter);
@@ -203,6 +202,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
         parallaxSv.setScrollViewCallbacks(this);
 
+        setLoadingLayout();
+        setUpColorScheme();
 
         ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
             @Override
@@ -949,6 +950,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+
+        mStructureAdapter.notifyDataSetChanged();
+
         for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
         }
@@ -960,6 +965,10 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+
+        mStructureAdapter.notifyDataSetChanged();
+
         for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         }

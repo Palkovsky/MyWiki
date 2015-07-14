@@ -196,12 +196,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         display.getSize(size);
         textViews.add(errorMessage);
 
-        setLoadingLayout();
-        setUpColorScheme();
-
         mStructureAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
         mDrawerListView.setAdapter(mStructureAdapter);
         refreshHeaders();
+
+        setLoadingLayout();
+        setUpColorScheme();
 
         parallaxSv.setScrollViewCallbacks(this);
 
@@ -907,6 +907,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+
+        mStructureAdapter.notifyDataSetChanged();
+
         for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
         }
@@ -918,6 +922,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         noInternetLl.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+
+        mStructureAdapter.notifyDataSetChanged();
+
         for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         }
