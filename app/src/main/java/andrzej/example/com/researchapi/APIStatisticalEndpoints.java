@@ -71,6 +71,14 @@ public class APIStatisticalEndpoints {
         return listEndpoint;
     }
 
+    public static String getWikiData(int id){
+        return baseUrl +
+                wikisScope +
+                "/" +
+                id;
+
+    }
+
     public static String listGetEndpoint(int page, String filter){
 
         if(filter==null)

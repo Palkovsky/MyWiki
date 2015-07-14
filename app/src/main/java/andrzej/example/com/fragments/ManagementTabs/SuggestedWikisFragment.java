@@ -146,10 +146,10 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
 
         //Else try it(Hardcoded wiki set.).
+        mSuggestedItems.clear();
         populateDataset();
         setNormalLayout();
         updateViews();
-
 
         return v;
     }
@@ -397,15 +397,22 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
 
     private void populateDataset() {
-        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends", "nonsensopedia", "godofwar"};
-        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki"};
-        String[] descriptions = {"The Harry Potter Wiki reveals plot details about the series. Read at your own risk!",
-                "Polska encyklopedia o świecie Magii.", "", "", ""};
+        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends", "nonsensopedia", "godofwar", "pl.starwars", "yugioh", "pl.gothic", "pl.dragonball","pl.mlp", "pl.finalfantasy", "starwars"};
+        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki", "Empirepedia",
+                "Yu-Gi-Oh Wikia", "Gothicpedia", "Dragon Ball Wiki PL", "MLP Wiki PL", "Final Fantasy Wiki PL", "Wookiepedia"};
+        String[] descriptions = {"", "", "", "", "", "", "", "", "", "", "", "" ,"", ""};
         String[] imageUrls = {null,
                 "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
                 "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png",
                 "http://vignette1.wikia.nocookie.net/nonsensopedia/images/b/bc/Wiki.png/revision/latest?cb=20150101225319",
-                "http://img2.wikia.nocookie.net/__cb15/godofwar/images/8/89/Wiki-wordmark.png"};
+                "http://img2.wikia.nocookie.net/__cb15/godofwar/images/8/89/Wiki-wordmark.png",
+                "http://img4.wikia.nocookie.net/__cb17/starwars/pl/images/8/89/Wiki-wordmark.png",
+                "http://img3.wikia.nocookie.net/__cb15/yugioh/images/8/89/Wiki-wordmark.png",
+                "http://vignette4.wikia.nocookie.net/gothic/images/8/89/Wiki-wordmark.png/revision/20150331210757?path-prefix=pl",
+                "http://img1.wikia.nocookie.net/__cb15/pl.dragonball/images/8/89/Wiki-wordmark.png",
+                "http://img3.wikia.nocookie.net/__cb79/mlp/pl/images/8/89/Wiki-wordmark.png",
+                "http://img4.wikia.nocookie.net/__cb8/finalfantasy/pl/images/8/89/Wiki-wordmark.png",
+                "http://img3.wikia.nocookie.net/__cb18/starwars/images/8/89/Wiki-wordmark.png"};
 
         for (int i = 0; i < urls.length; i++) {
             mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i]));

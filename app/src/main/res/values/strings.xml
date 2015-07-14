@@ -10,7 +10,7 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="no_internet_conn">Brak połączenia z internetem</string>
+    <string name="no_internet_conn">Brak połączenia z internetem.</string>
     <string name="retry">Ponów</string>
     <string name="searching">Szukaj</string>
     <string name="no_records_found">Nic nie znaleziono.</string>
@@ -97,4 +97,5 @@
     <string name="succesfully_added">Dodano do ulubionych</string>
     <string name="alredy_existed_but_update">Wikia już istniała na twoje liście, ale została zaktualizowana.</string>
     <string name="wiki_succesfull_added_to_favs">Pomyślnie dodano Wikię do ulubionych</string>
+    <string name="wiki_info_fetching_error">Wystąpił problem, spróbuj ponownie potem.</string>
 </resources>
