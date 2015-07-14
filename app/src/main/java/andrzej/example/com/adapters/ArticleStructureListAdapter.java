@@ -5,11 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -64,10 +68,10 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
         if(nightMode){
-            convertView.setBackgroundColor(getContext().getResources().getColor(R.color.nightBackground));
+            setViewBackground(convertView, ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_structure_dark));
             textViewItem.setTextColor(getContext().getResources().getColor(R.color.nightFontColor));
         }else{
-            convertView.setBackgroundColor(getContext().getResources().getColor(R.color.nightFontColor));
+            setViewBackground(convertView, ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background));
             textViewItem.setTextColor(getContext().getResources().getColor(R.color.nightBackground));
         }
 
@@ -100,5 +104,15 @@ public class ArticleStructureListAdapter extends ArrayAdapter<ArticleHeader> {
 
     private Context getContex(){
         return this.mContext;
+    }
+
+    private void setViewBackground(View iv, Drawable drawable) {
+        int currentVersion = Build.VERSION.SDK_INT;
+
+        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+            iv.setBackground(drawable);
+        } else {
+            iv.setBackgroundDrawable(drawable);
+        }
     }
 }

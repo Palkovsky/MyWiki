@@ -63,10 +63,6 @@ public class HistoryFragment extends Fragment {
     //Prefs
     SharedPreferences prefs;
 
-    //Colors
-    private static final int CORAL = Color.parseColor("#f0f76541");
-    private static final int CORAL_DARK = Color.parseColor("#e0e55b3c");
-    private static final int CORAL_HANDLE = Color.parseColor("#80f76541");
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -200,8 +196,8 @@ public class HistoryFragment extends Fragment {
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-
-
+                if(filterEt!=null)
+                    filterEt.clearFocus();
             }
 
             @Override
@@ -209,7 +205,13 @@ public class HistoryFragment extends Fragment {
                 if (mAdapter != null && mActionMode != null)
                     mActionMode.finish();
 
+                if(filterEt!=null) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(filterEt.getWindowToken(), 0);
+                }
             }
+
 
             @Override
             public void onDrawerClosed(View drawerView) {
