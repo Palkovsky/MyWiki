@@ -69,7 +69,10 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             values.put(KEY_WIKI_ID, item.getId());
             values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
             values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
-            values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
+            if (item.getWiki_url() == null || item.getWiki_url().length()<=0)
+                values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
+            else
+                values.put(KEY_WIKI_NAME, item.getWiki_url());
 
             // Inserting Row
             SQLiteDatabase db = this.getWritableDatabase();
@@ -77,14 +80,17 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
             db.close(); // Closing database connection
         } else {
             if (!item.getLabel().equals(getLastItem().getLabel())) {
-                deleteSmart(item.getLabel(), item.getDateInString());
+                deleteSmart(item.getLabel(), item.getDateInString(), item.getWiki_url());
 
                 ContentValues values = new ContentValues();
                 values.put(KEY_NAME, item.getLabel()); // Contact Name
                 values.put(KEY_WIKI_ID, item.getId());
                 values.put(KEY_THUMBNAIL_URL, item.getThumbnail_url());
                 values.put(KEY_VISIT_DATE, String.valueOf(item.getVisited_at()));
-                values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
+                if (item.getWiki_url() == null || item.getWiki_url().length()<=0)
+                    values.put(KEY_WIKI_NAME, APIEndpoints.WIKI_NAME);
+                else
+                    values.put(KEY_WIKI_NAME, item.getWiki_url());
 
                 // Inserting Row
                 SQLiteDatabase db = this.getWritableDatabase();
@@ -94,11 +100,15 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void deleteSmart(String name, String date) {
+    public void deleteSmart(String name, String date, String wikiUrl) {
+
+        if(wikiUrl==null || wikiUrl.trim().length()<=0){
+            wikiUrl = APIEndpoints.WIKI_NAME;
+        }
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?", new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?", new String[]{name, wikiUrl}, null, null, null, null);
 
         // looping through all rows and adding to list
         if (cursor.getCount() > 0) {
@@ -191,7 +201,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         //        KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?", new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID,
-                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_WIKI_NAME + "=?", new String[] {APIEndpoints.WIKI_NAME}, null, null, null);
+                KEY_NAME, KEY_WIKI_ID, KEY_THUMBNAIL_URL, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_WIKI_NAME + "=?", new String[]{APIEndpoints.WIKI_NAME}, null, null, null);
 
         if (cursor != null)
             cursor.moveToLast();
@@ -230,7 +240,7 @@ public class ArticleHistoryDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{
-                        KEY_NAME, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND "+ KEY_WIKI_NAME + "=?",
+                        KEY_NAME, KEY_VISIT_DATE, KEY_WIKI_NAME}, KEY_NAME + "=? AND " + KEY_WIKI_NAME + "=?",
                 new String[]{name, APIEndpoints.WIKI_NAME}, null, null, null, null);
 
         if (cursor != null)

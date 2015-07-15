@@ -104,4 +104,5 @@
     <string name="article_not_loaded_yey">Artykuł nie został jeszcze załadowany.</string>
     <string name="article_succesfully_saved">Artykuł został pomyślnie zapisany.</string>
     <string name="no_record_matches_query">Nie znaleziono stron pasujących do twojego zapytania.</string>
+    <string name="saved_article_already_exsists">Masz już zapisaną tę stronę.</string>
 </resources>

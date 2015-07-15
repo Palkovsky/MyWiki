@@ -28,6 +28,7 @@ import java.util.List;
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.SavedArticlesListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
+import andrzej.example.com.databases.OnDatabaseSaved;
 import andrzej.example.com.databases.SavedArticlesDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
@@ -129,12 +130,11 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.item_delete:
-                        SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity());
                         List<BookmarkedArticle> mSelected = mAdapter.getSelectedItems();
                         for (BookmarkedArticle savedArticle : mSelected) {
-                            db.deleteItem(savedArticle.getId());
+                            savedArticlesDb.deleteItem(savedArticle.getId());
                         }
-                        db.close();
+                        savedArticlesDb.close();
                         mSavedArticles.removeAll(mSelected);
                         nr = 0;
                         mAdapter.clearSelection();
@@ -343,7 +343,11 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
 
         Fragment fragment = new OfflineArticleFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("article_content", article.getContent());
+        bundle.putInt(OfflineArticleFragment.BUNDLE_KEY_CONTENT, article.getArticle_id());
+        bundle.putString(OfflineArticleFragment.BUNDLE_KEY_TITLE, article.getTitle());
+        bundle.putString(OfflineArticleFragment.BUNDLE_KEY_CONTENT, article.getContent());
+        bundle.putString(OfflineArticleFragment.BUNDLE_KEY_WIKI_IMAGE, article.getImgUrl());
+        bundle.putString(OfflineArticleFragment.BUNDLE_KEY_WIKI_URL, article.getWikiUrl());
         fragment.setArguments(bundle);
 
         ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article.getTitle());

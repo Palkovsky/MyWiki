@@ -16,6 +16,7 @@ public class ArticleHistoryItem {
     private long visited_at;
     private String label;
     private String thumbnail_url;
+    private String wiki_url = null;
 
     public ArticleHistoryItem() {
     }
@@ -27,12 +28,29 @@ public class ArticleHistoryItem {
         this.thumbnail_url = thumbnail_url;
     }
 
+    public ArticleHistoryItem(int id, long visited_at, String label, String thumbnail_url, String wiki_url) {
+        this.id = id;
+        this.visited_at = visited_at;
+        this.label = label;
+        this.thumbnail_url = thumbnail_url;
+        this.wiki_url = wiki_url;
+    }
+
     public ArticleHistoryItem(int db_id, int id, long visited_at, String label, String thumbnail_url) {
         this.db_id = db_id;
         this.id = id;
         this.visited_at = visited_at;
         this.label = label;
         this.thumbnail_url = thumbnail_url;
+    }
+
+    public ArticleHistoryItem(int db_id, int id, long visited_at, String label, String thumbnail_url, String wiki_url) {
+        this.db_id = db_id;
+        this.id = id;
+        this.visited_at = visited_at;
+        this.label = label;
+        this.thumbnail_url = thumbnail_url;
+        this.wiki_url = wiki_url;
     }
 
     public int getDb_id() {
@@ -69,6 +87,14 @@ public class ArticleHistoryItem {
 
     public String getThumbnail_url() {
         return thumbnail_url;
+    }
+
+    public String getWiki_url() {
+        return wiki_url;
+    }
+
+    public void setWiki_url(String wiki_url) {
+        this.wiki_url = wiki_url;
     }
 
     public void setThumbnail_url(String thumbnail_url) {

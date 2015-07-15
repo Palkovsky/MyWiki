@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.fragments.SavedArticlesFragment;
+import andrzej.example.com.models.BookmarkedArticle;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
@@ -38,8 +40,11 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
     String CREATE_CONTACTS_TABLE;
 
 
+    private Context context;
+
     public WikisHistoryDbHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -57,9 +62,16 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void editItem(int id, WikiPreviousListItem item) {
+    public void  editItem(int id, WikiPreviousListItem item) {
         String url = item.getUrl();
         String label = item.getTitle();
+
+        SavedArticlesDbHandler saved_db = new SavedArticlesDbHandler(context);
+        List<BookmarkedArticle> articles = saved_db.getAllItemsWithWiki(url);
+        for(BookmarkedArticle article : articles){
+            saved_db.editRecord(article.getId(), label);
+        }
+        saved_db.close();
 
         ContentValues cv = new ContentValues();
         cv.put(KEY_NAME, label);

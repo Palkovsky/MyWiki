@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.SessionArticleHistory;
+import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.OnBackPressedListener;
@@ -22,12 +24,25 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class OfflineArticleFragment extends Fragment implements OnBackPressedListener {
 
+    private static final String TAG = "offlinearticlefragmet";
+
     //Ui
     private RelativeLayout mRootView;
     private TextView mTestTv;
 
     //Vitals
-    private String articleContent = null;
+    private int articleId = -1;
+    private String articleTitle = "";
+    private String articleContent = "";
+    private String articleImage = "";
+    private String wikiUrl = null;
+
+    //Finals
+    public static final String BUNDLE_KEY_ID = "article_id";
+    public static final String BUNDLE_KEY_TITLE = "article_title";
+    public static final String BUNDLE_KEY_CONTENT = "article_content";
+    public static final String BUNDLE_KEY_WIKI_IMAGE = "article_image";
+    public static final String BUNDLE_KEY_WIKI_URL = "wiki_url";
 
     //Utils
     SharedPreferences prefs;
@@ -43,7 +58,11 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         Bundle bundle = this.getArguments();
-        articleContent = bundle.getString("article_content");
+        articleId = bundle.getInt(BUNDLE_KEY_ID);
+        articleTitle = bundle.getString(BUNDLE_KEY_TITLE);
+        articleContent = bundle.getString(BUNDLE_KEY_CONTENT);
+        articleImage = bundle.getString(BUNDLE_KEY_WIKI_IMAGE);
+        wikiUrl = bundle.getString(BUNDLE_KEY_WIKI_URL);
     }
 
     @Override
@@ -58,11 +77,19 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         //Listeners
         ((MainActivity) getActivity()).setOnBackPressedListener(this);
 
-
+        //Starting methods
+        addToArticleHistory();
         mTestTv.setText(articleContent);
         setUpColorScheme();
 
         return v;
+    }
+
+    private void addToArticleHistory(){
+        ArticleHistoryItem historyItem = new ArticleHistoryItem(articleId, System.currentTimeMillis(), articleTitle, articleImage, wikiUrl);
+        ArticleHistoryDbHandler historyDbHandler = new ArticleHistoryDbHandler(getActivity());
+        historyDbHandler.addItem(historyItem);
+        historyDbHandler.close();
     }
 
 

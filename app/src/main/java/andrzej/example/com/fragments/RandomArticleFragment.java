@@ -54,6 +54,7 @@ import andrzej.example.com.activities.GalleryActivity;
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
+import andrzej.example.com.databases.OnDatabaseSaved;
 import andrzej.example.com.databases.SavedArticlesDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
@@ -891,11 +892,20 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
             case R.id.menu_saveArticle:
                 if(article_content != null) {
-                    SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity());
+                    SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity(), new OnDatabaseSaved() {
+                        @Override
+                        public void onSucess() {
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_succesfully_saved), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onRecordAlreadyExsists() {
+                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.saved_article_already_exsists), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     String wikiName = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
-                    db.addItem(new BookmarkedArticle(article_title, article_image, article_content, wikiName, APIEndpoints.WIKI_NAME));
+                    db.addItem(new BookmarkedArticle(article_title, article_image, article_content, wikiName, APIEndpoints.WIKI_NAME, article_id));
                     db.close();
-                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_succesfully_saved), Toast.LENGTH_SHORT).show();
                 }else
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_not_loaded_yey), Toast.LENGTH_SHORT).show();
                 break;

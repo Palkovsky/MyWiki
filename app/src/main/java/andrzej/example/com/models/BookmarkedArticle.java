@@ -5,27 +5,38 @@ package andrzej.example.com.models;
  */
 public class BookmarkedArticle {
     private int id;
+    private int article_id;
     private String wikiName;
     private String title;
     private String imgUrl;
     private String content;
     private String wikiUrl;
 
-    public BookmarkedArticle(String title, String imgUrl, String content, String wikiName, String wikiUrl) {
+    public BookmarkedArticle(String title, String imgUrl, String content, String wikiName, String wikiUrl, int article_id) {
         this.wikiName = wikiName;
         this.title = title;
         this.imgUrl = imgUrl;
         this.content = content;
         this.wikiUrl = wikiUrl;
+        this.article_id = article_id;
     }
 
-    public BookmarkedArticle(int id, String title, String imgUrl, String content, String wikiName, String wikiUrl) {
+    public BookmarkedArticle(int id, String title, String imgUrl, String content, String wikiName, String wikiUrl, int article_id) {
         this.id = id;
         this.wikiName = wikiName;
         this.title = title;
         this.imgUrl = imgUrl;
         this.content = content;
         this.wikiUrl = wikiUrl;
+        this.article_id = article_id;
+    }
+
+    public int getArticle_id() {
+        return article_id;
+    }
+
+    public void setArticle_id(int article_id) {
+        this.article_id = article_id;
     }
 
     public int getId() {

@@ -111,7 +111,7 @@ public class SavedArticlesListAdapter extends BaseAdapter {
         if (position == 0)
             mViewHolder.groupTv.setVisibility(View.VISIBLE);
         else {
-            if (!myList.get(position - 1).getWikiName().equals(item.getWikiName())) {
+            if (!myList.get(position - 1).getWikiUrl().equals(item.getWikiUrl())) {
                 mViewHolder.groupTv.setVisibility(View.VISIBLE);
             } else
                 mViewHolder.groupTv.setVisibility(View.GONE);
