@@ -11,8 +11,13 @@
     <item
         android:id="@+id/menu_nightMode"
         android:title="@string/menu_nightMode"
-        android:icon="@drawable/ic_weather_sunset_white_24dp"
-        appcompat:showAsAction="ifRoom"/>
+        appcompat:showAsAction="never"
+        android:checkable="true"/>
+
+    <item
+        android:id="@+id/menu_saveArticle"
+        android:title="@string/menu_saveArticle"
+        appcompat:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_search"

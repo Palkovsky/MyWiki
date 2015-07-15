@@ -98,4 +98,10 @@
     <string name="alredy_existed_but_update">Wikia już istniała na twoje liście, ale została zaktualizowana.</string>
     <string name="wiki_succesfull_added_to_favs">Pomyślnie dodano Wikię do ulubionych</string>
     <string name="wiki_info_fetching_error">Wystąpił problem, spróbuj ponownie potem.</string>
+    <string name="drawer_bookmared_articles">Zapisane strony</string>
+    <string name="no_records_found_savedArticles">Brak zapisanych artykułów.</string>
+    <string name="menu_saveArticle">Zapisz stronę</string>
+    <string name="article_not_loaded_yey">Artykuł nie został jeszcze załadowany.</string>
+    <string name="article_succesfully_saved">Artykuł został pomyślnie zapisany.</string>
+    <string name="no_record_matches_query">Nie znaleziono stron pasujących do twojego zapytania.</string>
 </resources>

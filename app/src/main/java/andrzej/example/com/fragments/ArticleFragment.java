@@ -56,6 +56,7 @@ import andrzej.example.com.activities.GalleryActivity;
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
+import andrzej.example.com.databases.SavedArticlesDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
@@ -63,6 +64,7 @@ import andrzej.example.com.models.ArticleHeader;
 import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.ArticleImage;
 import andrzej.example.com.models.ArticleSection;
+import andrzej.example.com.models.BookmarkedArticle;
 import andrzej.example.com.models.Recommendation;
 import andrzej.example.com.models.SearchResult;
 import andrzej.example.com.models.SessionArticleHistory;
@@ -128,6 +130,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     Point size = new Point();
     SharedPreferences prefs;
 
+    private String article_image = null;
+    private String article_content = null;
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -368,96 +372,99 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setNoInternetLayout();
+                        article_content = response.toString();
+                        if (getActivity() != null) {
+                            try {
+                                if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                                    setNoInternetLayout();
 
-                            JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
-
-
-                            for (int i = 0; i < sections.length(); i++) {
-                                JSONObject section = sections.getJSONObject(i);
-
-                                //Parsowanie zawartości
-                                JSONArray content = section.getJSONArray(Article.KEY_CONTENT);
-
-                                final int level = section.getInt(Article.KEY_LEVEL);
-                                String title = section.getString(Article.KEY_TITLE);
+                                JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
 
 
-                                TextView headerView = viewsManager.addHeader(level, title);
-                                textViews.add(headerView);
-                                if (level != 1)
-                                    headers.add(new ArticleHeader(level, title, headerView));
-                                else
-                                    headers.get(0).setView(headerView);
+                                for (int i = 0; i < sections.length(); i++) {
+                                    JSONObject section = sections.getJSONObject(i);
+
+                                    //Parsowanie zawartości
+                                    JSONArray content = section.getJSONArray(Article.KEY_CONTENT);
+
+                                    final int level = section.getInt(Article.KEY_LEVEL);
+                                    String title = section.getString(Article.KEY_TITLE);
 
 
-                                if (content.length() > 0) {
-                                    for (int j = 0; j < content.length(); j++) {
-                                        JSONObject content_section = content.getJSONObject(j);
-                                        String type = content_section.getString(Article.KEY_TYPE);
+                                    TextView headerView = viewsManager.addHeader(level, title);
+                                    textViews.add(headerView);
+                                    if (level != 1)
+                                        headers.add(new ArticleHeader(level, title, headerView));
+                                    else
+                                        headers.get(0).setView(headerView);
 
-                                        if (type.equals(Article.KEY_PARAGRAPH)) {
-                                            final String text = content_section.getString(Article.KEY_TEXT);
-                                            if (text != null && text.trim().length() > 0) {
-                                                textViews.add(viewsManager.addTextViewToLayout(text, level));
+
+                                    if (content.length() > 0) {
+                                        for (int j = 0; j < content.length(); j++) {
+                                            JSONObject content_section = content.getJSONObject(j);
+                                            String type = content_section.getString(Article.KEY_TYPE);
+
+                                            if (type.equals(Article.KEY_PARAGRAPH)) {
+                                                final String text = content_section.getString(Article.KEY_TEXT);
+                                                if (text != null && text.trim().length() > 0) {
+                                                    textViews.add(viewsManager.addTextViewToLayout(text, level));
+                                                }
+                                            } else if (type.equals(Article.KEY_LIST)) {
+                                                JSONArray elements = content_section.getJSONArray(Article.KEY_ELEMENTS);
+                                                if (elements != null && elements.length() > 0)
+                                                    fetchList(elements, 0, level);
                                             }
-                                        } else if (type.equals(Article.KEY_LIST)) {
-                                            JSONArray elements = content_section.getJSONArray(Article.KEY_ELEMENTS);
-                                            if (elements != null && elements.length() > 0)
-                                                fetchList(elements, 0, level);
                                         }
                                     }
-                                }
 
-                                JSONArray images_section = section.getJSONArray(ArticleImage.KEY_IMAGES);
+                                    JSONArray images_section = section.getJSONArray(ArticleImage.KEY_IMAGES);
 
-                                for (int j = 0; j < images_section.length(); j++) {
-                                    JSONObject image = images_section.getJSONObject(j);
+                                    for (int j = 0; j < images_section.length(); j++) {
+                                        JSONObject image = images_section.getJSONObject(j);
 
-                                    String img_url = image.getString(ArticleImage.KEY_SRC);
-                                    String caption = null;
-                                    if (image.has(ArticleImage.KEY_CAPTION))
-                                        caption = image.getString(ArticleImage.KEY_CAPTION);
+                                        String img_url = image.getString(ArticleImage.KEY_SRC);
+                                        String caption = null;
+                                        if (image.has(ArticleImage.KEY_CAPTION))
+                                            caption = image.getString(ArticleImage.KEY_CAPTION);
 
-                                    if (img_url != null && img_url.trim().length() > 0) {
-                                        int scaleTo = prefs.getInt(SharedPrefsKeys.ARTICLE_IMAGES_SIZE_PREF, BaseConfig.imageSize);
-                                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, scaleTo), caption);
-                                        imgs.add(new ArticleImage(img_url, caption, imgs.size()));
+                                        if (img_url != null && img_url.trim().length() > 0) {
+                                            int scaleTo = prefs.getInt(SharedPrefsKeys.ARTICLE_IMAGES_SIZE_PREF, BaseConfig.imageSize);
+                                            ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, scaleTo), caption);
+                                            imgs.add(new ArticleImage(img_url, caption, imgs.size()));
 
-                                        final ArticleImage imageItem = imgs.get(imgs.size() - 1);
+                                            final ArticleImage imageItem = imgs.get(imgs.size() - 1);
 
 
-                                        iv.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
-                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
-                                                intent.putExtra(GalleryActivity.KEY_POSITON, imageItem.getPosition());
-                                                startActivity(intent);
-                                                //Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                            iv.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                    intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
+                                                    intent.putExtra(GalleryActivity.KEY_POSITON, imageItem.getPosition());
+                                                    startActivity(intent);
+                                                    //Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
 
+                                        }
                                     }
+
+
                                 }
 
 
+                                mSwipeRefreshLayout.setRefreshing(false);
+
+                                headers = ArrayHelpers.headersRemoveLevels(headers);
+                                mStructureAdapter.notifyDataSetChanged();
+
+                                setInternetPresentLayout();
+                                fetchSimilarArticles();
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                mSwipeRefreshLayout.setRefreshing(false);
                             }
-
-
-                            mSwipeRefreshLayout.setRefreshing(false);
-
-                            headers = ArrayHelpers.headersRemoveLevels(headers);
-                            mStructureAdapter.notifyDataSetChanged();
-
-                            setInternetPresentLayout();
-                            fetchSimilarArticles();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            mSwipeRefreshLayout.setRefreshing(false);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -541,80 +548,84 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                setNoInternetLayout();
+                        if (getActivity() != null) {
+                            try {
+                                if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                                    setNoInternetLayout();
 
-                            JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
-                            String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
+                                JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
+                                String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
 
-                            if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
+                                if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
 
-                                try {
-                                    JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
+                                    article_image = thumbnail_url;
 
-                                    if (orginal_dimens != null) {
-                                        int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
+                                    try {
+                                        JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
 
-                                        if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
-                                            orginal_width = BaseConfig.MAX_IMAGE_SIZE;
+                                        if (orginal_dimens != null) {
+                                            int orginal_width = orginal_dimens.getInt(ArticleImage.KEY_WIDTH);
+
+                                            if (orginal_width > BaseConfig.MAX_IMAGE_SIZE)
+                                                orginal_width = BaseConfig.MAX_IMAGE_SIZE;
 
 
-                                        thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                            thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+                                        }
+
+                                        imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
+                                    } catch (JSONException e) {
+                                        ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
+                                        db.addItem(iItem);
                                     }
+                                }
 
-                                    imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
-                                } catch (JSONException e) {
+                                if (imgs.size() > 0) {
+                                    final ArticleImage image = imgs.get(0);
+
+                                    ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
+                                    db.addItem(iItem);
+
+
+                                    Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            parallaxIv.setBackgroundColor(Color.WHITE);
+                                            parallaxIv.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                                    intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
+                                                    intent.putExtra(GalleryActivity.KEY_POSITON, image.getPosition());
+                                                    startActivity(intent);
+                                                }
+                                            });
+
+
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                        }
+                                    });
+
+                                } else {
+                                    setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                    parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+                                    parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                    setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
                                     ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
                                     db.addItem(iItem);
                                 }
-                            }
 
-                            if (imgs.size() > 0) {
-                                final ArticleImage image = imgs.get(0);
-
-                                ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, image.getImg_url());
-                                db.addItem(iItem);
-
-
-                                Picasso.with(MyApplication.getAppContext()).load(image.getImg_url()).placeholder(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).error(ContextCompat.getDrawable(getActivity(), R.drawable.logo)).into(parallaxIv, new Callback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        parallaxIv.setBackgroundColor(Color.WHITE);
-                                        parallaxIv.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
-                                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_ARTICLE);
-                                                intent.putExtra(GalleryActivity.KEY_POSITON, image.getPosition());
-                                                startActivity(intent);
-                                            }
-                                        });
-
-
-                                    }
-
-                                    @Override
-                                    public void onError() {
-                                    }
-                                });
-
-                            } else {
-                                setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
-                                parallaxIv.setBackgroundColor(Color.TRANSPARENT);
-                                parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
-                                setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
-                                ArticleHistoryItem iItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);
-                                db.addItem(iItem);
-                            }
-
-                            fetchArticleContent(id);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                 fetchArticleContent(id);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
+                                    fetchArticleContent(id);
+                            }
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -651,7 +662,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             //Teoretycznie ten endpoint mógłby zwracać wiele takich, ale my chcemy tylko dla danego artykułu
                             JSONArray items = items_object.getJSONArray(String.valueOf(id));
 
-                            if (items.length() > 0 && viewsManager != null) {
+                            if (items.length() > 0 && viewsManager != null && getActivity() != null) {
                                 TextView tv = viewsManager.addHeader(2, getActivity().getResources().getString(R.string.relatedHeader));
                                 textViews.add(tv);
                                 headers.add(new ArticleHeader(2, getActivity().getResources().getString(R.string.relatedHeader), tv));
@@ -809,9 +820,12 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
-        // Inflate menu to add items to action bar if it is present.
+
         inflater.inflate(R.menu.article_menu, menu);
-        // Associate searchable configuration with the SearchView
+
+        boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
+        MenuItem item = menu.findItem(R.id.menu_nightMode);
+        item.setChecked(nightMode);
     }
 
     @Override
@@ -834,12 +848,25 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 if (nightMode) {
                     setUpNormalMode();
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, false);
+                    item.setChecked(false);
                 } else {
                     setUpNightMode();
                     editor.putBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, true);
+                    item.setChecked(true);
                 }
 
                 editor.commit();
+                break;
+
+            case R.id.menu_saveArticle:
+                if(article_content != null) {
+                    SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity());
+                    String wikiName = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
+                    db.addItem(new BookmarkedArticle(article_title, article_image, article_content, wikiName, APIEndpoints.WIKI_NAME));
+                    db.close();
+                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_succesfully_saved), Toast.LENGTH_SHORT).show();
+                }else
+                    Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_not_loaded_yey), Toast.LENGTH_SHORT).show();
                 break;
         }
 

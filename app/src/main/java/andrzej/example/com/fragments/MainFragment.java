@@ -67,7 +67,6 @@ public class MainFragment extends Fragment {
         rootView = (FrameLayout) v.findViewById(R.id.main_rootView);
         tv = (TextView) v.findViewById(R.id.main_textView);
 
-
         return v;
     }
 

@@ -205,7 +205,7 @@ public class HistoryFragment extends Fragment {
                 if (mAdapter != null && mActionMode != null)
                     mActionMode.finish();
 
-                if(filterEt!=null) {
+                if(filterEt!=null && getActivity()!=null) {
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(filterEt.getWindowToken(), 0);

@@ -25,6 +25,7 @@ import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
+import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
@@ -53,8 +54,10 @@ public class MainActivity extends MaterialNavigationDrawer {
     public static MaterialSection section_random;
     public static MaterialSection section_management;
     public static MaterialSection section_history;
+    public static MaterialSection section_bookmarks;
     public static MaterialSection section_settings;
     public static MaterialSection section_article;
+    public static MaterialSection section_offlineArticle;
 
     //Accounts
     public static MaterialAccount account;
@@ -88,7 +91,6 @@ public class MainActivity extends MaterialNavigationDrawer {
         APIEndpoints.WIKI_NAME = account_subtitle;
         APIEndpoints.reInitEndpoints();
 
-
         account = new MaterialAccount(this.getResources(), account_subtitle, account_title, null, images[random_int]);
         this.addAccount(account);
 
@@ -98,7 +100,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_history = newSection(getResources().getString(R.string.drawer_history), ContextCompat.getDrawable(this, R.drawable.ic_history_grey600_24dp), new HistoryFragment());
         addSection(section_history);
 
-        section_management = newSection(getResources().getString(R.string.drawer_saved_articles), ContextCompat.getDrawable(this, R.drawable.ic_content_save_all_grey600_24dp), new WikisManagementFragment());
+        section_management = newSection(getResources().getString(R.string.drawer_saved_articles), ContextCompat.getDrawable(this, R.drawable.ic_elevator_grey600_24dp), new WikisManagementFragment());
         addSection(section_management);
         section_management.setOnClickListener(new MaterialSectionListener() {
             @Override
@@ -109,6 +111,8 @@ public class MainActivity extends MaterialNavigationDrawer {
             }
         });
 
+        section_bookmarks = newSection(getResources().getString(R.string.drawer_bookmared_articles), ContextCompat.getDrawable(this, R.drawable.ic_bookmark_grey600_24dp), new SavedArticlesFragment());
+        addSection(section_bookmarks);
 
         section_random = newSection(getResources().getString(R.string.drawer_random_article), ContextCompat.getDrawable(this, R.drawable.ic_dice_5_grey600_24dp), new RandomArticleFragment());
         addSection(section_random);
@@ -129,6 +133,10 @@ public class MainActivity extends MaterialNavigationDrawer {
         section_article = newSection(getResources().getString(R.string.drawer_articles), new ArticleFragment());
         addSection(section_article);
         section_article.getView().setVisibility(View.GONE);
+
+        section_offlineArticle = newSection(getResources().getString(R.string.drawer_articles), new ArticleFragment());
+        addSection(section_offlineArticle);
+        section_offlineArticle.getView().setVisibility(View.GONE);
 
         section_settings = newSection(getResources().getString(R.string.drawer_settings), ContextCompat.getDrawable(this, R.drawable.ic_settings_grey600_24dp), new Intent(this, SharedPreferenceActivity.class));
         addBottomSection(section_settings);
@@ -242,6 +250,8 @@ public class MainActivity extends MaterialNavigationDrawer {
                     }
                 }
 
+            } else if (current_section == section_offlineArticle) {
+                onBackPressedListener.doBack();
             } else {
                 ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
                 ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);

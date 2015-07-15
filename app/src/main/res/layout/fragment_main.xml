@@ -14,6 +14,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="Main Fragment" />
+        android:text="Strona główna" />
 
 </FrameLayout>
