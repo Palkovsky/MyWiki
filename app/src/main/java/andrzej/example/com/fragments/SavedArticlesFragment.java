@@ -163,6 +163,12 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
         return v;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateList();
+    }
+
     private void reInitViews() {
         if (mSavedArticles.size() > 0)
             setRecordsPresentLayout();
