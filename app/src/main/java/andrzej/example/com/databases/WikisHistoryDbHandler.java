@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +63,13 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void  editItem(int id, WikiPreviousListItem item) {
+    public void editItem(int id, WikiPreviousListItem item) {
         String url = item.getUrl();
         String label = item.getTitle();
 
         SavedArticlesDbHandler saved_db = new SavedArticlesDbHandler(context);
         List<BookmarkedArticle> articles = saved_db.getAllItemsWithWiki(url);
-        for(BookmarkedArticle article : articles){
+        for (BookmarkedArticle article : articles) {
             saved_db.editRecord(article.getId(), label);
         }
         saved_db.close();
@@ -84,8 +85,15 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
 
     public void addItem(WikiPreviousListItem item) {
 
-        if(!itemExsists(item.getUrl())) {
+        if (!itemExsists(item.getUrl())) {
             SQLiteDatabase db = this.getWritableDatabase();
+
+            SavedArticlesDbHandler saved_db = new SavedArticlesDbHandler(context);
+            List<BookmarkedArticle> articles = saved_db.getAllItemsWithWiki(item.getUrl());
+            for (BookmarkedArticle article : articles) {
+                saved_db.editRecord(article.getId(), item.getTitle());
+            }
+            saved_db.close();
 
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getTitle());
@@ -144,13 +152,18 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
                         KEY_URL}, KEY_URL + "=?",
                 new String[]{url}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            return true;
-        } else
+            if (cursor.getCount() > 0) {
+                return true;
+            } else
+                return false;
+        }catch (IllegalStateException e){
+            Log.e(null, e.getMessage());
             return false;
+        }
     }
 
     public boolean itemExsistsLabel(String label) {
@@ -160,13 +173,18 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
                         KEY_NAME}, KEY_NAME + "=?",
                 new String[]{label}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            return true;
-        } else
+            if (cursor.getCount() > 0) {
+                return true;
+            } else
+                return false;
+        }catch (IllegalStateException e){
+            Log.e(null, e.getMessage());
             return false;
+        }
     }
 
     private void deleteItemsWithUrl(String url) {

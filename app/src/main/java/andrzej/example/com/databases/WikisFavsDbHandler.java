@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -161,13 +162,18 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                         KEY_URL}, KEY_URL + "=?",
                 new String[]{url}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            return true;
-        } else
+            if (cursor.getCount() > 0) {
+                return true;
+            } else
+                return false;
+        }catch (IllegalStateException e){
+            Log.e(null, e.getMessage());
             return false;
+        }
     }
 
     public boolean itemExsistsLabel(String label) {
@@ -177,13 +183,18 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                         KEY_NAME}, KEY_NAME + "=?",
                 new String[]{label}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            return true;
-        } else
+            if (cursor.getCount() > 0) {
+                return true;
+            } else
+                return false;
+        }catch (IllegalStateException e){
+            Log.e(null, e.getMessage());
             return false;
+        }
     }
 
     public boolean itemExsists(String url, String name) {
@@ -193,13 +204,18 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                         KEY_URL}, KEY_URL + "=? AND " + KEY_NAME + "=?",
                 new String[]{url, name}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            return true;
-        } else
+            if (cursor.getCount() > 0) {
+                return true;
+            } else
+                return false;
+        }catch (IllegalStateException e){
+            Log.e(null, e.getMessage());
             return false;
+        }
     }
 
     public WikiFavItem getItemByUrl(String url) {

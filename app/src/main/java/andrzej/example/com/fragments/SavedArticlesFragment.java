@@ -27,12 +27,9 @@ import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.adapters.SavedArticlesListAdapter;
-import andrzej.example.com.databases.ArticleHistoryDbHandler;
-import andrzej.example.com.databases.OnDatabaseSaved;
 import andrzej.example.com.databases.SavedArticlesDbHandler;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.BookmarkedArticle;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
@@ -166,6 +163,7 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
     @Override
     public void onResume() {
         super.onResume();
+        mFilterEditText.setText("");
         updateList();
     }
 
