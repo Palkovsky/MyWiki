@@ -86,22 +86,26 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
     public void addItem(WikiPreviousListItem item) {
 
         if (!itemExsists(item.getUrl())) {
-            SQLiteDatabase db = this.getWritableDatabase();
+            try {
+                SQLiteDatabase db = this.getWritableDatabase();
 
-            SavedArticlesDbHandler saved_db = new SavedArticlesDbHandler(context);
-            List<BookmarkedArticle> articles = saved_db.getAllItemsWithWiki(item.getUrl());
-            for (BookmarkedArticle article : articles) {
-                saved_db.editRecord(article.getId(), item.getTitle());
+                SavedArticlesDbHandler saved_db = new SavedArticlesDbHandler(context);
+                List<BookmarkedArticle> articles = saved_db.getAllItemsWithWiki(item.getUrl());
+                for (BookmarkedArticle article : articles) {
+                    saved_db.editRecord(article.getId(), item.getTitle());
+                }
+                saved_db.close();
+
+                ContentValues values = new ContentValues();
+                values.put(KEY_NAME, item.getTitle());
+                values.put(KEY_URL, item.getUrl());
+
+                // Inserting Row
+                db.insert(TABLE_HISTORY, null, values);
+                db.close(); // Closing database connection
+            }catch (IllegalStateException e){
+                Log.e(null, e.getMessage());
             }
-            saved_db.close();
-
-            ContentValues values = new ContentValues();
-            values.put(KEY_NAME, item.getTitle());
-            values.put(KEY_URL, item.getUrl());
-
-            // Inserting Row
-            db.insert(TABLE_HISTORY, null, values);
-            db.close(); // Closing database connection
         }
     }
 

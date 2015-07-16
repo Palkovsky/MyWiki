@@ -129,7 +129,7 @@ public class WikiManagementHelper {
     }
 
     public void setCurrentWiki(String label, String url) {
-        previous_db.addItem(new WikiPreviousListItem(label, url));
+        //previous_db.addItem(new WikiPreviousListItem(label, url));
         PreviouslyUsedWikisFragment.updateRecords();
 
         APIEndpoints.WIKI_NAME = url;
