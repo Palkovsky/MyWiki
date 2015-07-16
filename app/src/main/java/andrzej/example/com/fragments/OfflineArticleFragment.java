@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.view.Display;
 import android.view.Gravity;
@@ -61,7 +62,7 @@ import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class OfflineArticleFragment extends Fragment implements OnBackPressedListener, AdapterView.OnItemClickListener, DrawerLayout.DrawerListener,  ObservableScrollViewCallbacks {
+public class OfflineArticleFragment extends Fragment implements OnBackPressedListener, AdapterView.OnItemClickListener, DrawerLayout.DrawerListener,  ObservableScrollViewCallbacks, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "offlinearticlefragmet";
 
@@ -71,6 +72,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
     private DrawerLayout mDrawerLayout;
     private LinearLayout mMainArticleContent;
     private ObservableScrollView mMainScrollView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     //Vitals
     private int articleId = -1;
@@ -88,6 +90,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
 
 
     //Lists
+    private static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
     private List<TextView> textViews = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
 
@@ -142,6 +145,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         mMainScrollView = (ObservableScrollView) v.findViewById(R.id.offlineArticleScrollView);
         mDrawerListView = (ListView) v.findViewById(R.id.right_drawer);
         mMainArticleContent = (LinearLayout) v.findViewById(R.id.mainArticleContent);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.offline_article_swipe_refresh_layout);
 
         //Adapters
         mStructureAdapter = new ArticleStructureListAdapter(getActivity(), R.layout.article_structure_list_item, headers);
@@ -152,6 +156,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(this);
         mDrawerListView.setOnItemClickListener(this);
         mMainScrollView.setScrollViewCallbacks(this);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
 
         //Starting methods
@@ -174,6 +179,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         textViews.clear();
         mStructureAdapter.notifyDataSetChanged();
         headers.add(new ArticleHeader(1, articleTitle, null));
+        viewsManager.destroyAllViews();
         parseJsonObject(articleContent);
     }
 
@@ -266,6 +272,40 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
                         }
                     }
                 }
+
+                JSONArray images_section = section.getJSONArray(ArticleImage.KEY_IMAGES);
+
+                for (int j = 0; j < images_section.length(); j++) {
+                    JSONObject image = images_section.getJSONObject(j);
+
+                    String img_url = image.getString(ArticleImage.KEY_SRC);
+                    String caption = null;
+                    if (image.has(ArticleImage.KEY_CAPTION))
+                        caption = image.getString(ArticleImage.KEY_CAPTION);
+
+                    if (img_url != null && img_url.trim().length() > 0) {
+                        int scaleTo = prefs.getInt(SharedPrefsKeys.ARTICLE_IMAGES_SIZE_PREF, BaseConfig.imageSize);
+                        ImageView iv = viewsManager.addImageViewToLayout(StringOperations.pumpUpSize(img_url, scaleTo), caption);
+                        imgs.add(new ArticleImage(img_url, caption, imgs.size()));
+
+                        final ArticleImage imageItem = imgs.get(imgs.size() - 1);
+
+
+                        iv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                                intent.putExtra(GalleryActivity.KEY_TYPE, GalleryActivity.KEY_OFFLINE);
+                                intent.putExtra(GalleryActivity.KEY_POSITON, imageItem.getPosition());
+                                startActivity(intent);
+                                //Toast.makeText(getActivity(), imageItem.getPosition()+"", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
+                }
+
+                mSwipeRefreshLayout.setRefreshing(false);
 
             }
 
@@ -440,5 +480,19 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         isSignificantDelta = false;
     }
 
+    public static List<ArticleImage> getImgs() {
+        return imgs;
+    }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewsManager.destroyAllViews();
+    }
+
+    @Override
+    public void onRefresh() {
+        refreshArticle();
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
 }

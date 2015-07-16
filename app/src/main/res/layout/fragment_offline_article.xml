@@ -9,21 +9,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <andrzej.example.com.observablescrollview.ObservableScrollView
-            android:id="@+id/offlineArticleScrollView"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/offline_article_swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:layout_height="wrap_content">
 
-
-            <LinearLayout
-                android:id="@+id/mainArticleContent"
+            <andrzej.example.com.observablescrollview.ObservableScrollView
+                android:id="@+id/offlineArticleScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp"></LinearLayout>
+                android:background="@android:color/transparent">
 
-        </andrzej.example.com.observablescrollview.ObservableScrollView>
+
+                <LinearLayout
+                    android:id="@+id/mainArticleContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp"></LinearLayout>
+
+            </andrzej.example.com.observablescrollview.ObservableScrollView>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </RelativeLayout>
 

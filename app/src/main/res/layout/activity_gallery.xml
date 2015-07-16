@@ -37,7 +37,6 @@
             android:paddingBottom="25dp"
             android:paddingLeft="15dp"
             android:paddingTop="25dp"
-            android:text="Flaga Equestrii"
             android:textColor="@android:color/white" />
     </LinearLayout>
 

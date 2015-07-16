@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import andrzej.example.com.adapters.GalleryViewPagerAdapter;
 import andrzej.example.com.fragments.ArticleFragment;
+import andrzej.example.com.fragments.OfflineArticleFragment;
 import andrzej.example.com.fragments.RandomArticleFragment;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.ArticleImage;
@@ -47,6 +48,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     public static final String KEY_POSITON = "key_positon";
     public static final String KEY_ARTICLE = "key_article";
     public static final String KEY_RANDOM = "key_random_article";
+    public static final String KEY_OFFLINE = "key_offline_article";
 
     //Ui
     private static Toolbar toolbar;
@@ -116,7 +118,6 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
     }
 
     public static void hideInterface() {
@@ -182,7 +183,8 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
             return ArticleFragment.imgs;
         else if (type.equals(KEY_RANDOM))
             return RandomArticleFragment.imgs;
-
+        else if(type.equals(KEY_OFFLINE))
+            return OfflineArticleFragment.getImgs();
         return null;
     }
 
