@@ -1,20 +1,40 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/offlineArticleRootView"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="andrzej.example.com.fragments.OfflineArticleFragment">
+    android:background="@color/background">
 
-    <ScrollView
+    <RelativeLayout
+        android:id="@+id/offlineArticleRootView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:background="@android:color/transparent">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/offlineArticleTestTv"
+        <andrzej.example.com.observablescrollview.ObservableScrollView
+            android:id="@+id/offlineArticleScrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent">
 
-    </ScrollView>
-</RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/mainArticleContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp"></LinearLayout>
+
+        </andrzej.example.com.observablescrollview.ObservableScrollView>
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/right_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="@android:color/white"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+
+</android.support.v4.widget.DrawerLayout>

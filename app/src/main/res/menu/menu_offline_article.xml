@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_structure"
+        android:title="@string/menu_structure"
+        android:icon="@drawable/ic_format_list_bulleted_white_24dp"
+        appcompat:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_nightMode"
+        android:title="@string/menu_nightMode"
+        appcompat:showAsAction="never"
+        android:checkable="true"/>
+
+
+    <item
+        android:id="@+id/menu_search"
+        android:title="@string/menu_search"
+        android:icon="@drawable/ic_magnify_white_48dp"
+        appcompat:showAsAction="ifRoom"/>
+
+
+</menu>

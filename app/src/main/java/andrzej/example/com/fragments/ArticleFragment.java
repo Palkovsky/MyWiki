@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +15,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -108,7 +106,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     // Lists
     public static List<ArticleImage> imgs = new ArrayList<ArticleImage>();
-    private List<ArticleSection> sections = new ArrayList<>();
     private List<ArticleHeader> headers = new ArrayList<>();
     private List<Recommendation> recommendations = new ArrayList<>();
     public static List<TextView> textViews = new ArrayList<>();
@@ -260,7 +257,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                                                    if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
                                                                        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
                                                                    }
-                                                                   parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
+                                                                   parallaxSv.smoothScrollTo(0, headers.get(position).getView().getTop());
                                                                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
                                                                }
                                                            }
@@ -270,18 +267,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         );
 
-        parallaxSv.getViewTreeObserver().
-
-                addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-                                               @Override
-                                               public void onScrollChanged() {
-                                                   int posY = parallaxSv.getScrollY();
-                                                   if (posY <= 800) ;
-
-                                               }
-                                           }
-
-                );
 
 
         ((MaterialNavigationDrawer) this.

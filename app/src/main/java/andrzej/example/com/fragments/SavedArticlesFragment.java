@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -347,7 +348,7 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
 
         Fragment fragment = new OfflineArticleFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(OfflineArticleFragment.BUNDLE_KEY_CONTENT, article.getArticle_id());
+        bundle.putInt(OfflineArticleFragment.BUNDLE_KEY_ID, article.getArticle_id());
         bundle.putString(OfflineArticleFragment.BUNDLE_KEY_TITLE, article.getTitle());
         bundle.putString(OfflineArticleFragment.BUNDLE_KEY_CONTENT, article.getContent());
         bundle.putString(OfflineArticleFragment.BUNDLE_KEY_WIKI_IMAGE, article.getImgUrl());
@@ -356,5 +357,6 @@ public class SavedArticlesFragment extends Fragment implements DrawerLayout.Draw
 
         ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article.getTitle());
         ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_offlineArticle);
+
     }
 }

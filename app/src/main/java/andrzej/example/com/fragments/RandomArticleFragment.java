@@ -270,14 +270,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             }
         });
 
-        parallaxSv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                int posY = parallaxSv.getScrollY();
-                if (posY <= 800) ;
 
-            }
-        });
 
 
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
