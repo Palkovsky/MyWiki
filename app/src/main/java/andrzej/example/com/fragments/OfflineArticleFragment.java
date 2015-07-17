@@ -138,6 +138,8 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_offline_article, container, false);
 
+        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(articleTitle);
+
         setHasOptionsMenu(true);
 
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.drawer_layout);
@@ -161,6 +163,7 @@ public class OfflineArticleFragment extends Fragment implements OnBackPressedLis
 
         //Starting methods
         viewsManager.setLayout(mMainArticleContent);
+        viewsManager.destroyAllViews();
         addToArticleHistory();
         refreshArticle();
         setUpColorScheme();

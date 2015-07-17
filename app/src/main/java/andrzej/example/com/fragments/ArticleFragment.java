@@ -159,7 +159,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Bundle bundle = this.getArguments();
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
-        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
+
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         volleySingleton = VolleySingleton.getsInstance();
@@ -174,6 +174,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_article, container, false);
+
+        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(article_title);
 
         setHasOptionsMenu(true);
 
@@ -193,6 +195,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
+        viewsManager.destroyAllViews();
 
         display = getActivity().getWindowManager().getDefaultDisplay();
         display.getSize(size);
@@ -268,7 +271,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         );
 
 
-
         ((MaterialNavigationDrawer) this.
 
                 getActivity()
@@ -329,6 +331,10 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
         //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
+
+        if (getActivity().getResources().getConfiguration().orientation == 2)
+            parallaxIv.setVisibility(View.GONE);
+
 
         if (NetworkUtils.isNetworkAvailable(
                 getActivity()
@@ -845,7 +851,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 break;
 
             case R.id.menu_saveArticle:
-                if(article_content != null) {
+                if (article_content != null) {
                     SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity(), new OnDatabaseSaved() {
                         @Override
                         public void onSucess() {
@@ -860,7 +866,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     String wikiName = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
                     db.addItem(new BookmarkedArticle(article_title, article_image, article_content, wikiName, APIEndpoints.WIKI_NAME, article_id));
                     db.close();
-                }else
+                } else
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_not_loaded_yey), Toast.LENGTH_SHORT).show();
                 break;
         }

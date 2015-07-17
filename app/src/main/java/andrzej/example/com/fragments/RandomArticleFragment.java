@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -122,12 +125,14 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
     public static boolean scrollingWithDrawer = false;
     private boolean isSignificantDelta = false;
 
+
     //stuff
     private int mLastScrollY;
     private int mScrollThreshold = 15;
     Display display;
     Point size = new Point();
     SharedPreferences prefs;
+
 
     private String article_image = null;
     private String article_content = null;
@@ -163,6 +168,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         requestQueue = volleySingleton.getRequestQueue();
 
         db = new ArticleHistoryDbHandler(getActivity());
+
+
     }
 
     @Override
@@ -170,6 +177,8 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_article, container, false);
+
+        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().setTitle(getResources().getString(R.string.drawer_random_article));
 
         setHasOptionsMenu(true);
 
@@ -195,6 +204,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
         viewsManager = new ArticleViewsManager(MyApplication.getAppContext());
         viewsManager.setLayout(rootArticleLl);
+        viewsManager.destroyAllViews();
 
         display = getActivity().getWindowManager().getDefaultDisplay();
         display.getSize(size);
@@ -271,8 +281,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         });
 
 
-
-
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -320,6 +328,11 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
         //ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null)
         //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
 
+
+        if (getActivity().getResources().getConfiguration().orientation == 2) {
+            parallaxIv.setVisibility(View.GONE);
+        }
+
         if (NetworkUtils.isNetworkAvailable(getActivity()))
             fetchRandomArticle();
         else
@@ -347,7 +360,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                     @Override
                     public void onResponse(JSONObject response) {
                         article_content = response.toString();
-                        if(getActivity()!=null) {
+                        if (getActivity() != null) {
                             try {
 
                                 if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
@@ -884,7 +897,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                 break;
 
             case R.id.menu_saveArticle:
-                if(article_content != null) {
+                if (article_content != null) {
                     SavedArticlesDbHandler db = new SavedArticlesDbHandler(getActivity(), new OnDatabaseSaved() {
                         @Override
                         public void onSucess() {
@@ -899,7 +912,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
                     String wikiName = prefs.getString(SharedPrefsKeys.CURRENT_WIKI_LABEL, BaseConfig.DEFAULT_TITLE);
                     db.addItem(new BookmarkedArticle(article_title, article_image, article_content, wikiName, APIEndpoints.WIKI_NAME, article_id));
                     db.close();
-                }else
+                } else
                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.article_not_loaded_yey), Toast.LENGTH_SHORT).show();
                 break;
         }

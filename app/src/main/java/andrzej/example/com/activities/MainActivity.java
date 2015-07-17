@@ -79,6 +79,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         MainActivity.context = getApplicationContext();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+
         allowArrowAnimation();
 
         int[] images = DrawerImages.drawer_images;
