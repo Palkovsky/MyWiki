@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -79,7 +80,7 @@ public class MainActivity extends MaterialNavigationDrawer {
         MainActivity.context = getApplicationContext();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-
+        
         allowArrowAnimation();
 
         int[] images = DrawerImages.drawer_images;
@@ -146,6 +147,18 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's instance
+        try {
+            if (randomArticleFragment != null && outState != null)
+                getSupportFragmentManager().putFragment(outState, RandomArticleFragment.TAG, randomArticleFragment);
+        } catch (IllegalStateException e) {
+            Log.e(null, e.getMessage());
+        }
+    }
 
     public static Context getAppContext() {
         return MainActivity.context;

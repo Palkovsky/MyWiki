@@ -87,6 +87,8 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class RandomArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
 
+    public static final String TAG = "randomArticleFragment";
+
     //UI
     ImageView parallaxIv;
     TextView titleTv;
@@ -216,7 +218,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
         parallaxSv.setScrollViewCallbacks(this);
 
-        setLoadingLayout();
+
         setUpColorScheme();
 
         ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
@@ -228,6 +230,7 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
 
                 MainActivity.articleFragment = new ArticleFragment();
                 Bundle bundle = new Bundle();
+
                 bundle.putInt("article_id", item.getId());
                 bundle.putString("article_title", item.getTitle());
                 MainActivity.articleFragment.setArguments(bundle);
@@ -333,14 +336,42 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             parallaxIv.setVisibility(View.GONE);
         }
 
-        if (NetworkUtils.isNetworkAvailable(getActivity()))
+        if(savedInstanceState!=null) {
+            article_id = savedInstanceState.getInt("article_id");
+            article_title = savedInstanceState.getString("article_title");
+        }
+
+        Log.e(null, "ID przed fetchingiem: " + article_id);
+
+        if(article_id>0) {
+            rootArticleLl.removeAllViews();
+            imgs.clear();
+            recommendations.clear();
+            finishActionMode();
+            refreshHeaders();
+            fetchArticleInfo(article_id);
+        }else if (NetworkUtils.isNetworkAvailable(getActivity())) {
+            setLoadingLayout();
             fetchRandomArticle();
-        else
+        }else {
+            setLoadingLayout();
             setNoInternetLayout();
+        }
 
 
         return v;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (article_id > 0) {
+            outState.putInt("article_id", article_id);
+            outState.putString("article_title", article_title);
+        }
+        Log.e(null, "zapisane id: " + article_id);
+    }
+
 
     public static void finishActionMode() {
         if (mActionModes != null && mActionModes.size() > 0) {

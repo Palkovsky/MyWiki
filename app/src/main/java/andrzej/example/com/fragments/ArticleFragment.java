@@ -808,6 +808,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         fetchArticleInfo(article_id);
     }
 
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
