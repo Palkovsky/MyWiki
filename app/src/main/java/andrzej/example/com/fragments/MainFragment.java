@@ -9,10 +9,17 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.DownloadListener;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -20,27 +27,34 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.SuggestedItem;
 import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.WikiManagementHelper;
 
 
 public class MainFragment extends Fragment {
 
 
     //UI Elements
-    TextView tv;
-    FrameLayout rootView;
+    ScrollView rootView;
+    WebView mWebView;
+
 
     //Articles ids
     List<Integer> article_ids = new ArrayList<>();
+
+
 
     //Networking
     private VolleySingleton volleySingleton;
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
+
+    //Utils
+    private WikiManagementHelper mHelper;
 
     SharedPreferences prefs;
 
@@ -52,6 +66,7 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mHelper = new WikiManagementHelper(getActivity());
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
     }
@@ -64,12 +79,32 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        rootView = (FrameLayout) v.findViewById(R.id.main_rootView);
-        tv = (TextView) v.findViewById(R.id.main_textView);
+        //UI Initialization
+        rootView = (ScrollView) v.findViewById(R.id.main_rootView);
+        mWebView = (WebView) v.findViewById(R.id.webView);
+
+        mWebView.loadUrl("http://www.wikia.com/Wikia");
+        mWebView.getSettings().setJavaScriptEnabled(true);
 
         return v;
     }
 
+    public ArrayList<SuggestedItem> generateSuggestedWikis(){
+        ArrayList<SuggestedItem> mList = new ArrayList<SuggestedItem>();
+
+        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends"};
+        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki"};
+        String[] descriptions = {"", "", ""};
+        String[] imageUrls = {null,
+                "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
+                "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png"};
+
+        for (int i = 0; i < urls.length; i++) {
+            mList.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], getActivity().getString(R.string.ipsum), imageUrls[i]));
+        }
+
+        return mList;
+    }
 
     public static int[] convertIntegers(List<Integer> integers) {
         int[] ret = new int[integers.size()];
@@ -134,11 +169,9 @@ public class MainFragment extends Fragment {
 
     private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
     }
 
     private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
     }
 }

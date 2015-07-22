@@ -110,7 +110,7 @@ public class FavouriteWikisFragment extends Fragment {
 
                 switch (view.getId()) {
 
-                    case R.id.rlRootView:
+                    case R.id.btnSetWiki:
                         String url = mFavs.get(position).getUrl();
                         String label = mFavs.get(position).getTitle();
 

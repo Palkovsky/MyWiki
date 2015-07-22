@@ -133,7 +133,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                         mAdapter.notifyDataSetChanged();
                         break;
 
-                    case R.id.rlRootView:
+                    case R.id.btnSetWiki:
 
                         if (!APIEndpoints.WIKI_NAME.equals(itemUrl)) {
                             String url = mWikisList.get(position).getUrl();
@@ -381,7 +381,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                              dialog.dismiss();
                                                              Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
-                                                             mHelper.addWikiToPreviouslyUsed(label_input, url_input);
+                                                             mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(label_input, url_input, null,null));
                                                              updateRecords();
 
                                                              APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);

@@ -7,16 +7,22 @@ public class WikiFavItem {
     private int id;
     private String title;
     private String url;
+    private String description;
+    private String imageUrl;
 
-    public WikiFavItem(String title, String url) {
+    public WikiFavItem(String title, String url, String description, String imageUrl) {
         this.title = title;
         this.url = url;
+        this.description = description;
+        this.imageUrl = imageUrl;
     }
 
-    public WikiFavItem(int id, String title, String url) {
+    public WikiFavItem(int id, String title, String url, String description, String imageUrl) {
         this.id = id;
         this.title = title;
         this.url = url;
+        this.description = description;
+        this.imageUrl = imageUrl;
     }
 
     public int getId() {
@@ -41,5 +47,21 @@ public class WikiFavItem {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

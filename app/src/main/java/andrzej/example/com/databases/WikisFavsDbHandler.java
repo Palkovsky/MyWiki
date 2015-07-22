@@ -18,7 +18,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "wikisFavs";
@@ -30,6 +30,8 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
     private static final String KEY_URL = "url";
+    private static final String KEY_DESCRIPTION = "description";
+    private static final String KEY_IMAGE_URL = "img_url";
     String CREATE_CONTACTS_TABLE;
 
 
@@ -40,7 +42,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_HISTORY + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_URL + " TEXT" + ")";
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_URL + " TEXT, " + KEY_DESCRIPTION + " TEXT, " + KEY_IMAGE_URL + " TEXT)";
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
@@ -66,6 +68,8 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(KEY_NAME, item.getTitle());
             values.put(KEY_URL, item.getUrl());
+            values.put(KEY_DESCRIPTION, item.getDescription());
+            values.put(KEY_IMAGE_URL, item.getImageUrl());
 
             // Inserting Row
             db.insert(TABLE_HISTORY, null, values);
@@ -93,7 +97,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
         CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_HISTORY + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_URL + " TEXT" + ")";
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT, " + KEY_URL + " TEXT, " + KEY_DESCRIPTION + " TEXT, " + KEY_IMAGE_URL + " TEXT)";
         db.execSQL(CREATE_CONTACTS_TABLE);
         db.close();
     }
@@ -112,8 +116,10 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                 int id = Integer.parseInt(cursor.getString(0));
                 String title = cursor.getString(1);
                 String url = cursor.getString(2);
+                String description = cursor.getString(3);
+                String imageUrl = cursor.getString(4);
                 // Adding contact to list
-                contactList.add(new WikiFavItem(id, title, url));
+                contactList.add(new WikiFavItem(id, title, url, description, imageUrl));
             } while (cursor.moveToNext());
         }
 
@@ -134,8 +140,10 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
             int id = Integer.parseInt(cursor.getString(0));
             String title = cursor.getString(1);
             String URI = cursor.getString(2);
+            String description = cursor.getString(3);
+            String img_url = cursor.getString(4);
 
-            return new WikiFavItem(id, title, URI);
+            return new WikiFavItem(id, title, URI, description, img_url);
         }
 
         return null;
@@ -148,6 +156,8 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(KEY_NAME, label);
         cv.put(KEY_URL, url);
+        cv.put(KEY_DESCRIPTION, item.getDescription());
+        cv.put(KEY_IMAGE_URL, item.getImageUrl());
 
         SQLiteDatabase db= this.getReadableDatabase();
         db.update(TABLE_HISTORY, cv, "id="+id, null);
@@ -222,14 +232,14 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID, KEY_NAME,
-                        KEY_URL}, KEY_URL + "=?",
+                        KEY_URL, KEY_DESCRIPTION, KEY_IMAGE_URL}, KEY_URL + "=?",
                 new String[]{url}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
 
         if (cursor.getCount() > 0)
-            return new WikiFavItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2));
+            return new WikiFavItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
         else
             return null;
     }

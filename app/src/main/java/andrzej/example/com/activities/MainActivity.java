@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.fragments.ArticleFragment;
 import andrzej.example.com.fragments.HistoryFragment;
 import andrzej.example.com.fragments.MainFragment;
@@ -30,7 +29,6 @@ import andrzej.example.com.fragments.SavedArticlesFragment;
 import andrzej.example.com.fragments.WikisManagementFragment;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.ArticleHistoryItem;
 import andrzej.example.com.models.SessionArticleHistory;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -80,7 +78,6 @@ public class MainActivity extends MaterialNavigationDrawer {
         MainActivity.context = getApplicationContext();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        
         allowArrowAnimation();
 
         int[] images = DrawerImages.drawer_images;
@@ -147,18 +144,6 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        //Save the fragment's instance
-        try {
-            if (randomArticleFragment != null && outState != null)
-                getSupportFragmentManager().putFragment(outState, RandomArticleFragment.TAG, randomArticleFragment);
-        } catch (IllegalStateException e) {
-            Log.e(null, e.getMessage());
-        }
-    }
 
     public static Context getAppContext() {
         return MainActivity.context;

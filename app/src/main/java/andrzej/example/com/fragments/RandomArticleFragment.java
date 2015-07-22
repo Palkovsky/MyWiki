@@ -341,7 +341,6 @@ public class RandomArticleFragment extends Fragment implements SwipeRefreshLayou
             article_title = savedInstanceState.getString("article_title");
         }
 
-        Log.e(null, "ID przed fetchingiem: " + article_id);
 
         if(article_id>0) {
             rootArticleLl.removeAllViews();

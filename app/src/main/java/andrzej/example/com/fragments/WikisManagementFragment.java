@@ -29,6 +29,7 @@ import andrzej.example.com.fragments.ManagementTabs.SuggestedWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.adapters.TabsAdapter;
 import andrzej.example.com.fragments.ManagementTabs.TabsPrefs;
 import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.network.NetworkUtils;
 import andrzej.example.com.researchapi.RequestHandler;
 import andrzej.example.com.utils.WikiManagementHelper;
@@ -183,7 +184,7 @@ public class WikisManagementFragment extends Fragment implements ViewPager.OnPag
                                 Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
 
-                                mHelper.addWikiToPreviouslyUsed(label_input, url_input);
+                                mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(label_input, url_input, null,null));
                                 PreviouslyUsedWikisFragment.updateRecords();
 
                                 APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);

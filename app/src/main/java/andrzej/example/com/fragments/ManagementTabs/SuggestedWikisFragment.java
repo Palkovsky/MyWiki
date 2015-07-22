@@ -253,7 +253,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
     @Override
     public boolean onItemLongClick(StaggeredGridView parent, View view, int position, long id) {
-        SuggestedItem item = mSuggestedItems.get(position);
+        final SuggestedItem item = mSuggestedItems.get(position);
         final String title = item.getTitle();
         final String url = item.getUrl();
 
@@ -276,11 +276,11 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                                     WikisFavsDbHandler favs_db = new WikisFavsDbHandler(getActivity());
                                     if (favs_db.itemExsists(url)) {
                                         int id = favs_db.getItemByUrl(url).getId();
-                                        favs_db.editItem(id, new WikiFavItem(id, title, url));
+                                        favs_db.editItem(id, new WikiFavItem(id, title, url, item.getDescription(), item.getImageUrl()));
                                     }
                                     favs_db.close();
 
-                                    mHelper.addWikiToPreviouslyUsed(title, url);
+                                    mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(title, url, item.getDescription(), item.getImageUrl()));
 
                                     APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url);
                                     mHelper.setUrlAsPreference(APIEndpoints.WIKI_NAME, title);
@@ -305,17 +305,17 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                                 WikisFavsDbHandler favs_db = new WikisFavsDbHandler(getActivity());
                                 if (favs_db.itemExsists(url)) {
                                     int fav_id = favs_db.getItemByUrl(url).getId();
-                                    favs_db.editItem(fav_id, new WikiFavItem(fav_id, title, url));
+                                    favs_db.editItem(fav_id, new WikiFavItem(fav_id, title, url, item.getDescription(), item.getImageUrl()));
                                     int id = db.getItemByUrl(url).getId();
-                                    db.editItem(id, new WikiPreviousListItem(id, title, url));
+                                    db.editItem(id, new WikiPreviousListItem(id, title, url, item.getDescription(), item.getImageUrl()));
 
                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.alredy_existed_but_update), Toast.LENGTH_SHORT).show();
                                 } else {
                                     if (db.itemExsists(url)) {
                                         int id = db.getItemByUrl(url).getId();
-                                        db.editItem(id, new WikiPreviousListItem(id, title, url));
+                                        db.editItem(id, new WikiPreviousListItem(id, title, url, item.getDescription(), item.getImageUrl()));
                                     } else
-                                        mHelper.addWikiToPreviouslyUsed(title, url);
+                                        mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(title, url, item.getDescription(), item.getImageUrl()));
                                     mHelper.addWikiToFavs(title, url);
                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfull_added_to_favs), Toast.LENGTH_SHORT).show();
                                 }
@@ -400,7 +400,13 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
         String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends", "nonsensopedia", "godofwar", "pl.starwars", "yugioh", "pl.gothic", "pl.dragonball","pl.mlp", "pl.finalfantasy", "starwars"};
         String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki", "Nonsensopedia", "God of War Wiki", "Empirepedia",
                 "Yu-Gi-Oh Wikia", "Gothicpedia", "Dragon Ball Wiki PL", "MLP Wiki PL", "Final Fantasy Wiki PL", "Wookiepedia"};
-        String[] descriptions = {"", "", "", "", "", "", "", "", "", "", "", "" ,"", ""};
+        String[] descriptions = {"The Harry Potter Wiki reveals plot details about the series. Read at your own risk!",
+                "Polska encyklopedia o świecie Magii.", "Wikia o grze 'League of Legends'.", "Polska encyklopedia humoru.", "The God of War Wiki is a collaborative encyclopedia for everything related to the God of War series.",
+                "Encyklopedia Star Wars, poświęconea staremu kanonowi, czyli Pierwszemu Expanded Universe (1976-2014), którą każdy może redagować. Encyklopedia nie zajmuje się całością zagadnień wokół Star Wars, lecz tylko wybraną ich częścią. Empirepedia nie rości sobie prawa do zajmowania miejsca \"reprezentacyjnej encyklopedii Star Wars\" polskiego fandomu.",
+                "The Yu-Gi-Oh! Wikia is a free repository on all aspects of the Yu-Gi-Oh! franchise that anyone can edit. We've been around since May 26, 2005 — and in that time we've assembled a lot of information about the cards and other aspects of the Yu-Gi-Oh! phenomenon. Please click here for dates of upcoming Yu-Gi-Oh! TCG & OCG product releases, as well as anime air dates and manga book release dates. ",
+                "Jesteśmy społecznością zrzeszoną wokół świata GOTHIC. Zbieramy tutaj wszystkie informacje na temat gier z serii Gothic i gry ArcaniA. ",
+                "Dragon Ball Wiki to polska encyklopedia-przewodnik po uniwersum Smoczego Świata czyli: mangach, anime, grach, gadżetach, filmach live-action oraz wszystkim, co związane z Dragon Ballem, którą każdy może edytować.",
+                "Polska Wikia poświęcona MLP:FiM.", "Baza danych o Final Fantasy, którą każdy może edytować.", "The Star Wars encyclopedia that anyone can edit."};
         String[] imageUrls = {null,
                 "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
                 "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png",

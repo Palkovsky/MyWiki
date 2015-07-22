@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,6 +48,8 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class HistoryFragment extends Fragment {
 
+    public static final String TAG = "historyFragment";
+
     //UI
     TextView noRecordsTv;
     MaterialEditText filterEt;
@@ -59,6 +62,10 @@ public class HistoryFragment extends Fragment {
 
     //List
     List<ArticleHistoryItem> items;
+
+    //Keys
+    private static final String KEY_EDIT_TEXT_DATA = "editTextData";
+    private static final String KEY_EDIT_TEXT_FOCUS = "editTextFocus";
 
     //Prefs
     SharedPreferences prefs;
@@ -95,7 +102,6 @@ public class HistoryFragment extends Fragment {
 
 
         mAdapter = new HistoryListAdapter(getActivity(), items);
-
 
         listHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -196,7 +202,7 @@ public class HistoryFragment extends Fragment {
         ((MaterialNavigationDrawer) this.getActivity()).setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-                if(filterEt!=null)
+                if (filterEt != null)
                     filterEt.clearFocus();
             }
 
@@ -205,7 +211,7 @@ public class HistoryFragment extends Fragment {
                 if (mAdapter != null && mActionMode != null)
                     mActionMode.finish();
 
-                if(filterEt!=null && getActivity()!=null) {
+                if (filterEt != null && getActivity() != null) {
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(filterEt.getWindowToken(), 0);
@@ -276,8 +282,6 @@ public class HistoryFragment extends Fragment {
 
         listHistory.setAdapter(mAdapter);
 
-
-
         if (items.size() <= 0) {
             noRecordsTv.setVisibility(View.VISIBLE);
             listHistory.setVisibility(View.GONE);
@@ -286,6 +290,7 @@ public class HistoryFragment extends Fragment {
 
         return v;
     }
+
 
 
     private void reInitViews(int size) {

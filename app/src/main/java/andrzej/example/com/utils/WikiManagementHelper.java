@@ -14,6 +14,7 @@ import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
 import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.mlpwiki.R;
+import andrzej.example.com.models.SuggestedItem;
 import andrzej.example.com.models.WikiFavItem;
 import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
@@ -39,15 +40,15 @@ public class WikiManagementHelper {
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
-    public void addWikiToPreviouslyUsed(String label, String url) {
-        if (label != null && label.trim().length() > 0)
-            previous_db.addItem(new WikiPreviousListItem(label, cleanInputUrl(url)));
+    public void addWikiToPreviouslyUsed(WikiPreviousListItem item) {
+        if (item.getTitle() != null && item.getTitle().trim().length() > 0)
+            previous_db.addItem(new WikiPreviousListItem(item.getTitle(), cleanInputUrl(item.getUrl()), item.getDescription(), item.getImageUrl()));
         else
-            previous_db.addItem(new WikiPreviousListItem(stripUpWikiUrl(url), cleanInputUrl(url)));
+            previous_db.addItem(new WikiPreviousListItem(stripUpWikiUrl(item.getUrl()), cleanInputUrl(item.getUrl()), item.getDescription(), item.getImageUrl()));
     }
 
     public void addWikiToFavs(String label, String url) {
-        favs_db.addItem(new WikiFavItem(label, url));
+        favs_db.addItem(new WikiFavItem(label, url, null, null));
     }
 
     public WikiFavItem getItemByLabel(String url){
@@ -73,7 +74,7 @@ public class WikiManagementHelper {
             label = stripUpWikiUrl(url);
 
         if(doesFavItemExsistsUrl(oldUrl)) {
-            WikiFavItem favItem = new WikiFavItem(label, url);
+            WikiFavItem favItem = new WikiFavItem(label, url, null, null);
             editFavItem(id, favItem);
         }
 
@@ -91,7 +92,7 @@ public class WikiManagementHelper {
             label = stripUpWikiUrl(url);
 
         if(previous_db.itemExsists(oldUrl)) {
-            WikiPreviousListItem favItem = new WikiPreviousListItem(label, url);
+            WikiPreviousListItem favItem = new WikiPreviousListItem(label, url, null, null);
             editPrevItem(id, favItem);
         }
 

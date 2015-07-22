@@ -1,19 +1,22 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:id="@+id/main_rootView"
     tools:context="andrzej.example.com.fragments.MainFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/main_textView"
-        style="?android:textAppearanceMedium"
+    <RelativeLayout
+        android:id="@+id/main_layoutWrapper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Strona główna" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <WebView
+            android:layout_centerInParent="true"
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></WebView>
+
+    </RelativeLayout>
+
+</ScrollView>
