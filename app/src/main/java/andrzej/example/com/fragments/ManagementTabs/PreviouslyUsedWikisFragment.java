@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,10 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import andrzej.example.com.activities.MainActivity;
+import andrzej.example.com.adapters.OnItemExpanded;
 import andrzej.example.com.adapters.OnLongItemClickListener;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
 import andrzej.example.com.fragments.ManagementTabs.adapters.FavoritesAdapter;
 import andrzej.example.com.fragments.ManagementTabs.adapters.WikiHistoryAdapter;
+import andrzej.example.com.libraries.expandablelayout.ExpandableRelativeLayout;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.WikiFavItem;
@@ -68,7 +71,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
     //Utils
     private static WikiManagementHelper mHelper;
     RequestHandler mRequestHandler;
-
+    LinearLayoutManager llm;
 
     //List
     public static ArrayList<WikiPreviousListItem> mWikisList = new ArrayList<>();
@@ -102,7 +105,9 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
         //SetUpRecycler
         //Set up recycler view
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        llm = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(llm);
         mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .color(getActivity().getResources().getColor(R.color.divider))
                 .sizeResId(R.dimen.divider)
@@ -113,7 +118,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
 
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
+            public void onItemClick(View view, final int position) {
 
                 WikiPreviousListItem item = mWikisList.get(position);
 
@@ -121,6 +126,8 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                 String itemUrl = mHelper.cleanInputUrl(item.getUrl());
 
                 switch (view.getId()) {
+
+
                     case R.id.btnFav:
 
                         if (mHelper.doesFavItemExsistsUrl(itemUrl))
@@ -381,7 +388,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                                                              dialog.dismiss();
                                                              Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
 
-                                                             mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(label_input, url_input, null,null));
+                                                             mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(label_input, url_input, null, null));
                                                              updateRecords();
 
                                                              APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url_input);

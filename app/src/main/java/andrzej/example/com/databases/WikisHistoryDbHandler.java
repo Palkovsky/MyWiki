@@ -136,20 +136,25 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC";
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                int id = Integer.parseInt(cursor.getString(0));
-                String title = cursor.getString(1);
-                String url = cursor.getString(2);
-                String description = cursor.getString(3);
-                String image_url = cursor.getString(4);
-                // Adding contact to list
-                contactList.add(new WikiPreviousListItem(id, title, url, description, image_url));
-            } while (cursor.moveToNext());
+            // looping through all rows and adding to list
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = Integer.parseInt(cursor.getString(0));
+                    String title = cursor.getString(1);
+                    String url = cursor.getString(2);
+                    String description = cursor.getString(3);
+                    String image_url = cursor.getString(4);
+                    // Adding contact to list
+                    contactList.add(new WikiPreviousListItem(id, title, url, description, image_url));
+                } while (cursor.moveToNext());
+            }
+
+        } catch (IllegalStateException e) {
+            Log.e(null, e.getMessage());
         }
 
         // return contact list
@@ -211,17 +216,24 @@ public class WikisHistoryDbHandler extends SQLiteOpenHelper {
     public WikiPreviousListItem getItemByUrl(String url) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID, KEY_NAME,
-                        KEY_URL, KEY_DESCRIPTION, KEY_IMAGE_URL}, KEY_URL + "=?",
-                new String[]{url}, null, null, null, null);
+        try {
+            Cursor cursor = db.query(TABLE_HISTORY, new String[]{KEY_ID, KEY_NAME,
+                            KEY_URL, KEY_DESCRIPTION, KEY_IMAGE_URL}, KEY_URL + "=?",
+                    new String[]{url}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0)
-            return new WikiPreviousListItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
-        else
-            return null;
+            if (cursor.getCount() > 0)
+                return new WikiPreviousListItem(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
+        } catch (IllegalStateException e) {
+            Log.e(null, e.getMessage());
+        }
+
+        return null;
     }
 
+
 }
+
+

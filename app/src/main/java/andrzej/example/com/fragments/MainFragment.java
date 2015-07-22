@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,12 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.libraries.refreshlayout.BGAMoocStyleRefreshViewHolder;
+import andrzej.example.com.libraries.refreshlayout.BGANormalRefreshViewHolder;
+import andrzej.example.com.libraries.refreshlayout.BGARefreshLayout;
+import andrzej.example.com.libraries.refreshlayout.BGARefreshViewHolder;
+import andrzej.example.com.libraries.refreshlayout.BGAStickinessRefreshView;
+import andrzej.example.com.libraries.refreshlayout.BGAStickinessRefreshViewHolder;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.SuggestedItem;
 import andrzej.example.com.network.VolleySingleton;
@@ -35,17 +42,16 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.WikiManagementHelper;
 
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements BGARefreshLayout.BGARefreshLayoutDelegate {
 
 
     //UI Elements
     ScrollView rootView;
-    WebView mWebView;
-
+    TextView tv;
+    private BGARefreshLayout mRefreshLayout;
 
     //Articles ids
     List<Integer> article_ids = new ArrayList<>();
-
 
 
     //Networking
@@ -53,8 +59,6 @@ public class MainFragment extends Fragment {
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
-    //Utils
-    private WikiManagementHelper mHelper;
 
     SharedPreferences prefs;
 
@@ -66,7 +70,6 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mHelper = new WikiManagementHelper(getActivity());
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
     }
@@ -81,30 +84,29 @@ public class MainFragment extends Fragment {
 
         //UI Initialization
         rootView = (ScrollView) v.findViewById(R.id.main_rootView);
-        mWebView = (WebView) v.findViewById(R.id.webView);
+        tv = (TextView) v.findViewById(R.id.mainTv);
+        mRefreshLayout = (BGARefreshLayout) v.findViewById(R.id.rl_main_refreshLayout);
 
-        mWebView.loadUrl("http://www.wikia.com/Wikia");
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        mRefreshLayout.setDelegate(this);
 
+        BGANormalRefreshViewHolder refreshViewHolder = new BGANormalRefreshViewHolder(getActivity(), true);
+        mRefreshLayout.setRefreshViewHolder(refreshViewHolder);
+
+
+        refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.loading));
+
+        //refreshViewHolder.setLoadMoreBackgroundColorRes(loadMoreBackgroundColorRes);
+        //refreshViewHolder.setLoadMoreBackgroundDrawableRes(loadMoreBackgroundDrawableRes);
+        refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.load_more));
+        refreshViewHolder.setRefreshingText(getActivity().getResources().getString(R.string.loading));
+        refreshViewHolder.setPullDownRefreshText(getActivity().getResources().getString(R.string.pull_to_refresh));
+        refreshViewHolder.setReleaseRefreshText(getActivity().getResources().getString(R.string.relase));
+        refreshViewHolder.setRefreshViewBackgroundColorRes(R.color.fabPrimary);
+        refreshViewHolder.setRefreshViewBackgroundDrawableRes(R.mipmap.bga_refresh_loading02);
+        //mRefreshLayout.setCustomHeaderView(mBanner, false);
         return v;
     }
 
-    public ArrayList<SuggestedItem> generateSuggestedWikis(){
-        ArrayList<SuggestedItem> mList = new ArrayList<SuggestedItem>();
-
-        String[] urls = {"harrypotter", "pl.harrypotter", "pl.leagueoflegends"};
-        String[] titles = {"Harry Potter Wiki", "Harry Potter Wiki PL", "League of Legends Wiki"};
-        String[] descriptions = {"", "", ""};
-        String[] imageUrls = {null,
-                "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
-                "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png"};
-
-        for (int i = 0; i < urls.length; i++) {
-            mList.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], getActivity().getString(R.string.ipsum), imageUrls[i]));
-        }
-
-        return mList;
-    }
 
     public static int[] convertIntegers(List<Integer> integers) {
         int[] ret = new int[integers.size()];
@@ -169,9 +171,22 @@ public class MainFragment extends Fragment {
 
     private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
     }
 
     private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+    }
+
+    @Override
+    public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
+        mRefreshLayout.endRefreshing();
+
+    }
+
+    @Override
+    public boolean onBGARefreshLayoutBeginLoadingMore(BGARefreshLayout refreshLayout) {
+        return false;
     }
 }

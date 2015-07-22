@@ -20,5 +20,5 @@ public class BaseConfig {
     public static final String DEFAULT_TITLE = "MLP Wiki PL";
 
 
-    public static long DEFAULT_DROPDOWN_ANIMATION_DURATION = 300;
+    public static long DEFAULT_DROPDOWN_ANIMATION_DURATION = 250;
 }

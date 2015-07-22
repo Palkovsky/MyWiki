@@ -1,22 +1,62 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<andrzej.example.com.libraries.refreshlayout.BGARefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_rootView"
+    android:id="@+id/rl_main_refreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
     tools:context="andrzej.example.com.fragments.MainFragment">
 
-    <RelativeLayout
-        android:id="@+id/main_layoutWrapper"
+    <ScrollView
+        android:id="@+id/main_rootView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/background">
 
-        <WebView
-            android:layout_centerInParent="true"
-            android:id="@+id/webView"
+        <RelativeLayout
+            android:id="@+id/main_layoutWrapper"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></WebView>
+            android:layout_height="match_parent">
 
-    </RelativeLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-</ScrollView>
+                <TextView
+                    android:id="@+id/mainTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:text="@string/ipsum"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:text="@string/ipsum"
+                    android:textColor="@color/nightFontColor"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:text="@string/ipsum"
+                    android:textColor="@color/nightFontColor"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:text="@string/ipsum"
+                    android:textColor="@color/nightFontColor"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:text="@string/ipsum"
+                    android:textColor="@color/nightFontColor"></TextView>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </ScrollView>
+</andrzej.example.com.libraries.refreshlayout.BGARefreshLayout>

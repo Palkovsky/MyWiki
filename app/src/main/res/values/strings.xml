@@ -107,4 +107,8 @@
     <string name="saved_article_already_exsists">Masz już zapisaną tę stronę.</string>
     <string name="ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ornare risus id nibh auctor rutrum. Etiam nec risus est. Nulla quis tristique augue, non euismod neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam viverra libero in mi mollis ultricies. Duis convallis est in ligula sagittis, sed luctus nunc tempus. Curabitur nunc lorem, pellentesque eget posuere id, posuere eget nisl. Suspendisse dignissim bibendum urna. Cras a felis non justo finibus aliquet id in mauris. Sed lobortis nisi sed libero pretium, ac vestibulum augue tincidunt. Nam erat nisi, aliquet dignissim nulla eget, maximus fermentum justo. Donec pharetra vehicula nisl, quis accumsan dolor pharetra quis.</string>
     <string name="messages">Wiadomości</string>
+    <string name="loading">Odświeżanie...</string>
+    <string name="pull_to_refresh">Przeciągnij by odświeżyć</string>
+    <string name="relase">Puść</string>
+    <string name="load_more">Załaduj więcej</string>
 </resources>

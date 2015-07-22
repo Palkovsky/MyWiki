@@ -20,6 +20,7 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.adapters.OnItemExpanded;
 import andrzej.example.com.adapters.OnLongItemClickListener;
 import andrzej.example.com.databases.WikisFavsDbHandler;
 import andrzej.example.com.databases.WikisHistoryDbHandler;
@@ -82,7 +83,7 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
             }
         });
 
-        if(mExpandedItems.contains(mDataset.get(position).getUrl()))
+        if (mExpandedItems.contains(mDataset.get(position).getUrl()))
             holder.rootView.setExpaned(true);
         else
             holder.rootView.setExpaned(false);
@@ -94,15 +95,15 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
             setViewBackground(holder.rootView, ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background_dark));
             setViewBackground(holder.rootView.getNormalPart(), ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background_dark));
             //setViewBackground(holder.rootView.getExtendedPart(), ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background_dark));
-        }else {
+        } else {
             setViewBackground(holder.rootView, ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background));
             setViewBackground(holder.rootView.getNormalPart(), ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background));
             //setViewBackground(holder.rootView.getExtendedPart(), ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background));
         }
 
-        if(item.getDescription() == null || item.getDescription().trim().equals(""))
+        if (item.getDescription() == null || item.getDescription().trim().equals(""))
             holder.tvDescription.setVisibility(View.GONE);
-        else{
+        else {
             holder.tvDescription.setVisibility(View.VISIBLE);
             holder.tvDescription.setText(item.getDescription());
         }
@@ -206,7 +207,6 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
         @Override
         public void onClick(View v) {
 
-
             mItemClickListener.onItemClick(v, getPosition());
         }
 
@@ -225,6 +225,7 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
     public void setOnLongItemClickListener(final OnLongItemClickListener mLongItemClickListener) {
         this.mLongItemClickListener = mLongItemClickListener;
     }
+
 
     public Context getContext() {
         return context;

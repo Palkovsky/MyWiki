@@ -107,22 +107,26 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY " + KEY_ID + " DESC";
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                int id = Integer.parseInt(cursor.getString(0));
-                String title = cursor.getString(1);
-                String url = cursor.getString(2);
-                String description = cursor.getString(3);
-                String imageUrl = cursor.getString(4);
-                // Adding contact to list
-                contactList.add(new WikiFavItem(id, title, url, description, imageUrl));
-            } while (cursor.moveToNext());
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
+
+            // looping through all rows and adding to list
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = Integer.parseInt(cursor.getString(0));
+                    String title = cursor.getString(1);
+                    String url = cursor.getString(2);
+                    String description = cursor.getString(3);
+                    String imageUrl = cursor.getString(4);
+                    // Adding contact to list
+                    contactList.add(new WikiFavItem(id, title, url, description, imageUrl));
+                } while (cursor.moveToNext());
+            }
+        } catch (IllegalStateException e) {
+            Log.e(null, e.getMessage());
         }
-
         // return contact list
         return contactList;
     }
@@ -133,17 +137,21 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-            int id = Integer.parseInt(cursor.getString(0));
-            String title = cursor.getString(1);
-            String URI = cursor.getString(2);
-            String description = cursor.getString(3);
-            String img_url = cursor.getString(4);
+            if (cursor.getCount() > 0) {
+                int id = Integer.parseInt(cursor.getString(0));
+                String title = cursor.getString(1);
+                String URI = cursor.getString(2);
+                String description = cursor.getString(3);
+                String img_url = cursor.getString(4);
 
-            return new WikiFavItem(id, title, URI, description, img_url);
+                return new WikiFavItem(id, title, URI, description, img_url);
+            }
+        } catch (IllegalStateException e) {
+            Log.e(null, e.getMessage());
         }
 
         return null;
@@ -159,8 +167,8 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
         cv.put(KEY_DESCRIPTION, item.getDescription());
         cv.put(KEY_IMAGE_URL, item.getImageUrl());
 
-        SQLiteDatabase db= this.getReadableDatabase();
-        db.update(TABLE_HISTORY, cv, "id="+id, null);
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.update(TABLE_HISTORY, cv, "id=" + id, null);
         db.close();
     }
 
@@ -180,7 +188,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                 return true;
             } else
                 return false;
-        }catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             Log.e(null, e.getMessage());
             return false;
         }
@@ -201,7 +209,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                 return true;
             } else
                 return false;
-        }catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             Log.e(null, e.getMessage());
             return false;
         }
@@ -222,7 +230,7 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
                 return true;
             } else
                 return false;
-        }catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             Log.e(null, e.getMessage());
             return false;
         }
