@@ -171,11 +171,13 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
     private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+        mRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
     }
 
     private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+        mRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
     }
 
     @Override

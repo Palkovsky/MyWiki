@@ -946,6 +946,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
 
         mStructureAdapter.notifyDataSetChanged();
 
@@ -961,6 +962,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
 
         mStructureAdapter.notifyDataSetChanged();
 
