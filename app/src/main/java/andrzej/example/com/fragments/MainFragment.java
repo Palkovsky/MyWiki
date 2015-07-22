@@ -59,8 +59,9 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
     private ImageLoader imageLoader;
     private RequestQueue requestQueue;
 
-
     SharedPreferences prefs;
+
+    private boolean initialSwipe = true;
 
     public MainFragment() {
         // Required empty public constructor
@@ -92,18 +93,16 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
         BGANormalRefreshViewHolder refreshViewHolder = new BGANormalRefreshViewHolder(getActivity(), true);
         mRefreshLayout.setRefreshViewHolder(refreshViewHolder);
 
-
         refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.loading));
-
-        //refreshViewHolder.setLoadMoreBackgroundColorRes(loadMoreBackgroundColorRes);
-        //refreshViewHolder.setLoadMoreBackgroundDrawableRes(loadMoreBackgroundDrawableRes);
         refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.load_more));
         refreshViewHolder.setRefreshingText(getActivity().getResources().getString(R.string.loading));
         refreshViewHolder.setPullDownRefreshText(getActivity().getResources().getString(R.string.pull_to_refresh));
         refreshViewHolder.setReleaseRefreshText(getActivity().getResources().getString(R.string.relase));
-        refreshViewHolder.setRefreshViewBackgroundColorRes(R.color.fabPrimary);
         refreshViewHolder.setRefreshViewBackgroundDrawableRes(R.mipmap.bga_refresh_loading02);
-        //mRefreshLayout.setCustomHeaderView(mBanner, false);
+
+        mRefreshLayout.beginRefreshing();
+        mRefreshLayout.endRefreshing();
+
         return v;
     }
 
@@ -181,8 +180,10 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
 
     @Override
     public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
-        mRefreshLayout.endRefreshing();
-
+        if (!initialSwipe)
+            mRefreshLayout.endRefreshing();
+        else
+            initialSwipe = false;
     }
 
     @Override

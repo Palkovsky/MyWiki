@@ -17,6 +17,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
+                android:layout_centerInParent="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -26,35 +27,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
-                    android:text="@string/ipsum"></TextView>
+                    android:text="@string/hello_world"></TextView>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:text="@string/ipsum"
-                    android:textColor="@color/nightFontColor"></TextView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:text="@string/ipsum"
-                    android:textColor="@color/nightFontColor"></TextView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:text="@string/ipsum"
-                    android:textColor="@color/nightFontColor"></TextView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:text="@string/ipsum"
-                    android:textColor="@color/nightFontColor"></TextView>
             </LinearLayout>
         </RelativeLayout>
 

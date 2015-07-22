@@ -56,6 +56,8 @@ import andrzej.example.com.adapters.ArticleStructureListAdapter;
 import andrzej.example.com.databases.ArticleHistoryDbHandler;
 import andrzej.example.com.databases.OnDatabaseSaved;
 import andrzej.example.com.databases.SavedArticlesDbHandler;
+import andrzej.example.com.libraries.refreshlayout.BGANormalRefreshViewHolder;
+import andrzej.example.com.libraries.refreshlayout.BGARefreshLayout;
 import andrzej.example.com.mlpwiki.MyApplication;
 import andrzej.example.com.mlpwiki.R;
 import andrzej.example.com.models.Article;
@@ -82,13 +84,13 @@ import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
+public class ArticleFragment extends Fragment implements  ObservableScrollViewCallbacks, BGARefreshLayout.BGARefreshLayoutDelegate {
 
     //UI
     ImageView parallaxIv;
     TextView titleTv;
     ObservableScrollView parallaxSv;
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    BGARefreshLayout mSwipeRefreshLayout;
     LinearLayout noInternetLl;
     LinearLayout rootArticleLl;
     LinearLayout loadingLl;
@@ -130,6 +132,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     private String article_image = null;
     private String article_content = null;
+
+    private boolean initialSwipe = true;
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -182,7 +186,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         parallaxSv = (ObservableScrollView) v.findViewById(R.id.parallaxSv);
         parallaxIv = (ImageView) v.findViewById(R.id.parallaxIv);
         titleTv = (TextView) v.findViewById(R.id.titleTv);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.article_swipe_refresh_layout);
+        mSwipeRefreshLayout = (BGARefreshLayout) v.findViewById(R.id.article_swipe_refresh_layout);
         noInternetLl = (LinearLayout) v.findViewById(R.id.noInternetLl);
         rootArticleLl = (LinearLayout) v.findViewById(R.id.rootArticle);
         loadingLl = (LinearLayout) v.findViewById(R.id.loadingLl);
@@ -192,6 +196,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         errorMessage = (TextView) v.findViewById(R.id.articleErrorMessage);
         parallaxPart = (LinearLayout) v.findViewById(R.id.rootOfRootsArticle);
         contentProgressBar = (ProgressBar) v.findViewById(R.id.content_progressBar);
+
 
         viewsManager = new ArticleViewsManager(getActivity());
         viewsManager.setLayout(rootArticleLl);
@@ -314,7 +319,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                                 mSwipeRefreshLayout.post(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        mSwipeRefreshLayout.setRefreshing(true);
+                                                        mSwipeRefreshLayout.beginRefreshing();
                                                         fetchArticleInfo(article_id);
                                                     }
                                                 });
@@ -325,12 +330,24 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         );
 
-        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        mSwipeRefreshLayout.setDelegate(this);
+
+        BGANormalRefreshViewHolder refreshViewHolder = new BGANormalRefreshViewHolder(getActivity(), true);
+        mSwipeRefreshLayout.setRefreshViewHolder(refreshViewHolder);
+
+        refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.load_more));
+        refreshViewHolder.setRefreshingText(getActivity().getResources().getString(R.string.loading));
+        refreshViewHolder.setPullDownRefreshText(getActivity().getResources().getString(R.string.pull_to_refresh));
+        refreshViewHolder.setReleaseRefreshText(getActivity().getResources().getString(R.string.relase));
+        refreshViewHolder.setRefreshViewBackgroundDrawableRes(R.mipmap.bga_refresh_loading02);
+
+        mSwipeRefreshLayout.beginRefreshing();
+        mSwipeRefreshLayout.endRefreshing();
 
         titleTv.setText(article_title);
 
-        //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
-        //setImageViewBackground(parallaxIv, ResourcesCompat.getDrawable(getResources(), R.drawable.logo, null));
+
 
         if (getActivity().getResources().getConfiguration().orientation == 2)
             parallaxIv.setVisibility(View.GONE);
@@ -445,7 +462,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 }
 
 
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                mSwipeRefreshLayout.endRefreshing();
 
                                 headers = ArrayHelpers.headersRemoveLevels(headers);
                                 mStructureAdapter.notifyDataSetChanged();
@@ -455,14 +472,14 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                mSwipeRefreshLayout.endRefreshing();
                             }
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                mSwipeRefreshLayout.setRefreshing(false);
+                mSwipeRefreshLayout.endRefreshing();
                 if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                     setNoInternetLayout();
             }
@@ -504,7 +521,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.endRefreshing();
         }
     }
 
@@ -547,6 +564,8 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
                                 String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
+
+                                parallaxSv.scrollTo(0, parallaxIv.getTop());
 
                                 if (thumbnail_url != null && thumbnail_url.trim().length() > 0 && !thumbnail_url.isEmpty()) {
 
@@ -614,7 +633,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                mSwipeRefreshLayout.endRefreshing();
                                 if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                     fetchArticleContent(id);
                             }
@@ -623,7 +642,7 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                mSwipeRefreshLayout.setRefreshing(false);
+                mSwipeRefreshLayout.endRefreshing();
                 if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                     setNoInternetLayout();
                 else
@@ -797,16 +816,6 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
 
-    @Override
-    public void onRefresh() {
-        setLoadingLayout();
-        rootArticleLl.removeAllViews();
-        imgs.clear();
-        recommendations.clear();
-        finishActionMode();
-        refreshHeaders();
-        fetchArticleInfo(article_id);
-    }
 
 
     @Override
@@ -958,5 +967,25 @@ public class ArticleFragment extends Fragment implements SwipeRefreshLayout.OnRe
         for (TextView item : textViews) {
             item.setTextColor(getActivity().getResources().getColor(R.color.font_color));
         }
+    }
+
+
+    @Override
+    public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
+        if(!initialSwipe) {
+            setLoadingLayout();
+            rootArticleLl.removeAllViews();
+            imgs.clear();
+            recommendations.clear();
+            finishActionMode();
+            refreshHeaders();
+            fetchArticleInfo(article_id);
+        }else
+            initialSwipe = false;
+    }
+
+    @Override
+    public boolean onBGARefreshLayoutBeginLoadingMore(BGARefreshLayout refreshLayout) {
+        return false;
     }
 }

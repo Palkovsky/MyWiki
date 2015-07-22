@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v4.widget.SwipeRefreshLayout
+        <andrzej.example.com.libraries.refreshlayout.BGARefreshLayout
             android:id="@+id/article_swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -60,21 +60,21 @@
                         android:textStyle="bold" />
 
                     <LinearLayout
+                        android:id="@+id/rootOfRootsArticle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/parallaxPart"
-                        android:id="@+id/rootOfRootsArticle"
                         android:background="@color/background"
                         android:orientation="vertical">
 
                         <ProgressBar
-                            style="?android:attr/progressBarStyleLarge"
                             android:id="@+id/content_progressBar"
-                            android:visibility="gone"
+                            style="?android:attr/progressBarStyleLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:gravity="center"
-                            android:layout_gravity="center" />
+                            android:visibility="gone" />
 
                         <LinearLayout
                             android:id="@+id/rootArticle"
@@ -88,72 +88,70 @@
                     </LinearLayout>
 
 
-
                 </RelativeLayout>
             </andrzej.example.com.observablescrollview.ObservableScrollView>
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-
+        </andrzej.example.com.libraries.refreshlayout.BGARefreshLayout>
 
 
-        <!-- Loading Layout -->
-        <LinearLayout
-            android:id="@+id/loadingLl"
-            android:layout_width="match_parent"
+
+    <!-- Loading Layout -->
+    <LinearLayout
+        android:id="@+id/loadingLl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_gravity="center" />
 
-            <ProgressBar
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+    </LinearLayout>
 
-        </LinearLayout>
+    <!-- No Internet Layout -->
+    <LinearLayout
+        android:id="@+id/noInternetLl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <!-- No Internet Layout -->
-        <LinearLayout
-            android:id="@+id/noInternetLl"
+        <TextView
+            android:id="@+id/articleErrorMessage"
+            style="?android:textAppearanceMedium"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:text="@string/download_error" />
+
+        <com.beardedhen.androidbootstrap.BootstrapButton
+            android:id="@+id/noInternetBtn"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/articleErrorMessage"
-                style="?android:textAppearanceMedium"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal"
-                android:text="@string/download_error" />
-
-            <com.beardedhen.androidbootstrap.BootstrapButton
-                android:id="@+id/noInternetBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/retry"
-                bootstrap:bb_type="default" />
-        </LinearLayout>
-    </RelativeLayout>
+            android:layout_margin="10dp"
+            android:text="@string/retry"
+            bootstrap:bb_type="default" />
+    </LinearLayout>
+</RelativeLayout>
 
 
-    <ListView
-        android:id="@+id/right_drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:background="@android:color/white"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+<ListView
+android:id="@+id/right_drawer"
+android:layout_width="240dp"
+android:layout_height="match_parent"
+android:layout_gravity="right"
+android:background="@android:color/white"
+android:choiceMode="singleChoice"
+android:divider="@android:color/transparent"
+android:dividerHeight="0dp" />
 
-</android.support.v4.widget.DrawerLayout>
+    </android.support.v4.widget.DrawerLayout>
