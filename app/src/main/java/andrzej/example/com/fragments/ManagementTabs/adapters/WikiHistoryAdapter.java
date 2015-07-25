@@ -48,10 +48,12 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
 
     private List<String> mExpandedItems = new ArrayList<>();
 
+    SharedPreferences prefs;
 
     public WikiHistoryAdapter(Context context, List<WikiPreviousListItem> mDataset) {
         this.context = context;
         this.mDataset = mDataset;
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
 
@@ -71,17 +73,7 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
     @Override
     public void onBindViewHolder(WikiHistoryAdapter.ViewHolder holder, final int position) {
 
-        holder.rootView.setExpandEventListener(new ExpandableLayoutListner() {
-            @Override
-            public void onViewExpand(View v, View expandedPart, View standardPart) {
-                mExpandedItems.add(mDataset.get(position).getUrl());
-            }
-
-            @Override
-            public void onViewCollapse(View v, View expandedPart, View standardPart) {
-                mExpandedItems.remove(mDataset.get(position).getUrl());
-            }
-        });
+        removeUnusedItemsFromExpanded();
 
         if (mExpandedItems.contains(mDataset.get(position).getUrl()))
             holder.rootView.setExpaned(true);
@@ -139,6 +131,21 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
 
     }
 
+    public void removeUnusedItemsFromExpanded(){
+
+        List<String> toSave = new ArrayList<>();
+
+        for(WikiPreviousListItem item : mDataset) {
+            if(mExpandedItems.contains(item.getUrl())){
+                toSave.add(item.getUrl());
+            }
+        }
+
+        mExpandedItems.clear();
+        mExpandedItems.addAll(toSave);
+
+    }
+
     private void setViewBackground(View imageView, Drawable drawable) {
 
         int currentVersion = Build.VERSION.SDK_INT;
@@ -192,6 +199,19 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
                 @Override
                 public void onClick(View v) {
                     rootView.concealOrExpandLayout();
+                    mItemClickListener.onItemClick(v, getPosition());
+                }
+            });
+
+            rootView.setExpandEventListener(new ExpandableLayoutListner() {
+                @Override
+                public void onViewExpand(View v, View expandedPart, View standardPart) {
+                    mExpandedItems.add(mDataset.get(getPosition()).getUrl());
+                }
+
+                @Override
+                public void onViewCollapse(View v, View expandedPart, View standardPart) {
+                    mExpandedItems.remove(mDataset.get(getPosition()).getUrl());
                 }
             });
 
@@ -206,6 +226,13 @@ public class WikiHistoryAdapter extends RecyclerView.Adapter<WikiHistoryAdapter.
 
         @Override
         public void onClick(View v) {
+
+            boolean collapseItem  = prefs.getBoolean(SharedPrefsKeys.COLLAPSE_ITEM_ON_WIKI_SET, false);
+
+            if(collapseItem) {
+                if (v.getId() == R.id.btnSetWiki)
+                    rootView.concealOrExpandLayout();
+            }
 
             mItemClickListener.onItemClick(v, getPosition());
         }

@@ -42,7 +42,7 @@ import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.WikiManagementHelper;
 
 
-public class MainFragment extends Fragment implements BGARefreshLayout.BGARefreshLayoutDelegate {
+public class MainFragment extends Fragment {
 
 
     //UI Elements
@@ -86,22 +86,7 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
         //UI Initialization
         rootView = (ScrollView) v.findViewById(R.id.main_rootView);
         tv = (TextView) v.findViewById(R.id.mainTv);
-        mRefreshLayout = (BGARefreshLayout) v.findViewById(R.id.rl_main_refreshLayout);
 
-        mRefreshLayout.setDelegate(this);
-
-        BGANormalRefreshViewHolder refreshViewHolder = new BGANormalRefreshViewHolder(getActivity(), true);
-        mRefreshLayout.setRefreshViewHolder(refreshViewHolder);
-
-        refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.loading));
-        refreshViewHolder.setLoadingMoreText(getActivity().getResources().getString(R.string.load_more));
-        refreshViewHolder.setRefreshingText(getActivity().getResources().getString(R.string.loading));
-        refreshViewHolder.setPullDownRefreshText(getActivity().getResources().getString(R.string.pull_to_refresh));
-        refreshViewHolder.setReleaseRefreshText(getActivity().getResources().getString(R.string.relase));
-        refreshViewHolder.setRefreshViewBackgroundDrawableRes(R.mipmap.bga_refresh_loading02);
-
-        mRefreshLayout.beginRefreshing();
-        mRefreshLayout.endRefreshing();
 
         return v;
     }
@@ -171,25 +156,11 @@ public class MainFragment extends Fragment implements BGARefreshLayout.BGARefres
     private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
-        mRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
     }
 
     private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
-        mRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
     }
 
-    @Override
-    public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
-        if (!initialSwipe)
-            mRefreshLayout.endRefreshing();
-        else
-            initialSwipe = false;
-    }
-
-    @Override
-    public boolean onBGARefreshLayoutBeginLoadingMore(BGARefreshLayout refreshLayout) {
-        return false;
-    }
 }

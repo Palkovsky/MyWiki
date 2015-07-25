@@ -133,7 +133,7 @@ public class PreviouslyUsedWikisFragment extends Fragment implements View.OnClic
                         if (mHelper.doesFavItemExsistsUrl(itemUrl))
                             mHelper.removeFavByUrl(itemUrl);
                         else
-                            mHelper.addWikiToFavs(itemLabel, itemUrl);
+                            mHelper.addWikiToFavs(itemLabel, itemUrl, item.getDescription(), item.getImageUrl());
 
                         FavouriteWikisFragment.updateDataset();
 

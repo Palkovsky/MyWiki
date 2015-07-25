@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.Gravity;
@@ -84,7 +85,7 @@ import andrzej.example.com.utils.StringOperations;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 
-public class ArticleFragment extends Fragment implements  ObservableScrollViewCallbacks, BGARefreshLayout.BGARefreshLayoutDelegate {
+public class ArticleFragment extends Fragment implements ObservableScrollViewCallbacks, BGARefreshLayout.BGARefreshLayoutDelegate {
 
     //UI
     ImageView parallaxIv;
@@ -164,6 +165,11 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         article_id = bundle.getInt("article_id", -1);
         article_title = bundle.getString("article_title");
 
+        if (savedInstanceState != null) {
+            article_id = savedInstanceState.getInt("article_id_passed");
+            article_title = savedInstanceState.getString("article_title_passed");
+        }
+
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         volleySingleton = VolleySingleton.getsInstance();
@@ -218,10 +224,12 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
             @Override
             public void doBack() {
+
                 SessionArticleHistory item = MainActivity.sessionArticleHistory.get(MainActivity.sessionArticleHistory.size() - 2);
                 MainActivity.sessionArticleHistory.remove(MainActivity.sessionArticleHistory.size() - 1);
 
                 setPage(item.getId(), item.getTitle());
+
             }
         });
 
@@ -308,21 +316,19 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
                 );
 
 
-        retryBtn.setOnClickListener(new View.OnClickListener()
-
-                                    {
+        retryBtn.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             if (NetworkUtils.isNetworkAvailable(getActivity())) {
-                                                mSwipeRefreshLayout.setEnabled(true);
+                                                setLoadingLayout();
+                                                rootArticleLl.removeAllViews();
+                                                imgs.clear();
+                                                recommendations.clear();
+                                                finishActionMode();
                                                 refreshHeaders();
-                                                mSwipeRefreshLayout.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        mSwipeRefreshLayout.beginRefreshing();
-                                                        fetchArticleInfo(article_id);
-                                                    }
-                                                });
+                                                fetchArticleInfo(article_id);
+                                                mSwipeRefreshLayout.setEnabled(true);
+
                                             } else
                                                 Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
                                         }
@@ -348,20 +354,25 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         titleTv.setText(article_title);
 
 
-
         if (getActivity().getResources().getConfiguration().orientation == 2)
             parallaxIv.setVisibility(View.GONE);
 
 
-        if (NetworkUtils.isNetworkAvailable(
-                getActivity()
-        ))
-            fetchArticleInfo(article_id);
-        else
-            setNoInternetLayout();
+        fetchArticleInfo(article_id);
+
 
         MainActivity.addToSessionArticleHistory(article_id, article_title);
         return v;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (article_id > 0) {
+            outState.putInt("article_id_passed", article_id);
+            outState.putString("article_title_passed", article_title);
+        }
     }
 
     public static void finishActionMode() {
@@ -817,7 +828,6 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
     }
 
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -946,7 +956,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
-        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
 
         mStructureAdapter.notifyDataSetChanged();
 
@@ -962,7 +972,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
-        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
 
         mStructureAdapter.notifyDataSetChanged();
 
@@ -974,7 +984,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
 
     @Override
     public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
-        if(!initialSwipe) {
+        if (!initialSwipe) {
             setLoadingLayout();
             rootArticleLl.removeAllViews();
             imgs.clear();
@@ -982,7 +992,7 @@ public class ArticleFragment extends Fragment implements  ObservableScrollViewCa
             finishActionMode();
             refreshHeaders();
             fetchArticleInfo(article_id);
-        }else
+        } else
             initialSwipe = false;
     }
 

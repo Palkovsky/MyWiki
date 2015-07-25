@@ -99,6 +99,11 @@
             android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:key="COLLAPSE_ITEM_ON_WIKI_SET_PREF"
+            android:title="Collapse item on wiki set pref."
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
             android:key="RANDOM_ARTICLE_FETCHING_PREF"
             android:title="Random Article fetching"
             android:summary="Znajdje nowy po swipe-to-refresh."

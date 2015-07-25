@@ -410,4 +410,11 @@ public class ArticleViewsManager {
             ll.removeAllViews();
     }
 
+    public int getChildViewsCount(){
+        return ll.getChildCount();
+    }
+
+    public LinearLayout getArticleLayout() {
+        return ll;
+    }
 }

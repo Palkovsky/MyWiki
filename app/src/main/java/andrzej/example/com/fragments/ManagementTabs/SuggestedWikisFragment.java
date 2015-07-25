@@ -316,7 +316,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                                         db.editItem(id, new WikiPreviousListItem(id, title, url, item.getDescription(), item.getImageUrl()));
                                     } else
                                         mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(title, url, item.getDescription(), item.getImageUrl()));
-                                    mHelper.addWikiToFavs(title, url);
+                                    mHelper.addWikiToFavs(title, url, item.getDescription(), item.getImageUrl());
                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.wiki_succesfull_added_to_favs), Toast.LENGTH_SHORT).show();
                                 }
 

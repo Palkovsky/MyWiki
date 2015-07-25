@@ -54,7 +54,7 @@
     <string name="title_activity_gallery">GalleryActivity</string>
     <string name="action_download">Zapisz na urządzenie</string>
     <string name="action_getInBrowser">Przejdź do strony obrazka</string>
-    <string name="loading_error">Wystąpił błąd przy ładowaniu. Upewnij się, że Wikia, którą podałeś jest poprawna.</string>
+    <string name="loading_error">Wystąpił błąd przy ładowaniu.\n Upewnij się, że Wikia, którą podałeś jest poprawna.</string>
     <string name="action_copy">Skopiuj link</string>
     <string name="download_beg">Rozpoczęto pobieranie obrazka...</string>
     <string name="download_error">Wystąpił błąd podczas pobierania</string>

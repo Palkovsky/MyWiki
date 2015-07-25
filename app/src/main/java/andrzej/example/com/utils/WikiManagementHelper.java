@@ -47,8 +47,8 @@ public class WikiManagementHelper {
             previous_db.addItem(new WikiPreviousListItem(stripUpWikiUrl(item.getUrl()), cleanInputUrl(item.getUrl()), item.getDescription(), item.getImageUrl()));
     }
 
-    public void addWikiToFavs(String label, String url) {
-        favs_db.addItem(new WikiFavItem(label, url, null, null));
+    public void addWikiToFavs(String label, String url, String description, String img_url) {
+        favs_db.addItem(new WikiFavItem(label, url, description, img_url));
     }
 
     public WikiFavItem getItemByLabel(String url){
@@ -145,6 +145,18 @@ public class WikiManagementHelper {
 
         PreviouslyUsedWikisFragment.updateRecords();
         FavouriteWikisFragment.updateDataset();
+    }
+
+    public void setCurrentWikiWithoutUpdating(String label, String url){
+        APIEndpoints.WIKI_NAME = url;
+        setUrlAsPreference(APIEndpoints.WIKI_NAME, label);
+        APIEndpoints.reInitEndpoints();
+        if (label == null)
+            MainActivity.account.setSubTitle(stripUpWikiUrl(url));
+        else
+            MainActivity.account.setSubTitle(label);
+        MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
+        ((MaterialNavigationDrawer) getContext()).notifyAccountDataChanged();
     }
 
     public void setUrlAsPreference(String url, String label) {

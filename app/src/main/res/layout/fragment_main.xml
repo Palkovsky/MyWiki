@@ -1,36 +1,29 @@
-<andrzej.example.com.libraries.refreshlayout.BGARefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rl_main_refreshLayout"
+    android:id="@+id/main_rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context="andrzej.example.com.fragments.MainFragment">
 
-    <ScrollView
-        android:id="@+id/main_rootView"
+    <LinearLayout
+        android:id="@+id/main_layoutWrapper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/background">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/main_layoutWrapper"
+
+        <TextView
+            android:id="@+id/mainTv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="vertical"
-            >
+            android:text="Strona Główna" />
 
+    </LinearLayout>
 
-            <TextView
-                android:layout_centerHorizontal="true"
-                android:id="@+id/mainTv"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Strona Główna"/>
-
-        </LinearLayout>
-
-    </ScrollView>
-</andrzej.example.com.libraries.refreshlayout.BGARefreshLayout>
+</ScrollView>

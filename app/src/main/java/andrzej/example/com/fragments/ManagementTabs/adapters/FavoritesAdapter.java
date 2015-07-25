@@ -46,11 +46,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     Context context;
 
     private List<String> mExpandedItems = new ArrayList<>();
-
+    SharedPreferences prefs;
 
     public FavoritesAdapter(Context context, List<WikiFavItem> mDataset) {
         this.context = context;
         this.mDataset = mDataset;
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
 
@@ -70,17 +71,9 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     @Override
     public void onBindViewHolder(FavoritesAdapter.ViewHolder holder, final int position) {
 
-        holder.rootView.setExpandEventListener(new ExpandableLayoutListner() {
-            @Override
-            public void onViewExpand(View v, View expandedPart, View standardPart) {
-                mExpandedItems.add(mDataset.get(position).getUrl());
-            }
+        removeUnusedItemsFromExpanded();
 
-            @Override
-            public void onViewCollapse(View v, View expandedPart, View standardPart) {
-                mExpandedItems.remove(mDataset.get(position).getUrl());
-            }
-        });
+
 
         if(mExpandedItems.contains(mDataset.get(position).getUrl()))
             holder.rootView.setExpaned(true);
@@ -148,6 +141,21 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         }
     }
 
+    public void removeUnusedItemsFromExpanded(){
+
+        List<String> toSave = new ArrayList<>();
+
+        for(WikiFavItem item : mDataset) {
+            if(mExpandedItems.contains(item.getUrl())){
+                toSave.add(item.getUrl());
+            }
+        }
+
+        mExpandedItems.clear();
+        mExpandedItems.addAll(toSave);
+
+    }
+
     @Override
     public int getItemCount() {
         return mDataset.size();
@@ -197,10 +205,33 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
             //Long click listener
             standardPart.setOnLongClickListener(this);
             expandedPart.setOnLongClickListener(this);
+
+            rootView.setExpandEventListener(new ExpandableLayoutListner() {
+                @Override
+                public void onViewExpand(View v, View expandedPart, View standardPart) {
+                    mExpandedItems.add(mDataset.get(getPosition()).getUrl());
+                }
+
+                @Override
+                public void onViewCollapse(View v, View expandedPart, View standardPart) {
+                    mExpandedItems.remove(mDataset.get(getPosition()).getUrl());
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
+
+            boolean collapseItem  = prefs.getBoolean(SharedPrefsKeys.COLLAPSE_ITEM_ON_WIKI_SET, false);
+
+            if(collapseItem) {
+                if (v.getId() == R.id.btnSetWiki)
+                    rootView.concealOrExpandLayout();
+            }
+
+            if(v.getId() == R.id.btnFav){
+                mExpandedItems.remove(mDataset.get(getPosition()).getUrl());
+            }
 
             mItemClickListener.onItemClick(v, getPosition());
         }

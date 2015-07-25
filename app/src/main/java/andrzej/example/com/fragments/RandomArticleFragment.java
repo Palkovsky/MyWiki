@@ -128,6 +128,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
     //Flasg
     public static boolean scrollingWithDrawer = false;
     private boolean isSignificantDelta = false;
+    private boolean loading = false;
 
 
     //stuff
@@ -224,6 +225,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
 
 
         setUpColorScheme();
+        setLoadingLayout();
 
         ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
             @Override
@@ -232,15 +234,15 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                 MainActivity.sessionArticleHistory.remove(MainActivity.sessionArticleHistory.size() - 1);
 
 
-                MainActivity.articleFragment = new ArticleFragment();
+                ArticleFragment fragment = new ArticleFragment();
                 Bundle bundle = new Bundle();
 
                 bundle.putInt("article_id", item.getId());
                 bundle.putString("article_title", item.getTitle());
-                MainActivity.articleFragment.setArguments(bundle);
+                fragment.setArguments(bundle);
 
 
-                ((MaterialNavigationDrawer) getActivity()).setFragment(MainActivity.articleFragment, item.getTitle());
+                ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, item.getTitle());
                 ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
             }
         });
@@ -316,15 +318,16 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             @Override
             public void onClick(View v) {
                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
-                    mSwipeRefreshLayout.setEnabled(true);
-                    refreshHeaders();
-                    mSwipeRefreshLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSwipeRefreshLayout.beginRefreshing();
-                            fetchRandomArticle();
-                        }
-                    });
+                    if (article_id <= 0) {
+                        setRandomPage();
+                    } else {
+                        rootArticleLl.removeAllViews();
+                        imgs.clear();
+                        recommendations.clear();
+                        finishActionMode();
+                        refreshHeaders();
+                        fetchArticleInfo(article_id);
+                    }
                 } else
                     Toast.makeText(getActivity(), getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             }
@@ -349,27 +352,21 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             parallaxIv.setVisibility(View.GONE);
         }
 
-        if(savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             article_id = savedInstanceState.getInt("article_id");
             article_title = savedInstanceState.getString("article_title");
         }
 
 
-        if(article_id>0) {
+        if (article_id > 0) {
             rootArticleLl.removeAllViews();
             imgs.clear();
             recommendations.clear();
             finishActionMode();
             refreshHeaders();
             fetchArticleInfo(article_id);
-        }else if (NetworkUtils.isNetworkAvailable(getActivity())) {
-            setLoadingLayout();
+        } else
             fetchRandomArticle();
-        }else {
-            setLoadingLayout();
-            setNoInternetLayout();
-        }
-
 
         return v;
     }
@@ -381,7 +378,6 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             outState.putInt("article_id", article_id);
             outState.putString("article_title", article_title);
         }
-        Log.e(null, "zapisane id: " + article_id);
     }
 
 
@@ -405,9 +401,6 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                         article_content = response.toString();
                         if (getActivity() != null) {
                             try {
-
-                                if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                    setNoInternetLayout();
 
                                 JSONArray sections = response.getJSONArray(Article.KEY_SECTIONS);
 
@@ -501,9 +494,6 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             }
         });
 
-        request.setRetryPolicy(new DefaultRetryPolicy(5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
     }
@@ -562,8 +552,6 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
 
                             try {
 
-                                if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                                    setNoInternetLayout();
 
                                 JSONObject item = response.getJSONObject(SearchResult.KEY_ITEMS).getJSONObject(String.valueOf(id));
                                 String thumbnail_url = item.getString(Article.KEY_THUMBNAIL);
@@ -636,6 +624,8 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                                 mSwipeRefreshLayout.endRefreshing();
                                 if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                                     fetchArticleContent(id);
+                                else
+                                    setNoInternetLayout();
                             }
 
                         }
@@ -648,10 +638,10 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             @Override
             public void onErrorResponse(VolleyError error) {
                 mSwipeRefreshLayout.endRefreshing();
-                if (!NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
-                    setNoInternetLayout();
-                else
+                if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext()))
                     fetchArticleContent(id);
+                else
+                    setNoInternetLayout();
             }
         }
 
@@ -670,6 +660,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
 
     private void fetchRandomArticle() {
         int listLimit = 100;
+        loading = true;
         final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getUrlRandom(listLimit), (String) null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -725,9 +716,6 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
             }
         });
 
-        request.setRetryPolicy(new DefaultRetryPolicy(5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
     }
@@ -742,6 +730,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        loading = false;
                         try {
                             JSONObject items_object = response.getJSONObject(Article.KEY_ITEMS);
 
@@ -772,13 +761,13 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                                             public void onClick(View v) {
 
                                                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
-                                                    MainActivity.articleFragment = new ArticleFragment();
+                                                    ArticleFragment fragment = new ArticleFragment();
                                                     Bundle bundle = new Bundle();
                                                     bundle.putInt("article_id", recommendation.getId());
                                                     bundle.putString("article_title", recommendation.getTitle());
-                                                    MainActivity.articleFragment.setArguments(bundle);
+                                                    fragment.setArguments(bundle);
 
-                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(MainActivity.articleFragment, article_title);
+                                                    ((MaterialNavigationDrawer) getActivity()).setFragment(fragment, article_title);
                                                     ((MaterialNavigationDrawer) getActivity()).setSection(MainActivity.section_article);
                                                 } else
                                                     Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
@@ -790,17 +779,15 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            loading = false;
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                loading = false;
             }
         });
-
-        request.setRetryPolicy(new DefaultRetryPolicy(5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
     }
@@ -815,6 +802,8 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
     }
 
     private void setNoInternetLayout() {
+        loading = false;
+        refreshHeaders();
         setErrorMessage();
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.VISIBLE);
@@ -824,6 +813,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
     }
 
     private void setContentLoadingLayout() {
+        loading = true;
         parallaxSv.setVisibility(View.GONE);
         noInternetLl.setVisibility(View.GONE);
         loadingLl.setVisibility(View.GONE);
@@ -987,24 +977,26 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
     }
 
     private void setRandomPage() {
-        //setLoadingLayout();
-        requestQueue.cancelAll(new RequestQueue.RequestFilter() {
-            @Override
-            public boolean apply(Request<?> request) {
-                return true;
-            }
-        });
-        setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
-        parallaxIv.setBackgroundColor(Color.TRANSPARENT);
-        parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
-        rootArticleLl.removeAllViews();
-        imgs.clear();
-        recommendations.clear();
-        finishActionMode();
-        refreshHeaders();
-        textViews.clear();
-        setUpColorScheme();
-        fetchRandomArticle();
+        if (!loading) {
+            //setLoadingLayout();
+            requestQueue.cancelAll(new RequestQueue.RequestFilter() {
+                @Override
+                public boolean apply(Request<?> request) {
+                    return true;
+                }
+            });
+            setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+            parallaxIv.setBackgroundColor(Color.TRANSPARENT);
+            parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+            rootArticleLl.removeAllViews();
+            imgs.clear();
+            recommendations.clear();
+            finishActionMode();
+            refreshHeaders();
+            textViews.clear();
+            setUpColorScheme();
+            fetchRandomArticle();
+        }
     }
 
     @Override
@@ -1029,6 +1021,8 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
+
 
         mStructureAdapter.notifyDataSetChanged();
 
@@ -1044,6 +1038,8 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
         mDrawerLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         parallaxSv.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
         mDrawerListView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+        mSwipeRefreshLayout.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
+
 
         mStructureAdapter.notifyDataSetChanged();
 
@@ -1053,27 +1049,31 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
     }
 
 
-
-
     @Override
     public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
 
-        if(!initialSwipe) {
-            setLoadingLayout();
+        if (!initialSwipe) {
+            if (!loading) {
+                setLoadingLayout();
 
-            boolean fetchNew = prefs.getBoolean(SharedPrefsKeys.RANDOM_ARTICLE_FETCHING_PREF, false);
+                boolean fetchNew = prefs.getBoolean(SharedPrefsKeys.RANDOM_ARTICLE_FETCHING_PREF, false);
 
-            if (fetchNew) {
-                setRandomPage();
-            } else {
-                rootArticleLl.removeAllViews();
-                imgs.clear();
-                recommendations.clear();
-                finishActionMode();
-                refreshHeaders();
-                fetchArticleInfo(article_id);
-            }
-        }else
+                if (fetchNew) {
+                    if (NetworkUtils.isNetworkAvailable(getActivity()))
+                        setRandomPage();
+                    else
+                        Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+                } else {
+                    rootArticleLl.removeAllViews();
+                    imgs.clear();
+                    recommendations.clear();
+                    finishActionMode();
+                    refreshHeaders();
+                    fetchArticleInfo(article_id);
+                }
+            } else
+                refreshLayout.endRefreshing();
+        } else
             initialSwipe = false;
     }
 

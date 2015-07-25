@@ -63,8 +63,8 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     //Fragment
     //public static HistoryFragment historyFragment = new HistoryFragment();
-    public static RandomArticleFragment randomArticleFragment = new RandomArticleFragment();
-    public static ArticleFragment articleFragment = new ArticleFragment();
+    //public static RandomArticleFragment randomArticleFragment = new RandomArticleFragment();
+    //public static ArticleFragment articleFragment = new ArticleFragment();
     //public static MainFragment mainFragment = new MainFragment();
     //public static WikisManagementFragment wikisManagementFragment = new WikisManagementFragment();
 
@@ -119,7 +119,7 @@ public class MainActivity extends MaterialNavigationDrawer {
             @Override
             public void onClick(MaterialSection materialSection) {
                 if (NetworkUtils.isNetworkAvailable(MyApplication.getAppContext())) {
-                    setFragment(randomArticleFragment, getResources().getString(R.string.drawer_random_article));
+                    setFragment(new RandomArticleFragment(), getResources().getString(R.string.drawer_random_article));
                     setSection(section_article);
                     materialSection.select();
                 } else {
@@ -199,7 +199,6 @@ public class MainActivity extends MaterialNavigationDrawer {
 
     public static void addToSessionArticleHistory(int id, String label) {
         SessionArticleHistory item = new SessionArticleHistory(id, label);
-
 
         if (sessionArticleHistory.size() > 0) {
             if (sessionArticleHistory.get(sessionArticleHistory.size() - 1).getId() != item.getId()) {
