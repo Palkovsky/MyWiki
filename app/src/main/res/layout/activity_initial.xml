@@ -1,0 +1,42 @@
+<RelativeLayout
+    android:id="@+id/rootView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="andrzej.example.com.activities.InitialActivity">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:layout_gravity="center">
+
+        <com.romainpiel.shimmer.ShimmerTextView
+            android:gravity="center"
+            android:id="@+id/shimmer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/initialText"
+            android:textColor="#FFF"
+            android:textSize="24sp"
+            app:reflectionColor="#607d8b" />
+
+
+        <com.gc.materialdesign.views.ButtonRectangle
+            android:layout_below="@+id/shimmer_tv"
+            android:id="@+id/addWikiBtn"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#1E88E5"
+            android:text="@string/addWiki"
+            android:layout_margin="12dp"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -44,6 +44,8 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class WikisManagementFragment extends Fragment implements ViewPager.OnPageChangeListener, DrawerLayout.DrawerListener {
 
+    public static final String TAG = "WikisManagementFragment";
+
     LinearLayout rootView;
     TabsAdapter mAdapter;
     ViewPager mPager;

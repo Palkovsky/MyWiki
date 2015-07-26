@@ -118,6 +118,7 @@ public class WikiInfoActivity extends AppCompatActivity {
             wikiId = extras.getInt(WIKI_ID_INTENT_KEY);
         }
 
+
         setNoInternetLayout();
 
         //Few init methords

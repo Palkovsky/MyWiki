@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="andrzej.example.com.mlpwiki" >
+    package="andrzej.example.com.mlpwiki">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,22 +12,29 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/MyNavigationDrawerTheme" >
+        android:theme="@style/MyNavigationDrawerTheme">
         <activity
             android:name="andrzej.example.com.activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/MyNavigationDrawerTheme" >
+            android:theme="@style/MyNavigationDrawerTheme">
+
+        </activity>
+
+        <activity
+            android:name="andrzej.example.com.activities.InitialActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="andrzej.example.com.activities.SearchActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Base" >
+            android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="@xml/searchable"
                 android:value="andrzej.example.com.activities.SearchActivity" />
@@ -38,7 +45,7 @@
         <activity
             android:name="andrzej.example.com.activities.GalleryActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.Base" >
+            android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />
@@ -46,7 +53,7 @@
         <activity
             android:name="andrzej.example.com.activities.SharedPreferenceActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Base" >
+            android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />
@@ -60,6 +67,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="andrzej.example.com.activities.MainActivity" />
         </activity>
+
     </application>
 
 </manifest>

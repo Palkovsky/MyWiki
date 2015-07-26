@@ -5,7 +5,7 @@ import andrzej.example.com.utils.StringOperations;
 
 public class APIEndpoints {
 
-    public static String WIKI_NAME = "http://pl.mlp.wikia.com";
+    public static String WIKI_NAME = "";
 
     //Symbols
     public static String URL_CHAR_QUESTION = "?";
@@ -28,6 +28,7 @@ public class APIEndpoints {
     public static String URL_LAST_EDITED = WIKI_NAME + "/api/v1/Activity/RecentlyChangedArticles"; //takes limit
     public static String URL_NEWEST = WIKI_NAME + "/api/v1/Articles/New"; //takies limit
 
+    public static String URL_ARTICLES_TOP = WIKI_NAME + "/api/v1/Articles/Top";
 
     //Random Articles
     public static String URL_RANDOM = WIKI_NAME + "/api/v1/Articles/List"; //takes limit(int), offset(str)
@@ -70,6 +71,15 @@ public class APIEndpoints {
 
         //Random Articles
         URL_RANDOM = WIKI_NAME + "/api/v1/Articles/List"; //takes limit(int), offset(str)
+
+        URL_ARTICLES_TOP = WIKI_NAME + "/api/v1/Articles/Top"; //takes limit
+    }
+
+    public static final String getUrlArticlesTop(int limit){
+        return  URL_ARTICLES_TOP +
+                URL_CHAR_QUESTION +
+                URL_LIMIT +
+                limit;
     }
 
     public static final String getUrlRelatedPages(int[] ids, int limit) {

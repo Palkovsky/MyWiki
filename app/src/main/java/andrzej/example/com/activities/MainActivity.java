@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -142,8 +141,25 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         getToolbar().setCollapsible(true);
 
+
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String redirection = extras.getString(InitialActivity.KEY_REDIRECT);
+
+            if (redirection.equals(WikisManagementFragment.TAG)) {
+                setFragment(new WikisManagementFragment(), getResources().getString(R.string.drawer_saved_articles));
+                setSection(section_management);
+                section_management.select();
+            }
+        }
+    }
 
     public static Context getAppContext() {
         return MainActivity.context;

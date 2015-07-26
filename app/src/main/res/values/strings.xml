@@ -111,4 +111,8 @@
     <string name="pull_to_refresh">Przeciągnij by odświeżyć</string>
     <string name="relase">Puść</string>
     <string name="load_more">Załaduj więcej</string>
+    <string name="title_activity_initial">InitialActivity</string>
+
+    <string name="initialText">Wszystkie informacje pod ręką, \n gdziekolwiek jesteś</string>
+    <string name="addWiki">Dodaj Wikię</string>
 </resources>
