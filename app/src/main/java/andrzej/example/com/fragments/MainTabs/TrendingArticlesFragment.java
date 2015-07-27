@@ -60,6 +60,7 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
     private static BootstrapButton mNoRecordsBtn;
     private LinearLayout mNoRecordsLayout;
     private LinearLayout mLoadingLayout;
+    private static RelativeLayout listWrapper;
 
     //List
     private List<MainPageArticle> mArticles = new ArrayList<>();
@@ -104,6 +105,7 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
         mNoRecordsTextView = (TextView) v.findViewById(R.id.no_articles_tv);
         mNoRecordsLayout = (LinearLayout) v.findViewById(R.id.no_records_layout);
         mLoadingLayout = (LinearLayout) v.findViewById(R.id.loadingLl);
+        listWrapper = (RelativeLayout) v.findViewById(R.id.listWrapper);
 
         //Set up recycler view
         mAdapter = new MainRecyclerAdapter(getActivity(), mArticles);
@@ -168,28 +170,28 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
 
     public void setUpLoadingLayout() {
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.VISIBLE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpNoInternetLayout() {
         noInternetLayout.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpInternetPresentLayout() {
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.VISIBLE);
+        listWrapper.setVisibility(View.VISIBLE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpNoRecordsLayout() {
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.VISIBLE);
     }

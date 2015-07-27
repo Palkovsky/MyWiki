@@ -6,30 +6,37 @@
     android:layout_height="match_parent"
     tools:context="andrzej.example.com.fragments.MainTabs.NewestArticlesFragment">
 
-    <andrzej.example.com.libraries.refreshlayout.BGARefreshLayout
-        android:id="@+id/main_swipe_refresh_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/newestArticles_recyclerView"
+    <RelativeLayout
+        android:id="@+id/listWrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <andrzej.example.com.libraries.refreshlayout.BGARefreshLayout
+            android:id="@+id/main_swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="3dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:background="@android:color/transparent"
-            android:scrollbars="none"></android.support.v7.widget.RecyclerView>
-    </andrzej.example.com.libraries.refreshlayout.BGARefreshLayout>
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/newestArticles_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/transparent"
+                android:scrollbars="none"></android.support.v7.widget.RecyclerView>
+        </andrzej.example.com.libraries.refreshlayout.BGARefreshLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/newest_no_internet_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:gravity="center">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/newest_error_msg"
@@ -37,16 +44,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="4dp"
-            android:text="@string/main_fragment_error_msg"
-            android:gravity="center_horizontal" />
+            android:gravity="center_horizontal"
+            android:text="@string/main_fragment_error_msg" />
 
         <com.beardedhen.androidbootstrap.BootstrapButton
             android:id="@+id/noInternetBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/retry"
             android:gravity="center_horizontal"
+            android:text="@string/retry"
             bootstrap:bb_type="default" />
     </LinearLayout>
 
@@ -56,9 +63,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:gravity="center">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/no_articles_tv"
@@ -66,8 +73,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="4dp"
-            android:text="@string/trending_no_records"
-            android:gravity="center_horizontal" />
+            android:gravity="center_horizontal"
+            android:text="@string/trending_no_records" />
 
         <com.beardedhen.androidbootstrap.BootstrapButton
             android:id="@+id/retryBtn"

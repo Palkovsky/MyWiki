@@ -75,6 +75,7 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
     private static TextView mNoRecordsTextView;
     private static BootstrapButton mNoRecordsBtn;
     private LinearLayout mNoRecordsLayout;
+    private static RelativeLayout listWrapper;
 
 
     //List
@@ -121,6 +122,7 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
         mNoRecordsTextView = (TextView) v.findViewById(R.id.no_articles_tv);
         mNoRecordsLayout = (LinearLayout) v.findViewById(R.id.no_records_layout);
         mLoadingLayout = (LinearLayout) v.findViewById(R.id.loadingLl);
+        listWrapper = (RelativeLayout) v.findViewById(R.id.listWrapper);
 
 
         //Set up recycler view
@@ -186,28 +188,28 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
 
     public void setUpLoadingLayout(){
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.VISIBLE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpNoInternetLayout(){
         noInternetLayout.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpInternetPresentLayout(){
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.VISIBLE);
+        listWrapper.setVisibility(View.VISIBLE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.GONE);
     }
 
     public void setUpNoRecordsLayout(){
         noInternetLayout.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        listWrapper.setVisibility(View.GONE);
         mLoadingLayout.setVisibility(View.GONE);
         mNoRecordsLayout.setVisibility(View.VISIBLE);
     }
