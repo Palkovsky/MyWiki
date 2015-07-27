@@ -611,6 +611,7 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                                     });
                                 } else {
                                     setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                    parallaxIv.setOnClickListener(null);
                                     parallaxIv.setBackgroundColor(Color.TRANSPARENT);
                                     parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
                                     ArticleHistoryItem historyItem = new ArticleHistoryItem(article_id, System.currentTimeMillis(), article_title, null);

@@ -582,6 +582,8 @@ public class ArticleFragment extends Fragment implements ObservableScrollViewCal
 
                                     article_image = thumbnail_url;
 
+                                    Log.e(null, "Orginal URL: " + thumbnail_url);
+
                                     try {
                                         JSONObject orginal_dimens = item.getJSONObject(ArticleImage.KEY_ORGINAL_DIMENS);
 
@@ -593,6 +595,8 @@ public class ArticleFragment extends Fragment implements ObservableScrollViewCal
 
 
                                             thumbnail_url = StringOperations.pumpUpResolution(orginal_width, thumbnail_url);
+
+                                            Log.e(null, "Pumped up URL: " + thumbnail_url);
                                         }
 
                                         imgs.add(new ArticleImage(thumbnail_url, imgs.size()));
@@ -633,6 +637,7 @@ public class ArticleFragment extends Fragment implements ObservableScrollViewCal
 
                                 } else {
                                     setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));
+                                    parallaxIv.setOnClickListener(null);
                                     parallaxIv.setBackgroundColor(Color.TRANSPARENT);
                                     parallaxIv.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.logo));
                                     setImageViewBackground(parallaxIv, ContextCompat.getDrawable(getActivity(), R.drawable.logo));

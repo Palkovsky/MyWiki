@@ -2,10 +2,12 @@ package andrzej.example.com.fragments;
 
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.webkit.DownloadListener;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -28,6 +31,10 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import andrzej.example.com.fragments.MainTabs.MainTabsPrefs;
+import andrzej.example.com.fragments.MainTabs.NewestArticlesFragment;
+import andrzej.example.com.fragments.MainTabs.TrendingArticlesFragment;
+import andrzej.example.com.fragments.MainTabs.adapters.MainTabsAdapter;
 import andrzej.example.com.libraries.refreshlayout.BGAMoocStyleRefreshViewHolder;
 import andrzej.example.com.libraries.refreshlayout.BGANormalRefreshViewHolder;
 import andrzej.example.com.libraries.refreshlayout.BGARefreshLayout;
@@ -40,19 +47,21 @@ import andrzej.example.com.network.VolleySingleton;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
 import andrzej.example.com.utils.WikiManagementHelper;
+import andrzej.example.com.views.SlidingTabLayout;
 
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements ViewPager.OnPageChangeListener {
 
 
     //UI Elements
-    ScrollView rootView;
-    TextView tv;
+    LinearLayout rootView;
+    ViewPager mPager;
+    SlidingTabLayout mTabs;
     private BGARefreshLayout mRefreshLayout;
 
-    //Articles ids
-    List<Integer> article_ids = new ArrayList<>();
 
+    //Adapters
+    MainTabsAdapter mTabsAdapter;
 
     //Networking
     private VolleySingleton volleySingleton;
@@ -83,10 +92,30 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        //UI Initialization
-        rootView = (ScrollView) v.findViewById(R.id.main_rootView);
-        tv = (TextView) v.findViewById(R.id.mainTv);
+        //Vitals initialization
+        mTabsAdapter = new MainTabsAdapter(getActivity().getSupportFragmentManager(), MainTabsPrefs.tabIconsResIds, MainTabsPrefs.mTabsNum);
 
+        //UI Initialization
+        rootView = (LinearLayout) v.findViewById(R.id.main_rootView);
+        mPager = (ViewPager) v.findViewById(R.id.mainPager);
+        mTabs = (SlidingTabLayout) v.findViewById(R.id.mainTabs);
+
+
+        //Tabs Config
+        mPager.setOffscreenPageLimit(MainTabsPrefs.mTabsNum);
+        mPager.setAdapter(mTabsAdapter);
+        mTabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+        mTabs.setCustomTabView(R.layout.custom_tab, 0);
+        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        mTabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return Color.WHITE;
+            }
+        });
+        mTabs.setOnPageChangeListener(this);
+
+        mTabs.setViewPager(mPager);
 
         return v;
     }
@@ -103,7 +132,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        setUpColorScheme();
     }
 
     private void setUpColorScheme() {
@@ -155,12 +183,28 @@ public class MainFragment extends Fragment {
 
     private void setUpNightMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.nightBackground));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.nightFontColor));
+        TrendingArticlesFragment.setUpNightMode();
+        NewestArticlesFragment.setUpNightMode();
     }
 
     private void setUpNormalMode() {
         rootView.setBackgroundColor(getActivity().getResources().getColor(R.color.background));
-        tv.setTextColor(getActivity().getResources().getColor(R.color.font_color));
+        TrendingArticlesFragment.setUpNormalMode();
+        NewestArticlesFragment.setUpNormalMode();
     }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 }
