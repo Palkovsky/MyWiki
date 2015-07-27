@@ -21,4 +21,6 @@ public class BaseConfig {
 
 
     public static long DEFAULT_DROPDOWN_ANIMATION_DURATION = 200;
+
+    public static int MAIN_PAGE_ARTICLES_LIMIT = 40;
 }

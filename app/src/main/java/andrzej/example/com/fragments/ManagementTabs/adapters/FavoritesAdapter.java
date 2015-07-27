@@ -73,8 +73,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
         removeUnusedItemsFromExpanded();
 
-
-
         if(mExpandedItems.contains(mDataset.get(position).getUrl()))
             holder.rootView.setExpaned(true);
         else

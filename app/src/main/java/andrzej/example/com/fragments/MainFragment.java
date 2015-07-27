@@ -63,10 +63,7 @@ public class MainFragment extends Fragment implements ViewPager.OnPageChangeList
     //Adapters
     MainTabsAdapter mTabsAdapter;
 
-    //Networking
-    private VolleySingleton volleySingleton;
-    private ImageLoader imageLoader;
-    private RequestQueue requestQueue;
+
 
     SharedPreferences prefs;
 
@@ -80,8 +77,6 @@ public class MainFragment extends Fragment implements ViewPager.OnPageChangeList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        volleySingleton = VolleySingleton.getsInstance();
-        requestQueue = volleySingleton.getRequestQueue();
     }
 
     @Override
