@@ -1,6 +1,7 @@
 package andrzej.example.com.activities;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,7 +19,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -91,11 +94,13 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
         mRootView = (CoordinatorLayout) findViewById(R.id.wikiInfo_root);
         mButton = (FloatingActionButton) findViewById(R.id.floatingBtn);
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        recyclerView = (RecyclerView) findViewById(R.id.scrollableview);
         headerIv = (ImageView) findViewById(R.id.header);
         headerIv.setBackgroundColor(Color.WHITE);
 
         //Listener
         mButton.setOnClickListener(this);
+
 
         //Toolbar Config
         setSupportActionBar(mToolbar);
@@ -123,7 +128,6 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
             Picasso.with(this).load(wikiImgUrl).placeholder(d).error(d).into(headerIv);
         }
 
-        recyclerView = (RecyclerView) findViewById(R.id.scrollableview);
 
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -189,6 +193,11 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
+
+        //If specific wiki is currently setted don't show adding fab.
+        if(APIEndpoints.WIKI_NAME.equals(item.getUrl()))
+            mRootView.removeView(mButton);
+
         setUpColorScheme();
     }
 
@@ -229,9 +238,12 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
                 } else
                     Toast.makeText(this, getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
 
+                mRootView.removeView(mButton);
+
                 break;
         }
     }
+
 
 }
 

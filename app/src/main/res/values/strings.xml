@@ -33,7 +33,7 @@
     <string name="drawer_random_article">Losowa strona</string>
     <string name="drawer_saved_articles">Wybierz wikię</string>
     <string name="drawer_history">Historia</string>
-    <string name="drawer_today">My Wikia</string>
+    <string name="drawer_today">Aktywność</string>
     <string name="drawer_articles">Artykuły</string>
     <string name="drawer_settings">Ustawienia</string>
     <string name="copy">Skopiowano do schowka</string>
@@ -115,7 +115,7 @@
 
     <string name="initialText">Wszystkie informacje pod ręką, \n gdziekolwiek jesteś</string>
     <string name="addWiki">Dodaj Wikię</string>
-    <string name="main_fragment_error_msg">Wystąpił błąd. \n Sprawdź swoje połączenie z internetem oraz czy podana Wikia jest prawidłowa.</string>
+    <string name="main_fragment_error_msg">Wystąpił błąd. \n Sprawdź swoje połączenie z internetem oraz czy podana Wikia jest prawidłowa. \n Istnieje też możliwość, że dana Wikia nie obsługuje tej opcji.</string>
     <string name="newest_no_records">Brak najnowszych wiadomości.\n Spróbuj potem.</string>
     <string name="trending_no_records">Brak popularnych wiadomości.\n Spróbuj potem.</string>
     <string name="header_title">Nazwa</string>
