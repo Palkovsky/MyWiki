@@ -8,13 +8,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
-import com.gc.materialdesign.views.ButtonRectangle;
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.romainpiel.shimmer.Shimmer;
 import com.romainpiel.shimmer.ShimmerTextView;
 
@@ -35,7 +34,7 @@ public class InitialActivity extends AppCompatActivity implements View.OnClickLi
 
     RelativeLayout rootView;
     ShimmerTextView shimmerTv;
-    ButtonRectangle addWikiBtn;
+    BootstrapButton addWikiBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,7 @@ public class InitialActivity extends AppCompatActivity implements View.OnClickLi
             //UI Initialization
             rootView = (RelativeLayout) findViewById(R.id.rootView);
             shimmerTv = (ShimmerTextView) findViewById(R.id.shimmer_tv);
-            addWikiBtn = (ButtonRectangle) findViewById(R.id.addWikiBtn);
+            addWikiBtn = (BootstrapButton) findViewById(R.id.addWikiBtn);
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

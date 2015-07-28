@@ -11,20 +11,23 @@ public class SuggestedItem{
     public static final String URL_FIELD = "url";
     public static final String DESCRIPTION_FIELD = "description";
     public static final String IMAGE_FIELD = "logo_url";
+    public static final String PAGE_COUNT_FIELD = "page count";
 
     private int id;
     private String url;
     private String title;
     private String description;
     private String imageUrl;
+    private int pages;
 
 
-    public SuggestedItem(int id, String url, String title, String description, String imageUrl) {
+    public SuggestedItem(int id, String url, String title, String description, String imageUrl, int pages) {
         this.id = id;
         this.url = url;
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.pages = pages;
     }
 
 
@@ -68,4 +71,11 @@ public class SuggestedItem{
         this.imageUrl = imageUrl;
     }
 
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
+    }
 }

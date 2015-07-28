@@ -17,9 +17,6 @@
     <color name="header_background">#01579b</color>
 
 
-    <color name="fabPrimary">#d32f2f</color>
-    <color name="fabPrimaryPressedi">#c62828</color>
-    <color name="fabRipple">#e53935</color>
 
 
     <color name="nightBackground">#212121</color>
@@ -35,4 +32,5 @@
 
     <color name="main">#63C3FF</color>
     <color name="actionbar_title_color">@android:color/white</color>
+    <color name="collapsedToolbarTextColor">#fafafa</color>
 </resources>

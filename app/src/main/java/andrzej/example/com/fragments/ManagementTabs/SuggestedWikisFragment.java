@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import andrzej.example.com.activities.MainActivity;
 import andrzej.example.com.activities.WikiInfoActivity;
@@ -244,10 +245,15 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
 
     @Override
     public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
-        int wikiId = mSuggestedItems.get(position).getId();
+        SuggestedItem item = mSuggestedItems.get(position);
 
         Intent intent = new Intent(getActivity(), WikiInfoActivity.class);
-        intent.putExtra(WikiInfoActivity.WIKI_ID_INTENT_KEY, wikiId);
+        intent.putExtra(WikiInfoActivity.WIKI_ID_INTENT_KEY, item.getId());
+        intent.putExtra(WikiInfoActivity.WIKI_TITLE_INTENT_KEY ,item.getTitle());
+        intent.putExtra(WikiInfoActivity.WIKI_DESCRIPTION_INTENT_KEY, item.getDescription());
+        intent.putExtra(WikiInfoActivity.WIKI_IMG_URL_INTENT_KEY, item.getImageUrl());
+        intent.putExtra(WikiInfoActivity.WIKI_URL_INTENT_KEY,  item.getUrl());
+        intent.putExtra(WikiInfoActivity.WIKI_PAGES_COUNT_KEY, item.getPages());
         startActivity(intent);
     }
 
@@ -362,8 +368,9 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                             String title = item.getString(SuggestedItem.TITLE_FIELD);
                             String description = item.getString(SuggestedItem.DESCRIPTION_FIELD);
                             String logoUrl = item.getString(SuggestedItem.IMAGE_FIELD);
+                            int pageCount = item.getInt(SuggestedItem.PAGE_COUNT_FIELD);
 
-                            mSuggestedItems.add(new SuggestedItem(id, url, title, description, logoUrl));
+                            mSuggestedItems.add(new SuggestedItem(id, url, title, description, logoUrl, pageCount));
                             updateViews();
                             setNormalLayout();
                         }
@@ -420,8 +427,9 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                 "http://img4.wikia.nocookie.net/__cb8/finalfantasy/pl/images/8/89/Wiki-wordmark.png",
                 "http://img3.wikia.nocookie.net/__cb18/starwars/images/8/89/Wiki-wordmark.png"};
 
+        Random r = new Random();
         for (int i = 0; i < urls.length; i++) {
-            mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i]));
+            mSuggestedItems.add(new SuggestedItem(i, mHelper.cleanInputUrl(urls[i]), titles[i], descriptions[i], imageUrls[i], r.nextInt(40000)));
         }
     }
 

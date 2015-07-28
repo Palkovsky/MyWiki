@@ -118,4 +118,8 @@
     <string name="main_fragment_error_msg">Wystąpił błąd. \n Sprawdź swoje połączenie z internetem oraz czy podana Wikia jest prawidłowa.</string>
     <string name="newest_no_records">Brak najnowszych wiadomości.\n Spróbuj potem.</string>
     <string name="trending_no_records">Brak popularnych wiadomości.\n Spróbuj potem.</string>
+    <string name="header_title">Nazwa</string>
+    <string name="header_description">Opis</string>
+    <string name="header_pages_count">Liczba stron</string>
+    <string name="header_url">Url</string>
 </resources>

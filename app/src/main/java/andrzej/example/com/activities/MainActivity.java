@@ -149,6 +149,8 @@ public class MainActivity extends MaterialNavigationDrawer {
     protected void onResume() {
         super.onResume();
 
+        notifyAccountDataChanged();
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String redirection = extras.getString(InitialActivity.KEY_REDIRECT);
@@ -278,5 +280,7 @@ public class MainActivity extends MaterialNavigationDrawer {
     public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
         this.onBackPressedListener = onBackPressedListener;
     }
+
+
 }
 

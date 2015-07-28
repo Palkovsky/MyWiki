@@ -1,88 +1,81 @@
 package andrzej.example.com.activities;
 
-import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.Toast;
 
+import andrzej.example.com.adapters.SimpleRecyclerAdapter;
+import andrzej.example.com.databases.WikisFavsDbHandler;
+import andrzej.example.com.databases.WikisHistoryDbHandler;
+import andrzej.example.com.fragments.ManagementTabs.FavouriteWikisFragment;
+import andrzej.example.com.fragments.ManagementTabs.PreviouslyUsedWikisFragment;
 import andrzej.example.com.mlpwiki.R;
-import andrzej.example.com.models.Article;
-import andrzej.example.com.models.ArticleHeader;
-import andrzej.example.com.models.Recommendation;
-import andrzej.example.com.network.NetworkUtils;
-import andrzej.example.com.network.VolleySingleton;
+import andrzej.example.com.models.SuggestedItem;
+import andrzej.example.com.models.WikiFavItem;
+import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
-import andrzej.example.com.researchapi.APIStatisticalEndpoints;
-import andrzej.example.com.views.AlphaForegroundColorSpan;
-import andrzej.example.com.views.KenBurnsView;
+import andrzej.example.com.utils.WikiManagementHelper;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
-import android.graphics.RectF;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 
-public class WikiInfoActivity extends AppCompatActivity {
+public class WikiInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Finals
     public static final String WIKI_ID_INTENT_KEY = "WIKI_ID_INTENT_KEY";
+    public static final String WIKI_TITLE_INTENT_KEY = "WIKI_TITLE_INTENT_KEY";
+    public static final String WIKI_DESCRIPTION_INTENT_KEY = "WIKI_DESCRIPTION_INTENT_KEY";
+    public static final String WIKI_IMG_URL_INTENT_KEY = "WIKI_IMG_URL_INTENT_KEY";
+    public static final String WIKI_URL_INTENT_KEY = "WIKI_URL_INTENT_KEY";
+    public static final String WIKI_PAGES_COUNT_KEY = "WIKI_PAGES_COUNT_KEY";
 
     //Few vital variables
     int wikiId = -1; //Default -1, in case of some issuses. To prevent from NullPointerException.
 
     //UI Elements
-    private RelativeLayout rootView;
-    private ListView mListView;
-    private ImageView mHeaderImageView;
     private Toolbar mToolbar;
-    private TextView testTextView;
-    private TextView wikiInfoErrorMessage;
-    private LinearLayout mContentView;
-    private LinearLayout mNoIntenretLayout;
-    private LinearLayout mLoadingLayout;
+    private FloatingActionButton mButton;
+    private CoordinatorLayout mRootView;
+    private CollapsingToolbarLayout collapsingToolbar;
+    private ImageView headerIv;
+    RecyclerView recyclerView;
+
+    //Vitals
+    int mutedColor = R.attr.colorPrimary;
+
+    //Adapters
+    SimpleRecyclerAdapter simpleRecyclerAdapter;
 
     //Utils
     private SharedPreferences prefs;
+    private WikiManagementHelper mHelper;
 
-    //Networking
-    private VolleySingleton volleySingleton;
-    private RequestQueue requestQueue;
+
+    SuggestedItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,66 +84,65 @@ public class WikiInfoActivity extends AppCompatActivity {
 
         //Utils Init
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        volleySingleton = VolleySingleton.getsInstance();
-        requestQueue = volleySingleton.getRequestQueue();
+        mHelper = new WikiManagementHelper(this);
 
         //UI Init
-        rootView = (RelativeLayout) findViewById(R.id.wikiInfoRootView);
-        mListView = (ListView) findViewById(R.id.wikiInfoListview);
-        mToolbar = (Toolbar) findViewById(R.id.wikiInfoToolbar);
-        mHeaderImageView = (ImageView) findViewById(R.id.wikiInfoHeader_logo);
-        testTextView = (TextView) findViewById(R.id.wikiInfoTestMsg);
-        wikiInfoErrorMessage = (TextView) findViewById(R.id.wikiInfoErrorMessage);
-        mContentView = (LinearLayout) findViewById(R.id.wikiInfoContentView);
-        mNoIntenretLayout = (LinearLayout) findViewById(R.id.wikiInfoNoInternetLayout);
-        mLoadingLayout = (LinearLayout) findViewById(R.id.wikiInfoLoadingLayout);
+        mToolbar = (Toolbar) findViewById(R.id.anim_toolbar);
+        mRootView = (CoordinatorLayout) findViewById(R.id.wikiInfo_root);
+        mButton = (FloatingActionButton) findViewById(R.id.floatingBtn);
+        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        headerIv = (ImageView) findViewById(R.id.header);
+        headerIv.setBackgroundColor(Color.WHITE);
+
+        //Listener
+        mButton.setOnClickListener(this);
 
         //Toolbar Config
         setSupportActionBar(mToolbar);
-        mToolbar.setBackgroundColor(Color.TRANSPARENT);
-        getSupportActionBar().setTitle(this.getResources().getString(R.string.wiki_info_activity));
-        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //Get bundle with wiki id
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             wikiId = extras.getInt(WIKI_ID_INTENT_KEY);
+            String wikiTitle = extras.getString(WIKI_TITLE_INTENT_KEY);
+            String wikiImgUrl = extras.getString(WIKI_IMG_URL_INTENT_KEY);
+            String description = extras.getString(WIKI_DESCRIPTION_INTENT_KEY);
+            String wikiUrl = extras.getString(WIKI_URL_INTENT_KEY);
+            int pageCount = extras.getInt(WIKI_PAGES_COUNT_KEY);
+
+            item = new SuggestedItem(wikiId, wikiUrl, wikiTitle, description, wikiImgUrl, pageCount);
+
+            collapsingToolbar.setTitle(wikiTitle);
+            collapsingToolbar.setExpandedTitleColor(Color.TRANSPARENT);
+            collapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(R.color.collapsedToolbarTextColor));
+
+            Drawable d = ContextCompat.getDrawable(this, R.drawable.logo);
+            Picasso.with(this).load(wikiImgUrl).placeholder(d).error(d).into(headerIv);
         }
 
+        recyclerView = (RecyclerView) findViewById(R.id.scrollableview);
 
-        setNoInternetLayout();
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        String[] data = {item.getTitle(), item.getDescription(), String.valueOf(item.getPages()), item.getUrl()};
+        List<String> listData = new ArrayList<String>();
+
+        for (String item : data) {
+            listData.add(item);
+        }
+
+        if (simpleRecyclerAdapter == null) {
+            simpleRecyclerAdapter = new SimpleRecyclerAdapter(this, listData);
+            recyclerView.setAdapter(simpleRecyclerAdapter);
+        }
 
         //Few init methords
         setUpColorScheme();
-    }
-
-
-    private void parseWikiInfo(){
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIStatisticalEndpoints.getWikiData(wikiId), (String) null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Authorization", "Token token=" + APIStatisticalEndpoints.getAPIkey());
-                return headers;
-            }
-        };
-
-        request.setRetryPolicy(new DefaultRetryPolicy(5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(request);
     }
 
 
@@ -175,45 +167,17 @@ public class WikiInfoActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setNoInternetLayout(){
-        setErrorMessage();
-        mContentView.setVisibility(View.GONE);
-        mNoIntenretLayout.setVisibility(View.VISIBLE);
-        mLoadingLayout.setVisibility(View.GONE);
-    }
 
-    private void setInternetPresentLayout(){
-        mContentView.setVisibility(View.VISIBLE);
-        mNoIntenretLayout.setVisibility(View.GONE);
-        mLoadingLayout.setVisibility(View.GONE);
-    }
-
-    private void setLoadingLayout(){
-        mContentView.setVisibility(View.GONE);
-        mNoIntenretLayout.setVisibility(View.GONE);
-        mLoadingLayout.setVisibility(View.VISIBLE);
-    }
-
-    private void setErrorMessage(){
-        if(NetworkUtils.isNetworkAvailable(this))
-            wikiInfoErrorMessage.setText(getResources().getString(R.string.wiki_info_fetching_error));
-        else
-            wikiInfoErrorMessage.setText(getResources().getString(R.string.no_internet_conn));
+    private void setUpNightMode() {
+        mRootView.setBackgroundColor(getResources().getColor(R.color.nightBackground));
     }
 
     private void setUpNormalMode() {
-        rootView.setBackgroundColor(this.getResources().getColor(R.color.background));
-        testTextView.setTextColor(this.getResources().getColor(R.color.font_color));
-        wikiInfoErrorMessage.setTextColor(this.getResources().getColor(R.color.font_color));
-    }
-
-    private void setUpNightMode() {
-        rootView.setBackgroundColor(this.getResources().getColor(R.color.nightBackground));
-        testTextView.setTextColor(this.getResources().getColor(R.color.nightFontColor));
-        wikiInfoErrorMessage.setTextColor(this.getResources().getColor(R.color.nightFontColor));
+        mRootView.setBackgroundColor(getResources().getColor(R.color.background));
     }
 
     private void setUpColorScheme() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean nightMode = prefs.getBoolean(SharedPrefsKeys.NIGHT_MODE_ENABLED_PREF, BaseConfig.NIGHT_MODE_DEFAULT);
 
         if (nightMode)
@@ -222,13 +186,52 @@ public class WikiInfoActivity extends AppCompatActivity {
             setUpNormalMode();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         setUpColorScheme();
-
-        Toast.makeText(this, "Wiki ID: " + wikiId, Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.floatingBtn:
+                final String url = item.getUrl();
+                if (!APIEndpoints.WIKI_NAME.equals(url)) {
+                    WikisHistoryDbHandler db = new WikisHistoryDbHandler(this);
+                    if (db.itemExsists(url)) {
+                        WikiPreviousListItem item1 = db.getItemByUrl(url);
+                        mHelper.removeWiki(item1.getId());
+                    }
+                    db.close();
+
+                    WikisFavsDbHandler favs_db = new WikisFavsDbHandler(this);
+                    if (favs_db.itemExsists(url)) {
+                        int id = favs_db.getItemByUrl(url).getId();
+                        favs_db.editItem(id, new WikiFavItem(id, item.getTitle(), url, item.getDescription(), item.getImageUrl()));
+                    }
+                    favs_db.close();
+
+                    mHelper.addWikiToPreviouslyUsed(new WikiPreviousListItem(item.getTitle(), url, item.getDescription(), item.getImageUrl()));
+
+                    APIEndpoints.WIKI_NAME = mHelper.cleanInputUrl(url);
+                    mHelper.setUrlAsPreference(APIEndpoints.WIKI_NAME, item.getTitle());
+                    APIEndpoints.reInitEndpoints();
+
+                    MainActivity.account.setTitle(APIEndpoints.WIKI_NAME);
+                    MainActivity.account.setSubTitle(item.getTitle());
+
+
+                    FavouriteWikisFragment.updateDataset();
+                    PreviouslyUsedWikisFragment.updateRecords();
+
+                    Toast.makeText(this, getResources().getString(R.string.wiki_succesfully_changed), Toast.LENGTH_SHORT).show();
+                } else
+                    Toast.makeText(this, getResources().getString(R.string.already_setted), Toast.LENGTH_SHORT).show();
+
+                break;
+        }
+    }
+
 }
 

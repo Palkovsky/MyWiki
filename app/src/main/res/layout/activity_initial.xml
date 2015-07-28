@@ -1,6 +1,7 @@
 <RelativeLayout
     android:id="@+id/rootView"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,16 +26,17 @@
             android:textSize="24sp"
             app:reflectionColor="#607d8b" />
 
-
-        <com.gc.materialdesign.views.ButtonRectangle
+        <com.beardedhen.androidbootstrap.BootstrapButton
             android:layout_below="@+id/shimmer_tv"
             android:id="@+id/addWikiBtn"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#1E88E5"
+            android:layout_margin="10dp"
             android:text="@string/addWiki"
-            android:layout_margin="12dp"/>
+            bootstrap:bb_type="info"
+            />
+
 
     </RelativeLayout>
 
