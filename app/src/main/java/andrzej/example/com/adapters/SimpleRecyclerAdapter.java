@@ -81,7 +81,6 @@ public class SimpleRecyclerAdapter extends RecyclerView.Adapter<SimpleRecyclerAd
                 break;
             case 3://URL
                 versionViewHolder.header.setText(getContext().getResources().getString(R.string.header_url));
-                setViewBackground(versionViewHolder.cardItemLayout, ContextCompat.getDrawable(getContext(), R.drawable.selectable_item_background));
                 versionViewHolder.cardItemLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -104,7 +103,6 @@ public class SimpleRecyclerAdapter extends RecyclerView.Adapter<SimpleRecyclerAd
         versionViewHolder.title.setTextColor(getContext().getResources().getColor(R.color.font_color));
         versionViewHolder.header.setTextColor(getContext().getResources().getColor(R.color.font_color));
         versionViewHolder.subTitle.setTextColor(getContext().getResources().getColor(R.color.font_color));
-        versionViewHolder.cardItemLayout.setBackgroundColor(getContext().getResources().getColor(R.color.background));
 
     }
 
@@ -153,15 +151,6 @@ public class SimpleRecyclerAdapter extends RecyclerView.Adapter<SimpleRecyclerAd
         this.clickListener = itemClickListener;
     }
 
-    private void setViewBackground(View iv, Drawable drawable) {
-        int currentVersion = Build.VERSION.SDK_INT;
-
-        if (currentVersion >= Build.VERSION_CODES.JELLY_BEAN) {
-            iv.setBackground(drawable);
-        } else {
-            iv.setBackgroundDrawable(drawable);
-        }
-    }
 
     public Context getContext() {
         return this.context;

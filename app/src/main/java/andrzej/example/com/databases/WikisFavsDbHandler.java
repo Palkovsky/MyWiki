@@ -174,24 +174,25 @@ public class WikisFavsDbHandler extends SQLiteOpenHelper {
 
 
     public boolean itemExsists(String url) {
-        SQLiteDatabase db = this.getReadableDatabase();
+            SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_HISTORY, new String[]{
-                        KEY_URL}, KEY_URL + "=?",
-                new String[]{url}, null, null, null, null);
+            Cursor cursor = db.query(TABLE_HISTORY, new String[]{
+                            KEY_URL}, KEY_URL + "=?",
+                    new String[]{url}, null, null, null, null);
 
-        try {
-            if (cursor != null)
-                cursor.moveToFirst();
+            try {
+                if (cursor != null)
+                    cursor.moveToFirst();
 
-            if (cursor.getCount() > 0) {
-                return true;
-            } else
+                if (cursor.getCount() > 0) {
+                    return true;
+                } else
+                    return false;
+            } catch (IllegalStateException e) {
+                Log.e(null, e.getMessage());
                 return false;
-        } catch (IllegalStateException e) {
-            Log.e(null, e.getMessage());
-            return false;
-        }
+            }
+
     }
 
     public boolean itemExsistsLabel(String label) {
