@@ -414,7 +414,7 @@ public class SuggestedWikisFragment extends Fragment implements StaggeredGridVie
                 "Jesteśmy społecznością zrzeszoną wokół świata GOTHIC. Zbieramy tutaj wszystkie informacje na temat gier z serii Gothic i gry ArcaniA. ",
                 "Dragon Ball Wiki to polska encyklopedia-przewodnik po uniwersum Smoczego Świata czyli: mangach, anime, grach, gadżetach, filmach live-action oraz wszystkim, co związane z Dragon Ballem, którą każdy może edytować.",
                 "Polska Wikia poświęcona MLP:FiM.", "Baza danych o Final Fantasy, którą każdy może edytować.", "The Star Wars encyclopedia that anyone can edit."};
-        String[] imageUrls = {null,
+        String[] imageUrls = {"http://img2.wikia.nocookie.net/__cb73/harrypotter/images/8/89/Wiki-wordmark.png",
                 "http://img4.wikia.nocookie.net/__cb68/harrypotter/pl/images/8/89/Wiki-wordmark.png",
                 "http://img2.wikia.nocookie.net/__cb5/leagueoflegends/pl/images/8/89/Wiki-wordmark.png",
                 "http://vignette1.wikia.nocookie.net/nonsensopedia/images/b/bc/Wiki.png/revision/latest?cb=20150101225319",

@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,10 +38,13 @@ import andrzej.example.com.models.WikiPreviousListItem;
 import andrzej.example.com.prefs.APIEndpoints;
 import andrzej.example.com.prefs.BaseConfig;
 import andrzej.example.com.prefs.SharedPrefsKeys;
+import andrzej.example.com.utils.PaletteTransformation;
 import andrzej.example.com.utils.WikiManagementHelper;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +74,8 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
     //Vitals
     int mutedColor = R.attr.colorPrimary;
 
+    //Callbacs
+
     //Adapters
     SimpleRecyclerAdapter simpleRecyclerAdapter;
 
@@ -96,7 +102,7 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.scrollableview);
         headerIv = (ImageView) findViewById(R.id.header);
-        headerIv.setBackgroundColor(Color.WHITE);
+        headerIv.setBackgroundColor(Color.BLACK);
 
         //Listener
         mButton.setOnClickListener(this);
@@ -125,7 +131,29 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
             collapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(R.color.collapsedToolbarTextColor));
 
             Drawable d = ContextCompat.getDrawable(this, R.drawable.logo);
-            Picasso.with(this).load(wikiImgUrl).placeholder(d).error(d).into(headerIv);
+
+
+
+            Picasso.with(this).load(wikiImgUrl).placeholder(d).error(d).into(headerIv, new Callback() {
+                @Override
+                public void onSuccess() {
+                    Bitmap bitmap = ((BitmapDrawable) headerIv.getDrawable()).getBitmap();
+
+                    Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(Palette palette) {
+                            mutedColor = palette.getMutedColor(R.attr.colorPrimary);
+                            headerIv.setBackgroundColor(palette.getDarkVibrantColor(R.attr.color));
+                            collapsingToolbar.setContentScrimColor(mutedColor);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError() {}
+            });
+
+
         }
 
 
@@ -195,7 +223,7 @@ public class WikiInfoActivity extends AppCompatActivity implements View.OnClickL
         super.onResume();
 
         //If specific wiki is currently setted don't show adding fab.
-        if(APIEndpoints.WIKI_NAME.equals(item.getUrl()))
+        if (APIEndpoints.WIKI_NAME.equals(item.getUrl()))
             mRootView.removeView(mButton);
 
         setUpColorScheme();
