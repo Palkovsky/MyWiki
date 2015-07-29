@@ -52,7 +52,6 @@
         </activity>
         <activity
             android:name="andrzej.example.com.activities.SharedPreferenceActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -61,7 +60,6 @@
         <activity
             android:name="andrzej.example.com.activities.WikiInfoActivity"
             android:label="@string/title_activity_wiki_info"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Base">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
