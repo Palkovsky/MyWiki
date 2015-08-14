@@ -281,7 +281,10 @@ public class RandomArticleFragment extends Fragment implements ObservableScrollV
                         }
 
                         if (headers.get(position).getView() != null) {
-                            parallaxSv.smoothScrollTo(0, headers.get(position).getView().getBottom());
+                            if (position == 0)
+                                parallaxSv.smoothScrollTo(0, parallaxIv.getTop());
+                            else
+                                parallaxSv.smoothScrollTo(0, headers.get(position).getView().getTop() + parallaxIv.getHeight());
                             mDrawerLayout.closeDrawer(Gravity.RIGHT);
                         }
                     }

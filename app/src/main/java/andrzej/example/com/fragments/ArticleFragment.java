@@ -273,7 +273,12 @@ public class ArticleFragment extends Fragment implements ObservableScrollViewCal
                                                                    if (!((MaterialNavigationDrawer) getActivity()).getSupportActionBar().isShowing()) {
                                                                        ((MaterialNavigationDrawer) getActivity()).getSupportActionBar().show();
                                                                    }
-                                                                   parallaxSv.smoothScrollTo(0, headers.get(position).getView().getTop());
+
+                                                                   if (position == 0)
+                                                                       parallaxSv.smoothScrollTo(0, parallaxIv.getTop());
+                                                                   else
+                                                                       parallaxSv.smoothScrollTo(0, headers.get(position).getView().getTop() + parallaxIv.getHeight());
+
                                                                    mDrawerLayout.closeDrawer(Gravity.RIGHT);
                                                                }
                                                            }

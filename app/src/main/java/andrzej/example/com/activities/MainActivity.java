@@ -94,6 +94,14 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         section_main = newSection(getResources().getString(R.string.drawer_today), ContextCompat.getDrawable(this, R.drawable.ic_white_balance_sunny_grey600_24dp), new MainFragment());
         addSection(section_main);
+        section_main.setOnClickListener(new MaterialSectionListener() {
+            @Override
+            public void onClick(MaterialSection materialSection) {
+                ((MaterialNavigationDrawer) MainActivity.this).setFragment(new MainFragment(), getResources().getString(R.string.drawer_today));
+                ((MaterialNavigationDrawer) MainActivity.this).setSection(section_main);
+                sessionArticleHistory.clear();
+            }
+        });
 
         section_history = newSection(getResources().getString(R.string.drawer_history), ContextCompat.getDrawable(this, R.drawable.ic_history_grey600_24dp), new HistoryFragment());
         addSection(section_history);
