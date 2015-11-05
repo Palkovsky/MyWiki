@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,6 +144,12 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
         return v;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        LinearLayoutManager layoutManager = ((LinearLayoutManager)mRecyclerView.getLayoutManager());
+        MainTabsPrefs.LAST_TRENDING_POS = layoutManager.findFirstVisibleItemPosition();
+    }
 
     private void setUpColorScheme() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -215,9 +222,11 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
                                     mAdapter.notifyItemInserted(mArticles.size() - 1);
                                 }
 
-                                if (mArticles.size() > 0)
+                                if (mArticles.size() > 0) {
                                     setUpInternetPresentLayout();
-                                else {
+                                    if(mArticles.size() > MainTabsPrefs.LAST_TRENDING_POS)
+                                        mRecyclerView.scrollToPosition(MainTabsPrefs.LAST_TRENDING_POS);
+                                }else {
                                     if (NetworkUtils.isNetworkAvailable(getActivity()))
                                         setUpNoRecordsLayout();
                                 }
@@ -247,6 +256,9 @@ public class TrendingArticlesFragment extends Fragment implements OnItemClickLis
 
     @Override
     public void onItemClick(View view, int position) {
+
+        MainTabsPrefs.LAST_TRENDING_POS = position;
+
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             MainPageArticle item = mArticles.get(position);
             ArticleFragment fragment = new ArticleFragment();

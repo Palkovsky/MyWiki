@@ -127,6 +127,7 @@ public class MainFragment extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onResume() {
         super.onResume();
+        mPager.setCurrentItem(MainTabsPrefs.LAST_TAB, false);
     }
 
     private void setUpColorScheme() {
@@ -195,7 +196,7 @@ public class MainFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int position) {
-
+        MainTabsPrefs.LAST_TAB = position;
     }
 
     @Override

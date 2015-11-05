@@ -222,6 +222,12 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
             mRootView.removeAllViews();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        LinearLayoutManager layoutManager = ((LinearLayoutManager)mRecyclerView.getLayoutManager());
+        MainTabsPrefs.LAST_NEWEST_POS = layoutManager.findFirstVisibleItemPosition();
+    }
 
     private void fetchNewestArticles(){
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, APIEndpoints.getNewestUrl(BaseConfig.MAIN_PAGE_ARTICLES_LIMIT), (String) null,
@@ -244,6 +250,8 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
 
                                 if (mArticles.size() > 0)
                                     setUpInternetPresentLayout();
+                                    if(mArticles.size() > MainTabsPrefs.LAST_NEWEST_POS)
+                                        mRecyclerView.scrollToPosition(MainTabsPrefs.LAST_NEWEST_POS);
                                 else {
                                     if (NetworkUtils.isNetworkAvailable(getActivity()))
                                         setUpNoRecordsLayout();
@@ -274,7 +282,7 @@ public class NewestArticlesFragment extends Fragment implements OnItemClickListe
 
     @Override
     public void onItemClick(View view, int position) {
-
+        MainTabsPrefs.LAST_NEWEST_POS = position;
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             MainPageArticle item = mArticles.get(position);
             ArticleFragment fragment = new ArticleFragment();
