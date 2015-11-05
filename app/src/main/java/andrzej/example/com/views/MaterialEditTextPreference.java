@@ -97,7 +97,7 @@ public class MaterialEditTextPreference extends EditTextPreference {
                     }
                 });
 
-        View layout = LayoutInflater.from(getContext()).inflate(R.layout.md_stub_inputpref, null);
+        View layout = LayoutInflater.from(getContext()).inflate(R.layout.md_dialog_input, null);
         onBindDialogView(layout);
 
         MDTintHelper.setTint(getEditText(), mColor);

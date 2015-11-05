@@ -3,7 +3,7 @@
 
 
     <PreferenceCategory android:title="Wygląd">
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="TEXT_SIZE_PREF"
             android:title="Wielkość czcionki"
             android:summary="Wielkość czcionki w artykułach."
@@ -13,7 +13,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="PARAGRAPH_MARGIN_PREF"
             android:title="Margines akapitów"
             android:summary="Pionowy margines między akapitami."
@@ -23,7 +23,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="HEADERS_MARGIN_PREF"
             android:title="Margines nagłówków"
             android:summary="Pionowy margines między nagłówkami."
@@ -33,7 +33,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="LINE_SPACING_PREF"
             android:title="Line spacing"
             android:summary="Odległość między liniami tekstu w artykułach."
@@ -43,7 +43,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="ARTICLE_LIST_MARGIN_PREF"
             android:title="Article list margin"
             android:summary="Odległość między elemntami listy."
@@ -53,7 +53,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="LEFT_MARGIN_CON_PREF"
             android:title="Lewy margines"
             android:summary="Stała na podstawie której będzie obliczany lewy margines."
@@ -63,7 +63,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="RECOMMENDATIONS_LIMIT_PREF"
             android:title="Limit rekomendacji"
             android:summary="Limit rekomendowanych artykułów wyświetlana pod każdym z nich."
@@ -73,7 +73,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="ARTICLE_IMAGES_SIZE_PREF"
             android:title="Skalowanie zdjęć"
             android:summary="Skalowanie zdjęć w artykułach."
@@ -83,7 +83,7 @@
             android:textColor="@color/font_color"
             />
 
-        <andrzej.example.com.views.MaterialEditTextPreference
+        <andrzej.example.com.views.IntegerEditTextPreference
             android:key="RECOMMENDATION_IMAGE_SIZE_PREF"
             android:title="Skalowanie zdjęć(Related Pages)"
             android:summary="Skalowanie zdjęć w 'zobacz również'."

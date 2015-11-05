@@ -149,8 +149,6 @@ public class MainActivity extends MaterialNavigationDrawer {
 
         getToolbar().setCollapsible(true);
 
-
-
     }
 
     @Override
@@ -165,8 +163,8 @@ public class MainActivity extends MaterialNavigationDrawer {
 
             if (redirection.equals(WikisManagementFragment.TAG)) {
                 setFragment(new WikisManagementFragment(), getResources().getString(R.string.drawer_saved_articles));
-                setSection(section_management);
-                section_management.select();
+                ((MaterialNavigationDrawer) MainActivity.this).setSection(section_management);
+                getIntent().removeExtra(InitialActivity.KEY_REDIRECT);
             }
         }
     }
