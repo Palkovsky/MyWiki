@@ -1,9 +1,17 @@
-Consuming MediaWiki API for http://pl.mlp.wikia.com/.
+## MyWikia
 
-WORK IN PROGRES 
+Consuming MediaWiki API. Old project.
 
-Dependencies: 
-* Volley
-* MaterialNavigationDrawer
-* Material Dialogs
-* Picasso
+## Screenshots
+
+Screenshots for sake of preservation of old project.
+
+![](1.PNG)
+
+![](2.PNG)
+
+![](3.PNG)
+
+![](4.PNG)
+
+![](5.PNG)
