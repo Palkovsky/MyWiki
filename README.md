@@ -6,12 +6,12 @@ Consuming MediaWiki API. Old project.
 
 Screenshots for sake of preservation of old project.
 
-![](1.PNG)
+![](1.png)
 
-![](2.PNG)
+![](2.png)
 
-![](3.PNG)
+![](3.png)
 
-![](4.PNG)
+![](4.png)
 
-![](5.PNG)
+![](5.png)
