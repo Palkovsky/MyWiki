@@ -1,10 +1,8 @@
 ## MyWikia
 
-Consuming MediaWiki API. Old project.
+Consuming MediaWiki API.
 
 ## Screenshots
-
-Screenshots for sake of preservation of old project.
 
 ![](1.png)
 
